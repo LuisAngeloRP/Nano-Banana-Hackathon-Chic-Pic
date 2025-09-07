@@ -18,7 +18,9 @@ export interface Garment {
   name: string;
   description: string;
   category: ClothingCategory;
-  imageUrl: string;
+  imageUrl: string; // URL de Supabase Storage
+  thumbnailUrl?: string; // URL del thumbnail comprimido
+  storagePath: string; // Ruta en Storage para eliminación
   color: string;
   // Las prendas ya no tienen talla fija - se selecciona en el estilista
   availableSizes: (ClothingSize | ShoeSize)[]; // Tallas disponibles para esta prenda
@@ -40,7 +42,9 @@ export interface Model {
   upperBodySize: ClothingSize; // Talla para camisetas, camisas, chaquetas
   lowerBodySize: ClothingSize; // Talla para pantalones, faldas
   shoeSize: ShoeSize; // Talla de zapatos
-  imageUrl: string;
+  imageUrl: string; // URL de Supabase Storage
+  thumbnailUrl?: string; // URL del thumbnail comprimido
+  storagePath: string; // Ruta en Storage para eliminación
   createdAt: Date;
 }
 
@@ -64,7 +68,9 @@ export interface StyledLook {
   name: string;
   modelId: string;
   garmentIds: string[];
-  imageUrl: string;
+  imageUrl: string; // URL de Supabase Storage
+  thumbnailUrl?: string; // URL del thumbnail comprimido
+  storagePath: string; // Ruta en Storage para eliminación
   description: string;
   // Información de ajuste para cada prenda
   garmentFits: GarmentFitInfo[];

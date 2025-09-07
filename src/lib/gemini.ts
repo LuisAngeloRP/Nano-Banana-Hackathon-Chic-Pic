@@ -322,13 +322,22 @@ export async function generateStyledImage(
 
 // Función para construir instrucciones inteligentes de styling
 function buildIntelligentStylingInstructions(data: StylingData): string {
-  // Instrucción específica para combinación visual de imágenes
+  // Instrucción base para combinación visual de imágenes
   let message = 'Visual combination: Take the model from the model image and dress them with the garments from the garment images. Use the exact model and exact garments as shown in their respective images.';
   
-  // NO agregar instrucciones adicionales del lookDescription para evitar confusión
-  // Solo usar lookDescription si es muy específico sobre el estilo de la imagen, no sobre el contenido
+  // Agregar instrucciones específicas de pose, gesto y presentación del usuario
+  if (data.lookDescription && data.lookDescription.trim()) {
+    message += `\n\nPOSE AND PRESENTATION INSTRUCTIONS: ${data.lookDescription}`;
+    message += '\nApply these specific pose, gesture, angle, and presentation requirements to the final image.';
+  }
   
-  message += ' Professional catalog image with white background.';
+  // Instrucciones técnicas finales
+  message += '\n\nTECHNICAL REQUIREMENTS:';
+  message += '\n- Professional fashion photography style';
+  message += '\n- White seamless background';
+  message += '\n- High quality studio lighting';
+  message += '\n- Sharp focus and professional composition';
+  message += '\n- Apply user pose/presentation instructions while maintaining garment visibility';
   
   return message;
 }

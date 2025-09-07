@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Shirt, Plus } from 'lucide-react';
 import { generateGarmentImage } from '@/lib/gemini';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
+import { supabaseStorage } from '@/lib/supabaseStorage';
 import { Garment, ClothingCategory, ClothingSize, ShoeSize } from '@/types';
 import { getAvailableSizesForCategory, isValidSizeForCategory } from '@/lib/sizeUtils';
 
@@ -46,6 +47,19 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
     }));
   };
 
+  // Función auxiliar para convertir base64 a File
+  const base64ToFile = (base64String: string, filename: string): File => {
+    const arr = base64String.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
   const handleGenerate = async () => {
     if (!formData.name || !formData.description || !formData.category) {
       alert('Por favor completa todos los campos requeridos');
@@ -66,15 +80,33 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         size: availableSizes // Pasar las tallas disponibles automáticamente
       };
       
-      const imageUrl = await generateGarmentImage(garmentData);
+      console.log('🎨 Generando imagen con IA...');
+      const base64Image = await generateGarmentImage(garmentData);
       
+      console.log('📤 Subiendo imagen a Supabase Storage...');
+      // Convertir base64 a File
+      const filename = `generated-garment-${Date.now()}.jpg`;
+      const imageFile = base64ToFile(base64Image, filename);
+      
+      // Subir a Supabase Storage
+      const uploadResult = await supabaseStorage.uploadImage(imageFile, 'garments');
+      
+      if (!uploadResult.success || !uploadResult.url) {
+        throw new Error(uploadResult.error || 'Error al subir imagen a Storage');
+      }
+
+      console.log('✅ Imagen subida a Storage:', uploadResult.url);
+      
+      // Crear prenda con URLs de Storage
       const newGarment = await SupabaseStorageAdapter.addGarment({
         name: formData.name,
         description: formData.description,
         category: formData.category,
         color: formData.color,
         availableSizes: availableSizes,
-        imageUrl
+        imageUrl: uploadResult.url,
+        thumbnailUrl: uploadResult.thumbnailUrl,
+        storagePath: uploadResult.path || ''
       });
 
       onGarmentGenerated?.(newGarment);
@@ -93,7 +125,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       if (error instanceof Error && error.message.includes('API key')) {
         alert('Error: API key no configurada. Ve a la sección "Acerca" para ver las instrucciones de configuración.');
       } else {
-        alert('Prenda generada correctamente con placeholder. Configura la API key para usar generación real.');
+        alert('Error al generar prenda: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       }
     } finally {
       setIsGenerating(false);

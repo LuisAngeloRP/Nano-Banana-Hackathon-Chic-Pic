@@ -1,13 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
-import { Garment, Model, StyledLook, ClothingSize, ShoeSize, GarmentFitInfo } from '@/types';
+/**
+ * Cliente Supabase limpio - Solo Storage URLs (sin base64)
+ */
 
-// Configuración de Supabase
+import { createClient } from '@supabase/supabase-js';
+import { Garment, Model, StyledLook, GarmentFitInfo, ClothingSize, ShoeSize, ClothingCategory } from '@/types';
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Tipos de base de datos para Supabase
+// Tipos de base de datos limpios para Supabase Storage
 export interface DatabaseGarment {
   id: string;
   name: string;
@@ -54,10 +57,11 @@ export interface DatabaseStyledLook {
   created_at: string;
 }
 
-// Clase para manejar operaciones de Supabase
-export class SupabaseStorage {
+// Cliente limpio para Supabase Storage
+export class SupabaseStorageClient {
   
   // === GESTIÓN DE PRENDAS ===
+  
   static async getGarments(): Promise<Garment[]> {
     try {
       const { data, error } = await supabase
@@ -70,7 +74,7 @@ export class SupabaseStorage {
         return [];
       }
 
-      return data.map(this.mapDatabaseGarmentToGarment);
+      return (data as DatabaseGarment[]).map(this.dbGarmentToGarment);
     } catch (error) {
       console.error('Error en getGarments:', error);
       return [];
@@ -79,14 +83,20 @@ export class SupabaseStorage {
 
   static async addGarment(garment: Omit<Garment, 'id' | 'createdAt'>): Promise<Garment | null> {
     try {
+      console.log('🔍 Datos de entrada para addGarment:', garment);
+      
       const dbGarment: Omit<DatabaseGarment, 'id' | 'created_at'> = {
         name: garment.name,
         description: garment.description,
         category: garment.category,
-        image_base64: garment.imageUrl, // Ahora esperamos base64
+        image_url: garment.imageUrl, // URL de Supabase Storage
+        thumbnail_url: garment.thumbnailUrl || undefined,
+        storage_path: garment.storagePath, // Ruta para eliminación
         color: garment.color,
         available_sizes: garment.availableSizes || null,
       };
+
+      console.log('📊 Datos para BD:', dbGarment);
 
       const { data, error } = await supabase
         .from('garments')
@@ -95,14 +105,54 @@ export class SupabaseStorage {
         .single();
 
       if (error) {
-        console.error('Error añadiendo prenda:', error);
+        console.error('❌ Error detallado de Supabase:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         return null;
       }
 
-      return this.mapDatabaseGarmentToGarment(data);
+      console.log('✅ Prenda añadida exitosamente:', data);
+      return this.dbGarmentToGarment(data as DatabaseGarment);
     } catch (error) {
-      console.error('Error en addGarment:', error);
+      console.error('💥 Error en addGarment:', error);
       return null;
+    }
+  }
+
+  static async deleteGarment(id: string): Promise<boolean> {
+    try {
+      // Obtener datos de la prenda para eliminar archivo de Storage
+      const { data: garment } = await supabase
+        .from('garments')
+        .select('storage_path')
+        .eq('id', id)
+        .single();
+
+      // Eliminar archivo de Storage si existe
+      if (garment?.storage_path) {
+        await supabase.storage
+          .from('chic-pic-images')
+          .remove([garment.storage_path]);
+      }
+
+      // Eliminar registro de base de datos
+      const { error } = await supabase
+        .from('garments')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error eliminando prenda:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error en deleteGarment:', error);
+      return false;
     }
   }
 
@@ -112,7 +162,9 @@ export class SupabaseStorage {
         name: garment.name,
         description: garment.description,
         category: garment.category,
-        image_base64: garment.imageUrl,
+        image_url: garment.imageUrl,
+        thumbnail_url: garment.thumbnailUrl,
+        storage_path: garment.storagePath,
         color: garment.color,
         available_sizes: garment.availableSizes || null,
       };
@@ -134,26 +186,8 @@ export class SupabaseStorage {
     }
   }
 
-  static async deleteGarment(id: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('garments')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error eliminando prenda:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error en deleteGarment:', error);
-      return false;
-    }
-  }
-
   // === GESTIÓN DE MODELOS ===
+  
   static async getModels(): Promise<Model[]> {
     try {
       const { data, error } = await supabase
@@ -166,7 +200,7 @@ export class SupabaseStorage {
         return [];
       }
 
-      return data.map(this.mapDatabaseModelToModel);
+      return (data as DatabaseModel[]).map(this.dbModelToModel);
     } catch (error) {
       console.error('Error en getModels:', error);
       return [];
@@ -188,7 +222,9 @@ export class SupabaseStorage {
         upper_body_size: model.upperBodySize,
         lower_body_size: model.lowerBodySize,
         shoe_size: model.shoeSize,
-        image_base64: model.imageUrl, // Ahora esperamos base64
+        image_url: model.imageUrl, // URL de Supabase Storage
+        thumbnail_url: model.thumbnailUrl || undefined,
+        storage_path: model.storagePath, // Ruta para eliminación
       };
 
       const { data, error } = await supabase
@@ -202,10 +238,44 @@ export class SupabaseStorage {
         return null;
       }
 
-      return this.mapDatabaseModelToModel(data);
+      return this.dbModelToModel(data as DatabaseModel);
     } catch (error) {
       console.error('Error en addModel:', error);
       return null;
+    }
+  }
+
+  static async deleteModel(id: string): Promise<boolean> {
+    try {
+      // Obtener datos del modelo para eliminar archivo de Storage
+      const { data: model } = await supabase
+        .from('models')
+        .select('storage_path')
+        .eq('id', id)
+        .single();
+
+      // Eliminar archivo de Storage si existe
+      if (model?.storage_path) {
+        await supabase.storage
+          .from('chic-pic-images')
+          .remove([model.storage_path]);
+      }
+
+      // Eliminar registro de base de datos
+      const { error } = await supabase
+        .from('models')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error eliminando modelo:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error en deleteModel:', error);
+      return false;
     }
   }
 
@@ -224,7 +294,9 @@ export class SupabaseStorage {
         upper_body_size: model.upperBodySize,
         lower_body_size: model.lowerBodySize,
         shoe_size: model.shoeSize,
-        image_base64: model.imageUrl,
+        image_url: model.imageUrl,
+        thumbnail_url: model.thumbnailUrl,
+        storage_path: model.storagePath,
       };
 
       const { error } = await supabase
@@ -244,26 +316,8 @@ export class SupabaseStorage {
     }
   }
 
-  static async deleteModel(id: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('models')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error eliminando modelo:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error en deleteModel:', error);
-      return false;
-    }
-  }
-
   // === GESTIÓN DE LOOKS ===
+  
   static async getStyledLooks(): Promise<StyledLook[]> {
     try {
       const { data, error } = await supabase
@@ -276,7 +330,7 @@ export class SupabaseStorage {
         return [];
       }
 
-      return data.map(this.mapDatabaseStyledLookToStyledLook);
+      return (data as DatabaseStyledLook[]).map(this.dbStyledLookToStyledLook);
     } catch (error) {
       console.error('Error en getStyledLooks:', error);
       return [];
@@ -289,7 +343,9 @@ export class SupabaseStorage {
         name: look.name,
         model_id: look.modelId,
         garment_ids: look.garmentIds,
-        image_base64: look.imageUrl, // Ahora esperamos base64
+        image_url: look.imageUrl, // URL de Supabase Storage
+        thumbnail_url: look.thumbnailUrl || undefined,
+        storage_path: look.storagePath, // Ruta para eliminación
         description: look.description,
         garment_fits: look.garmentFits,
       };
@@ -305,10 +361,44 @@ export class SupabaseStorage {
         return null;
       }
 
-      return this.mapDatabaseStyledLookToStyledLook(data);
+      return this.dbStyledLookToStyledLook(data as DatabaseStyledLook);
     } catch (error) {
       console.error('Error en addStyledLook:', error);
       return null;
+    }
+  }
+
+  static async deleteStyledLook(id: string): Promise<boolean> {
+    try {
+      // Obtener datos del look para eliminar archivo de Storage
+      const { data: look } = await supabase
+        .from('styled_looks')
+        .select('storage_path')
+        .eq('id', id)
+        .single();
+
+      // Eliminar archivo de Storage si existe
+      if (look?.storage_path) {
+        await supabase.storage
+          .from('chic-pic-images')
+          .remove([look.storage_path]);
+      }
+
+      // Eliminar registro de base de datos
+      const { error } = await supabase
+        .from('styled_looks')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error eliminando look:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error en deleteStyledLook:', error);
+      return false;
     }
   }
 
@@ -318,7 +408,9 @@ export class SupabaseStorage {
         name: look.name,
         model_id: look.modelId,
         garment_ids: look.garmentIds,
-        image_base64: look.imageUrl,
+        image_url: look.imageUrl,
+        thumbnail_url: look.thumbnailUrl,
+        storage_path: look.storagePath,
         description: look.description,
         garment_fits: look.garmentFits,
       };
@@ -340,45 +432,29 @@ export class SupabaseStorage {
     }
   }
 
-  static async deleteStyledLook(id: string): Promise<boolean> {
-    try {
-      const { error } = await supabase
-        .from('styled_looks')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error eliminando look:', error);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error en deleteStyledLook:', error);
-      return false;
-    }
-  }
-
-  // === FUNCIONES DE MAPEO ===
-  private static mapDatabaseGarmentToGarment(dbGarment: DatabaseGarment): Garment {
+  // === MÉTODOS DE CONVERSIÓN ===
+  
+  private static dbGarmentToGarment(dbGarment: DatabaseGarment): Garment {
     return {
       id: dbGarment.id,
       name: dbGarment.name,
       description: dbGarment.description,
-      category: dbGarment.category as any,
-      imageUrl: dbGarment.image_base64,
+      category: dbGarment.category as ClothingCategory,
+      imageUrl: dbGarment.image_url,
+      thumbnailUrl: dbGarment.thumbnail_url,
+      storagePath: dbGarment.storage_path,
       color: dbGarment.color,
       availableSizes: dbGarment.available_sizes || [],
-      createdAt: new Date(dbGarment.created_at),
+      createdAt: new Date(dbGarment.created_at)
     };
   }
 
-  private static mapDatabaseModelToModel(dbModel: DatabaseModel): Model {
+  private static dbModelToModel(dbModel: DatabaseModel): Model {
     return {
       id: dbModel.id,
       name: dbModel.name,
       characteristics: dbModel.characteristics,
-      gender: dbModel.gender as any,
+      gender: dbModel.gender as 'masculino' | 'femenino' | 'unisex',
       age: dbModel.age,
       height: dbModel.height,
       bodyType: dbModel.body_type,
@@ -388,100 +464,25 @@ export class SupabaseStorage {
       upperBodySize: dbModel.upper_body_size,
       lowerBodySize: dbModel.lower_body_size,
       shoeSize: dbModel.shoe_size,
-      imageUrl: dbModel.image_base64,
-      createdAt: new Date(dbModel.created_at),
+      imageUrl: dbModel.image_url,
+      thumbnailUrl: dbModel.thumbnail_url,
+      storagePath: dbModel.storage_path,
+      createdAt: new Date(dbModel.created_at)
     };
   }
 
-  private static mapDatabaseStyledLookToStyledLook(dbLook: DatabaseStyledLook): StyledLook {
+  private static dbStyledLookToStyledLook(dbLook: DatabaseStyledLook): StyledLook {
     return {
       id: dbLook.id,
       name: dbLook.name,
       modelId: dbLook.model_id,
       garmentIds: dbLook.garment_ids,
-      imageUrl: dbLook.image_base64,
+      imageUrl: dbLook.image_url,
+      thumbnailUrl: dbLook.thumbnail_url,
+      storagePath: dbLook.storage_path,
       description: dbLook.description,
       garmentFits: dbLook.garment_fits,
-      createdAt: new Date(dbLook.created_at),
+      createdAt: new Date(dbLook.created_at)
     };
-  }
-
-  // === UTILIDADES ===
-  static async testConnection(): Promise<boolean> {
-    try {
-      const { data, error } = await supabase
-        .from('garments')
-        .select('count', { count: 'exact', head: true });
-
-      return !error;
-    } catch (error) {
-      console.error('Error probando conexión:', error);
-      return false;
-    }
-  }
-
-  // === MIGRACIÓN DESDE LOCALSTORAGE ===
-  static async migrateFromLocalStorage(): Promise<{
-    garments: number;
-    models: number;
-    looks: number;
-  }> {
-    const results = { garments: 0, models: 0, looks: 0 };
-
-    try {
-      // Migrar prendas
-      const localGarments = JSON.parse(localStorage.getItem('chic-pic-garments') || '[]');
-      for (const garment of localGarments) {
-        const result = await this.addGarment({
-          name: garment.name,
-          description: garment.description,
-          category: garment.category,
-          imageUrl: garment.imageUrl,
-          color: garment.color,
-          availableSizes: garment.availableSizes,
-        });
-        if (result) results.garments++;
-      }
-
-      // Migrar modelos
-      const localModels = JSON.parse(localStorage.getItem('chic-pic-models') || '[]');
-      for (const model of localModels) {
-        const result = await this.addModel({
-          name: model.name,
-          characteristics: model.characteristics,
-          gender: model.gender,
-          age: model.age,
-          height: model.height,
-          bodyType: model.bodyType,
-          hairColor: model.hairColor,
-          eyeColor: model.eyeColor,
-          skinTone: model.skinTone,
-          upperBodySize: model.upperBodySize,
-          lowerBodySize: model.lowerBodySize,
-          shoeSize: model.shoeSize,
-          imageUrl: model.imageUrl,
-        });
-        if (result) results.models++;
-      }
-
-      // Migrar looks
-      const localLooks = JSON.parse(localStorage.getItem('chic-pic-styled-looks') || '[]');
-      for (const look of localLooks) {
-        const result = await this.addStyledLook({
-          name: look.name,
-          modelId: look.modelId,
-          garmentIds: look.garmentIds,
-          imageUrl: look.imageUrl,
-          description: look.description,
-          garmentFits: look.garmentFits,
-        });
-        if (result) results.looks++;
-      }
-
-      return results;
-    } catch (error) {
-      console.error('Error en migración:', error);
-      return results;
-    }
   }
 }

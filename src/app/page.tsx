@@ -8,6 +8,7 @@ import ModelCatalog from '@/components/ModelCatalog';
 import FashionStylist from '@/components/FashionStylist';
 import APIStatus from '@/components/APIStatus';
 import ImageStats from '@/components/ImageStats';
+import CacheManager from '@/components/CacheManager';
 
 export default function Home() {
   return (
@@ -30,11 +31,12 @@ export default function Home() {
           </p>
         </div>
 
-        {/* API Status */}
-        <APIStatus />
-
-        {/* Image Storage Stats */}
-        <ImageStats />
+        {/* Status and Cache Management */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          <APIStatus />
+          <ImageStats />
+          <CacheManager />
+        </div>
 
         {/* Main Content */}
         <Tabs defaultValue="wardrobe" className="w-full">

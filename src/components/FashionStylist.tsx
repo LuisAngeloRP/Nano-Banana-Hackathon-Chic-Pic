@@ -12,6 +12,7 @@ import { Loader2, Palette, Wand2, X, Edit3 } from 'lucide-react';
 import { generateStyledImage } from '@/lib/gemini';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook, GarmentFitInfo, SelectedGarmentWithSize, ClothingSize, ShoeSize } from '@/types';
+import OptimizedImage from './OptimizedImage';
 import { 
   determineFitType, 
   generateFitDescription, 
@@ -229,10 +230,12 @@ export default function FashionStylist() {
               <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <img
+                    <OptimizedImage
                       src={selectedModel.imageUrl}
                       alt={selectedModel.name}
                       className="w-16 h-16 object-cover rounded-lg"
+                      useCompressed={true}
+                      lazy={false}
                     />
                     <div className="flex-1">
                       <h4 className="font-semibold">{selectedModel.name}</h4>
@@ -278,10 +281,12 @@ export default function FashionStylist() {
                         onClick={() => handleModelSelect(model)}
                       >
                         <CardContent className="p-2">
-                          <img
+                          <OptimizedImage
                             src={model.imageUrl}
                             alt={model.name}
                             className="w-16 h-16 object-cover rounded mb-1"
+                            useCompressed={true}
+                            lazy={true}
                           />
                           <p className="text-xs font-medium text-center line-clamp-1">
                             {model.name}
@@ -304,10 +309,12 @@ export default function FashionStylist() {
                 <div className="space-y-3">
                   {selectedGarments.map(selectedGarment => (
                     <div key={selectedGarment.garment.id} className="flex items-center gap-2 p-3 border rounded-lg">
-                      <img
+                      <OptimizedImage
                         src={selectedGarment.garment.imageUrl}
                         alt={selectedGarment.garment.name}
                         className="w-12 h-12 object-cover rounded"
+                        useCompressed={true}
+                        lazy={false}
                       />
                       <div className="flex-1">
                         <p className="font-medium text-sm">{selectedGarment.garment.name}</p>
@@ -364,10 +371,12 @@ export default function FashionStylist() {
                       onClick={() => handleGarmentSelect(garment)}
                     >
                       <CardContent className="p-2">
-                        <img
+                        <OptimizedImage
                           src={garment.imageUrl}
                           alt={garment.name}
                           className="w-16 h-16 object-cover rounded mb-1"
+                          useCompressed={true}
+                          lazy={true}
                         />
                         <p className="text-xs font-medium text-center line-clamp-1">
                           {garment.name}
@@ -400,10 +409,10 @@ export default function FashionStylist() {
 
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Descripción (opcional)
+                Instrucciones de Pose y Presentación (opcional)
               </label>
               <Textarea
-                placeholder="Describe el estilo, ocasión o características especiales del look..."
+                placeholder="Ej: 'pose de espalda mostrando la chaqueta', 'gesto elegante con mano en la cintura', 'vista de perfil', 'pose relajada sentado', etc."
                 value={lookDescription}
                 onChange={(e) => setLookDescription(e.target.value)}
                 rows={3}
@@ -451,10 +460,12 @@ export default function FashionStylist() {
                   <Card key={look.id}>
                     <CardContent className="p-4">
                       <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                        <img
+                        <OptimizedImage
                           src={look.imageUrl}
                           alt={look.name}
                           className="w-full h-full object-cover"
+                          useCompressed={false}
+                          lazy={true}
                         />
                       </div>
                       

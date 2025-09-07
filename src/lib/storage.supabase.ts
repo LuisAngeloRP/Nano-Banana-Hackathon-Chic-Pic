@@ -1,17 +1,16 @@
 import { Garment, Model, StyledLook } from '@/types';
-import { SupabaseStorage } from './supabase';
+import { SupabaseStorageClient } from './supabaseClean';
 
-// Nueva clase de almacenamiento que usa Supabase
-// Mantiene la misma interfaz que LocalStorage para compatibilidad
+// Adaptador limpio que usa solo Supabase Storage
 export class SupabaseStorageAdapter {
   
   // === GESTIÓN DE PRENDAS ===
   static async getGarments(): Promise<Garment[]> {
-    return await SupabaseStorage.getGarments();
+    return await SupabaseStorageClient.getGarments();
   }
 
   static async addGarment(garment: Omit<Garment, 'id' | 'createdAt'>): Promise<Garment> {
-    const result = await SupabaseStorage.addGarment(garment);
+    const result = await SupabaseStorageClient.addGarment(garment);
     if (!result) {
       throw new Error('No se pudo añadir la prenda a Supabase');
     }
@@ -19,14 +18,14 @@ export class SupabaseStorageAdapter {
   }
 
   static async deleteGarment(id: string): Promise<void> {
-    const success = await SupabaseStorage.deleteGarment(id);
+    const success = await SupabaseStorageClient.deleteGarment(id);
     if (!success) {
       throw new Error('No se pudo eliminar la prenda de Supabase');
     }
   }
 
   static async updateGarment(id: string, updatedGarment: Garment): Promise<void> {
-    const success = await SupabaseStorage.updateGarment(id, updatedGarment);
+    const success = await SupabaseStorageClient.updateGarment(id, updatedGarment);
     if (!success) {
       throw new Error('No se pudo actualizar la prenda en Supabase');
     }
@@ -34,11 +33,11 @@ export class SupabaseStorageAdapter {
 
   // === GESTIÓN DE MODELOS ===
   static async getModels(): Promise<Model[]> {
-    return await SupabaseStorage.getModels();
+    return await SupabaseStorageClient.getModels();
   }
 
   static async addModel(model: Omit<Model, 'id' | 'createdAt'>): Promise<Model> {
-    const result = await SupabaseStorage.addModel(model);
+    const result = await SupabaseStorageClient.addModel(model);
     if (!result) {
       throw new Error('No se pudo añadir el modelo a Supabase');
     }
@@ -46,14 +45,14 @@ export class SupabaseStorageAdapter {
   }
 
   static async deleteModel(id: string): Promise<void> {
-    const success = await SupabaseStorage.deleteModel(id);
+    const success = await SupabaseStorageClient.deleteModel(id);
     if (!success) {
       throw new Error('No se pudo eliminar el modelo de Supabase');
     }
   }
 
   static async updateModel(id: string, updatedModel: Model): Promise<void> {
-    const success = await SupabaseStorage.updateModel(id, updatedModel);
+    const success = await SupabaseStorageClient.updateModel(id, updatedModel);
     if (!success) {
       throw new Error('No se pudo actualizar el modelo en Supabase');
     }
@@ -61,11 +60,11 @@ export class SupabaseStorageAdapter {
 
   // === GESTIÓN DE LOOKS ===
   static async getStyledLooks(): Promise<StyledLook[]> {
-    return await SupabaseStorage.getStyledLooks();
+    return await SupabaseStorageClient.getStyledLooks();
   }
 
   static async addStyledLook(look: Omit<StyledLook, 'id' | 'createdAt'>): Promise<StyledLook> {
-    const result = await SupabaseStorage.addStyledLook(look);
+    const result = await SupabaseStorageClient.addStyledLook(look);
     if (!result) {
       throw new Error('No se pudo añadir el look a Supabase');
     }
@@ -73,14 +72,14 @@ export class SupabaseStorageAdapter {
   }
 
   static async deleteStyledLook(id: string): Promise<void> {
-    const success = await SupabaseStorage.deleteStyledLook(id);
+    const success = await SupabaseStorageClient.deleteStyledLook(id);
     if (!success) {
       throw new Error('No se pudo eliminar el look de Supabase');
     }
   }
 
   static async updateStyledLook(id: string, updatedLook: StyledLook): Promise<void> {
-    const success = await SupabaseStorage.updateStyledLook(id, updatedLook);
+    const success = await SupabaseStorageClient.updateStyledLook(id, updatedLook);
     if (!success) {
       throw new Error('No se pudo actualizar el look en Supabase');
     }

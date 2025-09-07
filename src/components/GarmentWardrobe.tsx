@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Shirt, Search, Edit3, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Trash2, Shirt, Search, Edit3, Eye, Upload, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
+import CustomGarmentUpload from './CustomGarmentUpload';
+import OptimizedImage from './OptimizedImage';
 
 interface GarmentWardrobeProps {
   onGarmentSelect?: (garment: Garment) => void;
@@ -29,6 +32,7 @@ export default function GarmentWardrobe({
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedGarmentForEdit, setSelectedGarmentForEdit] = useState<Garment | null>(null);
   const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   useEffect(() => {
     loadGarments();
@@ -99,6 +103,15 @@ export default function GarmentWardrobe({
     setSelectedGarmentForEdit(null);
   };
 
+  const handleGarmentUploaded = (newGarment: Garment) => {
+    setGarments(prev => [newGarment, ...prev]);
+    setIsUploadDialogOpen(false);
+  };
+
+  const handleCloseUploadDialog = () => {
+    setIsUploadDialogOpen(false);
+  };
+
   const categories = [
     { value: 'all', label: 'Todas las categorías' },
     { value: 'camiseta', label: 'Camisetas' },
@@ -114,10 +127,30 @@ export default function GarmentWardrobe({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Shirt className="h-5 w-5" />
-          Armario de Prendas ({filteredGarments.length})
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Shirt className="h-5 w-5" />
+            Armario de Prendas ({filteredGarments.length})
+          </CardTitle>
+          
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2" />
+                Subir Prenda
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Subir Nueva Prenda</DialogTitle>
+              </DialogHeader>
+              <CustomGarmentUpload 
+                onGarmentUploaded={handleGarmentUploaded}
+                onClose={handleCloseUploadDialog}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
         
         <div className="flex gap-2 mt-4">
           <div className="flex-1">
@@ -164,10 +197,12 @@ export default function GarmentWardrobe({
                 >
                   <CardContent className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                      <img
+                      <OptimizedImage
                         src={garment.imageUrl}
                         alt={garment.name}
                         className="w-full h-full object-cover"
+                        useCompressed={true}
+                        lazy={true}
                       />
                     </div>
                     

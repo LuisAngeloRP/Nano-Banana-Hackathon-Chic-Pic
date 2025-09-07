@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, User, Search, Edit3 } from 'lucide-react';
+import { Trash2, User, Search, Edit3, Upload, Plus } from 'lucide-react';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, Garment, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
+import CustomModelUpload from './CustomModelUpload';
+import OptimizedImage from './OptimizedImage';
 
 interface ModelCatalogProps {
   onModelSelect?: (model: Model) => void;
@@ -24,6 +27,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   const [genderFilter, setGenderFilter] = useState('all');
   const [selectedModelForEdit, setSelectedModelForEdit] = useState<Model | null>(null);
   const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   useEffect(() => {
     loadModels();
@@ -95,6 +99,15 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
     setSelectedModelForEdit(null);
   };
 
+  const handleModelUploaded = (newModel: Model) => {
+    setModels(prev => [newModel, ...prev]);
+    setIsUploadDialogOpen(false);
+  };
+
+  const handleCloseUploadDialog = () => {
+    setIsUploadDialogOpen(false);
+  };
+
   const genderOptions = [
     { value: 'all', label: 'Todos los géneros' },
     { value: 'masculino', label: 'Masculino' },
@@ -105,10 +118,30 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Catálogo de Modelos ({filteredModels.length})
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Catálogo de Modelos ({filteredModels.length})
+          </CardTitle>
+          
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Upload className="h-4 w-4 mr-2" />
+                Subir Modelo
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Subir Nuevo Modelo</DialogTitle>
+              </DialogHeader>
+              <CustomModelUpload 
+                onModelUploaded={handleModelUploaded}
+                onClose={handleCloseUploadDialog}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
         
         <div className="flex gap-2 mt-4">
           <div className="flex-1">
@@ -155,10 +188,12 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                 >
                   <CardContent className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                      <img
+                      <OptimizedImage
                         src={model.imageUrl}
                         alt={model.name}
                         className="w-full h-full object-cover"
+                        useCompressed={true}
+                        lazy={true}
                       />
                     </div>
                     
