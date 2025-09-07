@@ -8,6 +8,12 @@ import {
   buildNanoBananaResponse,
   logNanoBananaActivity 
 } from '@/lib/nanoBananaHandler';
+import { 
+  buildModelPrompt, 
+  sanitizeModelDescription, 
+  validateModelDescription,
+  MODEL_GENERATION_CONFIG 
+} from '@/lib/nanoBananaModels';
 
 // Configuración de Gemini API
 const API_KEY = process.env.GOOGLE_API_KEY || '';
@@ -20,7 +26,7 @@ let imageModel: any = null;
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
   // Modelo para texto (Gemini 1.5 Flash)
-  textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview)
   try {
     imageModel = genAI.getGenerativeModel({ 
@@ -39,83 +45,155 @@ if (API_KEY) {
   }
 }
 
-// Prompts estándar
-const GARMENT_PROMPT_BASE = `
-Genera una imagen de alta calidad de una prenda de vestir para catálogo de moda.
-La imagen debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional y uniforme
-- Estilo de fotografía de catálogo comercial
-- La prenda debe estar bien presentada y visible
-- Resolución alta y nítida
-- Sin modelos, solo la prenda
-- Estilo realista y profesional
-`;
+// Función para generar con Nano Banana con reintentos para modelos
+async function generateWithNanoBanana(
+  type: 'garment' | 'model' | 'look',
+  description: string,
+  filename: string,
+  garmentUrl?: string,
+  modelUrl?: string
+) {
+  if (!imageModel) {
+    throw new Error('Nano Banana no disponible');
+  }
 
-const MODEL_PROMPT_BASE = `
-Genera una imagen de alta calidad de un modelo para catálogo de moda.
-La imagen debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional de estudio
-- Pose natural y profesional para catálogo
-- Expresión neutra y elegante
-- Resolución alta y nítida
-- Estilo de fotografía comercial de moda
-- El modelo debe verse profesional y estar en ropa interior neutra o básica
-`;
+  const isModelGeneration = type === 'model';
+  const maxRetries = isModelGeneration ? MODEL_GENERATION_CONFIG.maxRetries : 1;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🍌 Intento ${attempt}/${maxRetries} - Enviando prompt a Nano Banana...`);
+      
+      // Construir prompt según el tipo y el intento
+      let prompt: string;
+      if (type === 'model') {
+        // Validar y limpiar descripción del modelo
+        const validation = validateModelDescription(description);
+        const sanitizedDescription = sanitizeModelDescription(description);
+        
+        if (!validation.isValid && attempt === 1) {
+          console.warn('⚠️ Descripción de modelo tiene problemas:', validation.issues);
+        }
+        
+        prompt = buildModelPrompt(sanitizedDescription, attempt);
+        console.log('🧹 Descripción sanitizada para modelo:', sanitizedDescription);
+      } else if (type === 'garment') {
+        prompt = buildNanoBananaPrompt('garment', description);
+      } else {
+        prompt = buildNanoBananaPrompt('styling', description, `Garment URL: ${garmentUrl}, Model URL: ${modelUrl}`);
+      }
+      
+      console.log('📝 Prompt optimizado:', prompt.substring(0, 100) + '...');
+      
+      // Generar imagen con Nano Banana
+      const result = await imageModel.generateContent({
+        contents: [{
+          role: 'user',
+          parts: [{
+            text: prompt
+          }]
+        }]
+      });
+      
+      const response = await result.response;
+      console.log('✅ Respuesta de Nano Banana recibida');
+      
+      // Procesar respuesta
+      const processedResponse = processNanoBananaResponse(
+        response, 
+        type, 
+        description, 
+        filename
+      );
+      
+      logNanoBananaActivity('response_processed', type, processedResponse.hasImage, {
+        debugInfo: processedResponse.debugInfo,
+        attempt
+      });
+      
+      if (processedResponse.hasImage && processedResponse.imageData && processedResponse.mimeType) {
+        // ¡Éxito! Validar imagen antes de guardar
+        if (!validateNanoBananaImage(processedResponse.mimeType, processedResponse.imageData)) {
+          console.warn(`❌ Intento ${attempt}: Imagen no pasó validación`);
+          if (attempt < maxRetries) {
+            continue; // Reintentar
+          }
+          throw new Error('Imagen no pasó validación después de todos los intentos');
+        }
+        
+        // Guardar imagen real
+        const imageData = `data:${processedResponse.mimeType};base64,${processedResponse.imageData}`;
+        const { saveRealImageLocally } = await import('@/lib/imageStorage.server');
+        const localUrl = await saveRealImageLocally(imageData, filename);
+        
+        logNanoBananaActivity('image_saved', type, true, {
+          filename: filename.replace('.svg', '.jpg'),
+          mimeType: processedResponse.mimeType,
+          size: processedResponse.imageData.length,
+          attempt
+        });
+        
+        return {
+          success: true,
+          imageUrl: localUrl,
+          filename: filename.replace('.svg', '.jpg'),
+          aiDescription: `Imagen real generada con Nano Banana (intento ${attempt}): ${description}`,
+          message: '🍌 ¡Imagen generada con Nano Banana real y guardada!',
+          isRealImage: true,
+          model: 'gemini-2.5-flash-image-preview',
+          attempts: attempt
+        };
+        
+      } else {
+        console.warn(`⚠️ Intento ${attempt}: Nano Banana no devolvió imagen`);
+        if (attempt < maxRetries) {
+          console.log(`🔄 Reintentando con prompt alternativo...`);
+          continue; // Reintentar
+        }
+        
+        // Último intento fallido
+        return {
+          success: false,
+          textResponse: processedResponse.textResponse,
+          message: `Nano Banana procesó el prompt pero no generó imagen después de ${attempt} intento(s).`,
+          attempts: attempt
+        };
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error en intento ${attempt}:`, error);
+      if (attempt < maxRetries) {
+        console.log(`🔄 Reintentando debido a error...`);
+        continue; // Reintentar
+      }
+      throw error; // Último intento, propagar error
+    }
+  }
+  
+  throw new Error('Se agotaron todos los intentos');
+}
 
-const STYLING_PROMPT_BASE = `
-Combina de manera realista una prenda de vestir con un modelo para crear una imagen de catálogo de moda.
-La imagen final debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional y uniforme
-- La prenda debe verse natural en el modelo
-- Pose elegante y profesional
-- Estilo de fotografía de catálogo comercial
-- Resolución alta y nítida
-- El ajuste de la ropa debe verse realista y natural
-`;
-
-// POST /api/generate - Generar imagen
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { type, description, garmentUrl, modelUrl } = body;
-
+    
     console.log(`🎨 Generando imagen de ${type}:`, description);
-
-    let prompt = '';
-    let filename = '';
-
-    // Configurar según el tipo con prompts optimizados para Nano Banana
-    switch (type) {
-      case 'garment':
-        prompt = buildNanoBananaPrompt('garment', description);
-        filename = generateFileName('garment', description);
-        break;
-        
-      case 'model':
-        prompt = buildNanoBananaPrompt('model', description);
-        filename = generateFileName('model', description);
-        break;
-        
-      case 'look':
-        prompt = buildNanoBananaPrompt('styling', description, `Garment URL: ${garmentUrl}, Model URL: ${modelUrl}`);
-        filename = generateFileName('look', description);
-        break;
-        
-      default:
-        return NextResponse.json({
-          success: false,
-          error: 'Tipo de generación no válido'
-        }, { status: 400 });
+    
+    // Validar tipo
+    if (!['garment', 'model', 'look'].includes(type)) {
+      return NextResponse.json({
+        success: false,
+        error: 'Tipo de generación no válido'
+      }, { status: 400 });
     }
-
-    // Si no hay API key, usar placeholder local
+    
+    // Generar nombre de archivo
+    const filename = generateFileName(type, description);
+    
+    // Si no hay API key, usar placeholder
     if (!API_KEY) {
-      console.warn('⚠️ API key no configurada. Usando placeholder local.');
       const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
-      
       return NextResponse.json({
         success: true,
         imageUrl: localUrl,
@@ -123,98 +201,29 @@ export async function POST(request: NextRequest) {
         message: 'Imagen placeholder generada (configura API key para generación real)'
       });
     }
-
-    // Intentar generar con Nano Banana (Gemini 2.5 Flash Image Preview)
+    
+    // Intentar generar con Nano Banana
     if (imageModel) {
       try {
-        console.log('🍌 Enviando prompt a Nano Banana (Gemini 2.5 Flash Image Preview)...');
-        console.log('📝 Prompt optimizado:', prompt.substring(0, 100) + '...');
-        
-        // Generar imagen real con Nano Banana
-        const result = await imageModel.generateContent({
-          contents: [{
-            role: 'user',
-            parts: [{
-              text: prompt
-            }]
-          }]
-        });
-        
-        const response = await result.response;
-        console.log('✅ Respuesta de Nano Banana recibida');
-        
-        // Procesar respuesta usando el handler especializado
-        const processedResponse = processNanoBananaResponse(
-          response, 
-          type as 'garment' | 'model' | 'look', 
-          description, 
-          filename
+        const result = await generateWithNanoBanana(
+          type as 'garment' | 'model' | 'look',
+          description,
+          filename,
+          garmentUrl,
+          modelUrl
         );
         
-        logNanoBananaActivity('response_processed', type as 'garment' | 'model' | 'look', processedResponse.hasImage, {
-          debugInfo: processedResponse.debugInfo
-        });
-        
-        if (processedResponse.hasImage && processedResponse.imageData && processedResponse.mimeType) {
-          // Validar imagen antes de guardar
-          if (!validateNanoBananaImage(processedResponse.mimeType, processedResponse.imageData)) {
-            console.warn('❌ Imagen de Nano Banana no pasó validación');
-            const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
-            
-            return NextResponse.json(buildNanoBananaResponse(true, {
-              imageUrl: localUrl,
-              filename,
-              message: 'Imagen generada pero no pasó validación. Usando placeholder.',
-              isRealImage: false
-            }));
-          }
-          
-          try {
-            // Guardar imagen real
-            const imageData = `data:${processedResponse.mimeType};base64,${processedResponse.imageData}`;
-            const { saveRealImageLocally } = await import('@/lib/imageStorage.server');
-            const localUrl = await saveRealImageLocally(imageData, filename);
-            
-            logNanoBananaActivity('image_saved', type as 'garment' | 'model' | 'look', true, {
-              filename: filename.replace('.svg', '.jpg'),
-              mimeType: processedResponse.mimeType,
-              size: processedResponse.imageData.length
-            });
-            
-            return NextResponse.json(buildNanoBananaResponse(true, {
-              imageUrl: localUrl,
-              filename: filename.replace('.svg', '.jpg'),
-              aiDescription: `Imagen real generada con Nano Banana: ${description}`,
-              message: '🍌 ¡Imagen generada con Nano Banana real y guardada!',
-              isRealImage: true,
-              model: 'gemini-2.5-flash-image-preview'
-            }));
-            
-          } catch (saveError) {
-            logNanoBananaActivity('save_failed', type as 'garment' | 'model' | 'look', false, {
-              error: saveError instanceof Error ? saveError.message : 'Unknown error'
-            });
-            
-            const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
-            
-            return NextResponse.json(buildNanoBananaResponse(true, {
-              imageUrl: localUrl,
-              filename,
-              message: 'Imagen generada con Nano Banana pero error al guardar. Usando placeholder.',
-              isRealImage: false
-            }));
-          }
+        if (result.success) {
+          return NextResponse.json(buildNanoBananaResponse(true, result));
         } else {
-          // No se encontró imagen, usar respuesta de texto si está disponible
-          console.warn('⚠️ Nano Banana no devolvió imagen');
-          
+          // Nano Banana falló, usar placeholder con información
           const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
           
           return NextResponse.json(buildNanoBananaResponse(true, {
             imageUrl: localUrl,
             filename,
-            aiDescription: processedResponse.textResponse || 'Sin descripción disponible',
-            message: 'Nano Banana procesó el prompt pero no generó imagen. Usando placeholder.',
+            aiDescription: result.textResponse || 'Sin descripción disponible',
+            message: result.message,
             isRealImage: false
           }));
         }
@@ -222,67 +231,59 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error('❌ Error con Nano Banana:', error);
         
-        // Si Nano Banana falla, intentar con modelo de texto como fallback
+        // Fallback a modelo de texto
         if (textModel) {
           console.log('🔄 Fallback: Usando modelo de texto...');
           
           try {
+            const prompt = buildNanoBananaPrompt(
+              type === 'model' ? 'model' : type === 'garment' ? 'garment' : 'styling',
+              description
+            );
+            
             const result = await textModel.generateContent([prompt]);
             const response = await result.response;
-            const aiDescription = response.text();
+            const text = response.text();
             
             const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
             
-            return NextResponse.json({
-              success: true,
+            return NextResponse.json(buildNanoBananaResponse(true, {
               imageUrl: localUrl,
               filename,
-              aiDescription: aiDescription.substring(0, 200) + '...',
-              message: 'Nano Banana no disponible. Usando generación con texto IA.'
-            });
+              aiDescription: text.substring(0, 200) + '...',
+              message: 'Nano Banana falló. Descripción generada con IA + placeholder.',
+              isRealImage: false
+            }));
+            
           } catch (textError) {
             console.error('❌ Error con modelo de texto:', textError);
           }
         }
         
-        // Si llegamos aquí, todos los métodos fallaron
-        // Si es error 403, dar mensaje específico
-        if (error instanceof Error && error.message.includes('403')) {
-          console.warn('🔑 Error 403: Problema con API key para Nano Banana');
-          const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
-          
-          return NextResponse.json({
-            success: true,
-            imageUrl: localUrl,
-            filename,
-            message: 'Error 403: Verifica acceso a Nano Banana. Usando placeholder.'
-          });
-        }
-        
-        // Fallback final a placeholder
+        // Último recurso: placeholder básico
         const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
         
-        return NextResponse.json({
-          success: true,
+        return NextResponse.json(buildNanoBananaResponse(true, {
           imageUrl: localUrl,
           filename,
-          message: 'Error en Nano Banana. Usando placeholder.'
-        });
+          message: 'Error en generación. Usando placeholder básico.',
+          isRealImage: false
+        }));
       }
     }
-
-    // Fallback final
+    
+    // Si no hay modelo de imagen, usar placeholder
     const localUrl = createLocalPlaceholder(type as 'garment' | 'model' | 'look', description, filename);
     
-    return NextResponse.json({
-      success: true,
+    return NextResponse.json(buildNanoBananaResponse(true, {
       imageUrl: localUrl,
       filename,
-      message: 'Modelo IA no disponible. Usando placeholder.'
-    });
-
+      message: 'Nano Banana no disponible. Usando placeholder.',
+      isRealImage: false
+    }));
+    
   } catch (error) {
-    console.error('❌ Error en API de generación:', error);
+    console.error('❌ Error general en la API:', error);
     
     return NextResponse.json({
       success: false,
@@ -290,15 +291,4 @@ export async function POST(request: NextRequest) {
       details: error instanceof Error ? error.message : 'Error desconocido'
     }, { status: 500 });
   }
-}
-
-// GET /api/generate - Verificar estado del servicio
-export async function GET() {
-  return NextResponse.json({
-    success: true,
-    hasAPIKey: !!API_KEY,
-    hasTextModel: !!textModel,
-    hasImageModel: !!imageModel,
-    message: 'Servicio de generación disponible'
-  });
 }
