@@ -1,0 +1,4 @@
+# Mantener la estructura del directorio pero ignorar las imágenes generadas
+*
+!.gitignore
+!README.md
