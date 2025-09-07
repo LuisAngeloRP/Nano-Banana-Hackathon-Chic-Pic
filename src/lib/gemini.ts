@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createBase64Placeholder } from './imageStorage.client';
+import { supabaseStorage } from './supabaseStorage';
 
 // Configuración de Gemini API
 const API_KEY = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '';
@@ -435,6 +436,149 @@ function buildEditPrompt(editPrompt: string, type: 'garment' | 'model' | 'look')
     
     GENERATE EDITED IMAGE NOW - OUTPUT IMAGE ONLY, NO TEXT.
   `.trim();
+}
+
+// Función auxiliar para convertir base64 a File
+function base64ToFile(base64String: string, filename: string): File {
+  const arr = base64String.split(',');
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+}
+
+// Función para detectar si es un placeholder SVG
+function isPlaceholderImage(base64String: string): boolean {
+  return base64String.includes('data:image/svg+xml') || 
+         base64String.includes('<svg') ||
+         base64String.includes('placeholder');
+}
+
+// NUEVAS FUNCIONES OPTIMIZADAS PARA SUPABASE STORAGE
+
+/**
+ * Genera una imagen de prenda y la sube directamente a Supabase Storage
+ */
+export async function generateAndUploadGarmentImage(
+  garmentData: GarmentData | string
+): Promise<{url: string, thumbnailUrl?: string, storagePath: string}> {
+  try {
+    console.log('🎨 Generando y subiendo imagen de prenda...');
+    
+    // Generar imagen base64
+    const base64Image = await generateGarmentImage(garmentData);
+    
+    // Verificar si es un placeholder - FALLAR si es placeholder
+    if (isPlaceholderImage(base64Image)) {
+      throw new Error('No se pudo generar una imagen real con IA. Configura correctamente la API key de Google Gemini y verifica que el servicio esté disponible.');
+    }
+    
+    // Convertir a File y subir a Storage
+    const filename = `garment-${Date.now()}.jpg`;
+    const imageFile = base64ToFile(base64Image, filename);
+    
+    const uploadResult = await supabaseStorage.uploadGarmentImage(imageFile);
+    
+    if (!uploadResult.success || !uploadResult.url) {
+      throw new Error(uploadResult.error || 'Error al subir imagen a Storage');
+    }
+    
+    console.log('✅ Imagen de prenda subida a Storage:', uploadResult.url);
+    
+    return {
+      url: uploadResult.url,
+      thumbnailUrl: uploadResult.thumbnailUrl,
+      storagePath: uploadResult.path || ''
+    };
+  } catch (error) {
+    console.error('❌ Error generando y subiendo imagen de prenda:', error);
+    throw error;
+  }
+}
+
+/**
+ * Genera una imagen de modelo y la sube directamente a Supabase Storage
+ */
+export async function generateAndUploadModelImage(
+  modelData: ModelData | string
+): Promise<{url: string, thumbnailUrl?: string, storagePath: string}> {
+  try {
+    console.log('👤 Generando y subiendo imagen de modelo...');
+    
+    // Generar imagen base64
+    const base64Image = await generateModelImage(modelData);
+    
+    // Verificar si es un placeholder - FALLAR si es placeholder
+    if (isPlaceholderImage(base64Image)) {
+      throw new Error('No se pudo generar una imagen real con IA. Configura correctamente la API key de Google Gemini y verifica que el servicio esté disponible.');
+    }
+    
+    // Convertir a File y subir a Storage
+    const filename = `model-${Date.now()}.jpg`;
+    const imageFile = base64ToFile(base64Image, filename);
+    
+    const uploadResult = await supabaseStorage.uploadModelImage(imageFile);
+    
+    if (!uploadResult.success || !uploadResult.url) {
+      throw new Error(uploadResult.error || 'Error al subir imagen a Storage');
+    }
+    
+    console.log('✅ Imagen de modelo subida a Storage:', uploadResult.url);
+    
+    return {
+      url: uploadResult.url,
+      thumbnailUrl: uploadResult.thumbnailUrl,
+      storagePath: uploadResult.path || ''
+    };
+  } catch (error) {
+    console.error('❌ Error generando y subiendo imagen de modelo:', error);
+    throw error;
+  }
+}
+
+/**
+ * Genera una imagen de look y la sube directamente a Supabase Storage
+ */
+export async function generateAndUploadStyledImage(
+  stylingData: StylingData | {garmentUrl: string, modelUrl: string, instructions: string}
+): Promise<{url: string, thumbnailUrl?: string, storagePath: string}> {
+  try {
+    console.log('✨ Generando y subiendo imagen de look...');
+    
+    // Generar imagen base64
+    const base64Image = await generateStyledImage(stylingData);
+    
+    // Verificar si es un placeholder - FALLAR si es placeholder
+    if (isPlaceholderImage(base64Image)) {
+      throw new Error('No se pudo generar una imagen real con IA. Configura correctamente la API key de Google Gemini y verifica que el servicio esté disponible.');
+    }
+    
+    // Solo procesar imágenes reales (no placeholders)
+    // Convertir a File y subir a Storage
+    const filename = `styled-look-${Date.now()}.jpg`;
+    const imageFile = base64ToFile(base64Image, filename);
+    
+    const uploadResult = await supabaseStorage.uploadLookImage(imageFile);
+    
+    if (!uploadResult.success || !uploadResult.url) {
+      throw new Error(uploadResult.error || 'Error al subir imagen a Storage');
+    }
+    
+    console.log('✅ Imagen de look subida a Storage:', uploadResult.url);
+    
+    return {
+      url: uploadResult.url,
+      thumbnailUrl: uploadResult.thumbnailUrl,
+      storagePath: uploadResult.path || ''
+    };
+  } catch (error) {
+    console.error('❌ Error generando y subiendo imagen de look:', error);
+    throw error;
+  }
 }
 
 // Función para verificar si la API está configurada correctamente

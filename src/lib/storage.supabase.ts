@@ -113,11 +113,13 @@ export class SupabaseStorageAdapter {
         
         for (const garment of localGarments) {
           try {
-            const result = await SupabaseStorage.addGarment({
+            const result = await SupabaseStorageClient.addGarment({
               name: garment.name,
               description: garment.description,
               category: garment.category,
               imageUrl: garment.imageUrl,
+              thumbnailUrl: garment.thumbnailUrl,
+              storagePath: garment.storagePath || '',
               color: garment.color,
               availableSizes: garment.availableSizes,
             });
@@ -137,7 +139,7 @@ export class SupabaseStorageAdapter {
         
         for (const model of localModels) {
           try {
-            const result = await SupabaseStorage.addModel({
+            const result = await SupabaseStorageClient.addModel({
               name: model.name,
               characteristics: model.characteristics,
               gender: model.gender,
@@ -151,6 +153,8 @@ export class SupabaseStorageAdapter {
               lowerBodySize: model.lowerBodySize,
               shoeSize: model.shoeSize,
               imageUrl: model.imageUrl,
+              thumbnailUrl: model.thumbnailUrl,
+              storagePath: model.storagePath || '',
             });
             if (result) results.models++;
           } catch (error) {
@@ -168,11 +172,13 @@ export class SupabaseStorageAdapter {
         
         for (const look of localLooks) {
           try {
-            const result = await SupabaseStorage.addStyledLook({
+            const result = await SupabaseStorageClient.addStyledLook({
               name: look.name,
               modelId: look.modelId,
               garmentIds: look.garmentIds,
               imageUrl: look.imageUrl,
+              thumbnailUrl: look.thumbnailUrl,
+              storagePath: look.storagePath || '',
               description: look.description,
               garmentFits: look.garmentFits,
             });
@@ -211,7 +217,14 @@ export class SupabaseStorageAdapter {
    * Verifica la conectividad con Supabase
    */
   static async testConnection(): Promise<boolean> {
-    return await SupabaseStorage.testConnection();
+    try {
+      // Hacer una consulta simple para probar la conectividad
+      const garments = await SupabaseStorageClient.getGarments();
+      return true; // Si no hay error, la conexión funciona
+    } catch (error) {
+      console.error('Error de conectividad con Supabase:', error);
+      return false;
+    }
   }
 
   /**

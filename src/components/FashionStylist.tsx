@@ -9,10 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Palette, Wand2, X, Edit3 } from 'lucide-react';
-import { generateStyledImage } from '@/lib/gemini';
+import { generateAndUploadStyledImage } from '@/lib/gemini';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook, GarmentFitInfo, SelectedGarmentWithSize, ClothingSize, ShoeSize } from '@/types';
-import OptimizedImage from './OptimizedImage';
+// import OptimizedImage from './OptimizedImage'; // Removido para cargar imágenes directamente
 import { 
   determineFitType, 
   generateFitDescription, 
@@ -28,6 +28,8 @@ export default function FashionStylist() {
   const [lookName, setLookName] = useState('');
   const [lookDescription, setLookDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Ya no necesitamos la función base64ToFile - se maneja internamente
   const [generatedLooks, setGeneratedLooks] = useState<StyledLook[]>([]);
   const [selectedLookForEdit, setSelectedLookForEdit] = useState<StyledLook | null>(null);
   const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
@@ -152,14 +154,17 @@ export default function FashionStylist() {
         ? `${lookDescription}\n\nAjuste de las prendas: ${fitDescriptions}`
         : `Look creado con ${selectedGarments.length} prendas. ${fitDescriptions}`;
       
-      // Usar el nuevo sistema de combinación inteligente de imágenes
-      const imageBase64 = await generateStyledImage(stylingData);
+      // Generar imagen con IA y subirla directamente a Supabase Storage
+      console.log('🎨 Generando imagen de look con IA y subiendo a Supabase Storage...');
+      const imageResult = await generateAndUploadStyledImage(stylingData);
 
       const newLook = await SupabaseStorageAdapter.addStyledLook({
         name: lookName,
         modelId: selectedModel.id,
         garmentIds: selectedGarments.map(g => g.garment.id),
-        imageUrl: imageBase64, // Ahora es base64
+        imageUrl: imageResult.url, // URL de Supabase Storage
+        thumbnailUrl: imageResult.thumbnailUrl,
+        storagePath: imageResult.storagePath,
         description: enhancedDescription,
         garmentFits: garmentFits
       });
@@ -230,12 +235,11 @@ export default function FashionStylist() {
               <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <OptimizedImage
+                    <img
                       src={selectedModel.imageUrl}
                       alt={selectedModel.name}
                       className="w-16 h-16 object-cover rounded-lg"
-                      useCompressed={true}
-                      lazy={false}
+                      loading="eager"
                     />
                     <div className="flex-1">
                       <h4 className="font-semibold">{selectedModel.name}</h4>
@@ -281,12 +285,11 @@ export default function FashionStylist() {
                         onClick={() => handleModelSelect(model)}
                       >
                         <CardContent className="p-2">
-                          <OptimizedImage
+                          <img
                             src={model.imageUrl}
                             alt={model.name}
                             className="w-16 h-16 object-cover rounded mb-1"
-                            useCompressed={true}
-                            lazy={true}
+                            loading="lazy"
                           />
                           <p className="text-xs font-medium text-center line-clamp-1">
                             {model.name}
@@ -309,12 +312,11 @@ export default function FashionStylist() {
                 <div className="space-y-3">
                   {selectedGarments.map(selectedGarment => (
                     <div key={selectedGarment.garment.id} className="flex items-center gap-2 p-3 border rounded-lg">
-                      <OptimizedImage
+                      <img
                         src={selectedGarment.garment.imageUrl}
                         alt={selectedGarment.garment.name}
                         className="w-12 h-12 object-cover rounded"
-                        useCompressed={true}
-                        lazy={false}
+                        loading="eager"
                       />
                       <div className="flex-1">
                         <p className="font-medium text-sm">{selectedGarment.garment.name}</p>
@@ -371,12 +373,11 @@ export default function FashionStylist() {
                       onClick={() => handleGarmentSelect(garment)}
                     >
                       <CardContent className="p-2">
-                        <OptimizedImage
+                        <img
                           src={garment.imageUrl}
                           alt={garment.name}
                           className="w-16 h-16 object-cover rounded mb-1"
-                          useCompressed={true}
-                          lazy={true}
+                          loading="lazy"
                         />
                         <p className="text-xs font-medium text-center line-clamp-1">
                           {garment.name}
@@ -460,12 +461,11 @@ export default function FashionStylist() {
                   <Card key={look.id}>
                     <CardContent className="p-4">
                       <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                        <OptimizedImage
+                        <img
                           src={look.imageUrl}
                           alt={look.name}
                           className="w-full h-full object-cover"
-                          useCompressed={false}
-                          lazy={true}
+                          loading="lazy"
                         />
                       </div>
                       

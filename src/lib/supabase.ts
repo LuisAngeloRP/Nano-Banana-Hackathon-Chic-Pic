@@ -83,7 +83,9 @@ export class SupabaseStorage {
         name: garment.name,
         description: garment.description,
         category: garment.category,
-        image_base64: garment.imageUrl, // Ahora esperamos base64
+        image_url: garment.imageUrl, // URL de Supabase Storage
+        thumbnail_url: garment.thumbnailUrl || undefined,
+        storage_path: garment.storagePath, // Ruta para eliminación
         color: garment.color,
         available_sizes: garment.availableSizes || null,
       };
@@ -112,7 +114,9 @@ export class SupabaseStorage {
         name: garment.name,
         description: garment.description,
         category: garment.category,
-        image_base64: garment.imageUrl,
+        image_url: garment.imageUrl,
+        thumbnail_url: garment.thumbnailUrl,
+        storage_path: garment.storagePath,
         color: garment.color,
         available_sizes: garment.availableSizes || null,
       };
@@ -188,7 +192,9 @@ export class SupabaseStorage {
         upper_body_size: model.upperBodySize,
         lower_body_size: model.lowerBodySize,
         shoe_size: model.shoeSize,
-        image_base64: model.imageUrl, // Ahora esperamos base64
+        image_url: model.imageUrl, // URL de Supabase Storage
+        thumbnail_url: model.thumbnailUrl || undefined,
+        storage_path: model.storagePath, // Ruta para eliminación
       };
 
       const { data, error } = await supabase
@@ -224,7 +230,9 @@ export class SupabaseStorage {
         upper_body_size: model.upperBodySize,
         lower_body_size: model.lowerBodySize,
         shoe_size: model.shoeSize,
-        image_base64: model.imageUrl,
+        image_url: model.imageUrl,
+        thumbnail_url: model.thumbnailUrl,
+        storage_path: model.storagePath,
       };
 
       const { error } = await supabase
@@ -289,7 +297,9 @@ export class SupabaseStorage {
         name: look.name,
         model_id: look.modelId,
         garment_ids: look.garmentIds,
-        image_base64: look.imageUrl, // Ahora esperamos base64
+        image_url: look.imageUrl, // URL de Supabase Storage
+        thumbnail_url: look.thumbnailUrl || undefined,
+        storage_path: look.storagePath, // Ruta para eliminación
         description: look.description,
         garment_fits: look.garmentFits,
       };
@@ -318,7 +328,9 @@ export class SupabaseStorage {
         name: look.name,
         model_id: look.modelId,
         garment_ids: look.garmentIds,
-        image_base64: look.imageUrl,
+        image_url: look.imageUrl,
+        thumbnail_url: look.thumbnailUrl,
+        storage_path: look.storagePath,
         description: look.description,
         garment_fits: look.garmentFits,
       };
@@ -366,7 +378,9 @@ export class SupabaseStorage {
       name: dbGarment.name,
       description: dbGarment.description,
       category: dbGarment.category as any,
-      imageUrl: dbGarment.image_base64,
+      imageUrl: dbGarment.image_url,
+      thumbnailUrl: dbGarment.thumbnail_url,
+      storagePath: dbGarment.storage_path,
       color: dbGarment.color,
       availableSizes: dbGarment.available_sizes || [],
       createdAt: new Date(dbGarment.created_at),
@@ -388,7 +402,9 @@ export class SupabaseStorage {
       upperBodySize: dbModel.upper_body_size,
       lowerBodySize: dbModel.lower_body_size,
       shoeSize: dbModel.shoe_size,
-      imageUrl: dbModel.image_base64,
+      imageUrl: dbModel.image_url,
+      thumbnailUrl: dbModel.thumbnail_url,
+      storagePath: dbModel.storage_path,
       createdAt: new Date(dbModel.created_at),
     };
   }
@@ -399,7 +415,9 @@ export class SupabaseStorage {
       name: dbLook.name,
       modelId: dbLook.model_id,
       garmentIds: dbLook.garment_ids,
-      imageUrl: dbLook.image_base64,
+      imageUrl: dbLook.image_url,
+      thumbnailUrl: dbLook.thumbnail_url,
+      storagePath: dbLook.storage_path,
       description: dbLook.description,
       garmentFits: dbLook.garment_fits,
       createdAt: new Date(dbLook.created_at),

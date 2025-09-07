@@ -20,6 +20,7 @@ interface CustomModelUploadProps {
 export default function CustomModelUpload({ onModelUploaded, onClose }: CustomModelUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [storagePath, setStoragePath] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     characteristics: '',
@@ -103,8 +104,9 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
   const clothingSizes: ClothingSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const shoeSizes: ShoeSize[] = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
 
-  const handleImageUpload = (file: File, url: string, thumbnailUrl?: string) => {
+  const handleImageUpload = (file: File, url: string, thumbnailUrl?: string, storagePath?: string) => {
     setUploadedImage(url);
+    setStoragePath(storagePath || '');
     console.log('Imagen de modelo subida a Storage:', file.name, 'URL:', url);
   };
 
@@ -130,7 +132,8 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
         upperBodySize: formData.upperBodySize,
         lowerBodySize: formData.lowerBodySize,
         shoeSize: formData.shoeSize,
-        imageUrl: uploadedImage // URL de Supabase Storage
+        imageUrl: uploadedImage, // URL de Supabase Storage
+        storagePath: storagePath // Ruta en Storage para eliminación
       });
 
       onModelUploaded?.(newModel);

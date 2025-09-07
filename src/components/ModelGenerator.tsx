@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, User, Plus } from 'lucide-react';
-import { generateModelImage } from '@/lib/gemini';
+import { generateAndUploadModelImage } from '@/lib/gemini';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, ClothingSize, ShoeSize } from '@/types';
 
@@ -79,7 +79,8 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         skinTone: formData.skinTone || 'Medio'
       };
 
-      const imageUrl = await generateModelImage(modelData);
+      console.log('🎨 Generando imagen de modelo con IA y subiendo a Supabase Storage...');
+      const imageResult = await generateAndUploadModelImage(modelData);
       
       const newModel = await SupabaseStorageAdapter.addModel({
         name: formData.name,
@@ -94,7 +95,9 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         upperBodySize: formData.upperBodySize,
         lowerBodySize: formData.lowerBodySize,
         shoeSize: formData.shoeSize,
-        imageUrl
+        imageUrl: imageResult.url,
+        thumbnailUrl: imageResult.thumbnailUrl,
+        storagePath: imageResult.storagePath
       });
 
       onModelGenerated?.(newModel);

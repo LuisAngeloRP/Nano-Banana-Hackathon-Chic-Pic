@@ -1,4 +1,4 @@
--- Esquema limpio para Chic Pic: Solo Supabase Storage (sin base64)
+-- Esquema limpio para Chic Pic: Solo Supabase Storage
 -- Ejecuta este SQL en el editor SQL de tu proyecto Supabase
 
 -- Habilitar extensiones necesarias

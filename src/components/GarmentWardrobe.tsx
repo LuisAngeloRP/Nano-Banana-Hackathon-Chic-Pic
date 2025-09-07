@@ -13,7 +13,7 @@ import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
 import CustomGarmentUpload from './CustomGarmentUpload';
-import OptimizedImage from './OptimizedImage';
+// import OptimizedImage from './OptimizedImage'; // Removido para cargar imágenes directamente
 
 interface GarmentWardrobeProps {
   onGarmentSelect?: (garment: Garment) => void;
@@ -197,12 +197,11 @@ export default function GarmentWardrobe({
                 >
                   <CardContent className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                      <OptimizedImage
+                      <img
                         src={garment.imageUrl}
                         alt={garment.name}
                         className="w-full h-full object-cover"
-                        useCompressed={true}
-                        lazy={true}
+                        loading="lazy"
                       />
                     </div>
                     

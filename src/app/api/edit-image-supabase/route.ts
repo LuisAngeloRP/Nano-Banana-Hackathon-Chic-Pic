@@ -29,18 +29,56 @@ if (API_KEY) {
   }
 }
 
-// Función para procesar imagen base64 para edición
-function processImageBase64ForEdit(imageBase64: string): {data: string, mimeType: string} {
-  // Si es data URI, extraer componentes
-  if (imageBase64.startsWith('data:')) {
-    const mimeMatch = imageBase64.match(/data:([^;]+);base64,/);
+// Función para cargar imagen desde URL y convertirla a base64
+async function loadImageFromUrl(imageUrl: string): Promise<{data: string, mimeType: string} | null> {
+  try {
+    console.log('📥 Descargando imagen desde URL para edición:', imageUrl);
+    
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      console.error('Error descargando imagen:', response.status, response.statusText);
+      return null;
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Data = buffer.toString('base64');
+    
+    // Determinar tipo MIME desde la respuesta o URL
+    let mimeType = response.headers.get('content-type') || 'image/jpeg';
+    if (!mimeType.startsWith('image/')) {
+      // Inferir desde la extensión de la URL
+      if (imageUrl.includes('.png')) mimeType = 'image/png';
+      else if (imageUrl.includes('.webp')) mimeType = 'image/webp';
+      else if (imageUrl.includes('.gif')) mimeType = 'image/gif';
+      else mimeType = 'image/jpeg';
+    }
+    
+    console.log('✅ Imagen descargada y convertida a base64 para edición');
+    return { data: base64Data, mimeType };
+  } catch (error) {
+    console.error('Error cargando imagen desde URL:', error);
+    return null;
+  }
+}
+
+// Función para procesar imagen base64 para edición desde diferentes fuentes
+async function processImageForEdit(imageData: string): Promise<{data: string, mimeType: string} | null> {
+  // Si es data URI (base64), extraer componentes
+  if (imageData.startsWith('data:')) {
+    const mimeMatch = imageData.match(/data:([^;]+);base64,/);
     const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-    const base64Data = extractBase64FromDataURI(imageBase64);
+    const base64Data = extractBase64FromDataURI(imageData);
     return { data: base64Data, mimeType };
   }
   
+  // Si es URL (Supabase Storage), descargar y convertir
+  if (imageData.startsWith('http')) {
+    return await loadImageFromUrl(imageData);
+  }
+  
   // Si es base64 puro, asumir JPEG
-  return { data: imageBase64, mimeType: 'image/jpeg' };
+  return { data: imageData, mimeType: 'image/jpeg' };
 }
 
 export async function POST(request: NextRequest) {
@@ -98,7 +136,14 @@ export async function POST(request: NextRequest) {
     
     try {
       // Procesar imagen original
-      const imageData = processImageBase64ForEdit(originalImageBase64);
+      const imageData = await processImageForEdit(originalImageBase64);
+      
+      if (!imageData) {
+        return NextResponse.json({
+          success: false,
+          error: 'No se pudo procesar la imagen original'
+        }, { status: 400 });
+      }
       
       console.log(`🖼️ Procesando imagen original (${imageData.mimeType})`);
       

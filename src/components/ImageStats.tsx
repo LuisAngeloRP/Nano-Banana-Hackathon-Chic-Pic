@@ -25,28 +25,17 @@ export default function ImageStats() {
   const loadStats = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/images');
-      const data = await response.json();
+      // Usar las estadísticas de Supabase Storage en lugar de la API obsoleta
+      const { SupabaseStorageAdapter } = await import('@/lib/storage.supabase');
+      const data = await SupabaseStorageAdapter.getStats();
       
-      if (data.success) {
-        setStats({
-          garments: data.stats.garments,
-          models: data.stats.models,
-          looks: data.stats.looks,
-          total: data.stats.total,
-          lastUpdated: new Date(data.stats.lastUpdated).toLocaleString()
-        });
-      } else {
-        console.error('Error en respuesta:', data.error);
-        // Fallback a estadísticas vacías
-        setStats({
-          garments: 0,
-          models: 0,
-          looks: 0,
-          total: 0,
-          lastUpdated: new Date().toLocaleString()
-        });
-      }
+      setStats({
+        garments: data.garments,
+        models: data.models,
+        looks: data.looks,
+        total: data.garments + data.models + data.looks,
+        lastUpdated: new Date().toLocaleString()
+      });
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
       // Fallback a estadísticas vacías en caso de error
@@ -62,31 +51,14 @@ export default function ImageStats() {
     }
   };
 
-  const openImagesFolder = () => {
-    // En desarrollo, mostrar la ruta
-    alert('Directorio de imágenes: public/generated-images/\n\nLas imágenes se guardan automáticamente en esta carpeta.');
+  const openStorageDashboard = () => {
+    // Abrir el dashboard de Supabase Storage
+    alert('Las imágenes se almacenan en Supabase Storage.\n\nPuedes ver y gestionar las imágenes desde el Dashboard de Supabase en la sección Storage.');
   };
 
   const cleanOldImages = async () => {
-    if (confirm('¿Estás seguro de que quieres limpiar las imágenes antiguas (7+ días)?')) {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/images?days=7', { method: 'DELETE' });
-        const data = await response.json();
-        
-        if (data.success) {
-          alert(data.message);
-          loadStats(); // Recargar estadísticas
-        } else {
-          alert('Error limpiando imágenes: ' + data.error);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error de conexión al limpiar imágenes');
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    // Función deshabilitada - las imágenes en Supabase Storage se gestionan desde el dashboard
+    alert('La limpieza de imágenes se realiza desde el Dashboard de Supabase Storage.\n\nEsta función no está disponible en la interfaz web por seguridad.');
   };
 
   if (!stats) {
@@ -141,7 +113,7 @@ export default function ImageStats() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={openImagesFolder}>
+            <Button variant="outline" size="sm" onClick={openStorageDashboard}>
               <FolderOpen className="h-4 w-4 mr-2" />
               Ver Carpeta
             </Button>

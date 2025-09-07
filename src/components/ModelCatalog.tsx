@@ -13,7 +13,7 @@ import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, Garment, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
 import CustomModelUpload from './CustomModelUpload';
-import OptimizedImage from './OptimizedImage';
+// import OptimizedImage from './OptimizedImage'; // Removido para cargar imágenes directamente
 
 interface ModelCatalogProps {
   onModelSelect?: (model: Model) => void;
@@ -188,12 +188,11 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                 >
                   <CardContent className="p-4">
                     <div className="aspect-square bg-gray-100 rounded-lg mb-3 overflow-hidden">
-                      <OptimizedImage
+                      <img
                         src={model.imageUrl}
                         alt={model.name}
                         className="w-full h-full object-cover"
-                        useCompressed={true}
-                        lazy={true}
+                        loading="lazy"
                       />
                     </div>
                     
