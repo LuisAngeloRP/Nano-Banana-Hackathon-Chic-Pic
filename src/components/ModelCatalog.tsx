@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, User, Search, Edit3 } from 'lucide-react';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, Garment, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
 
@@ -33,9 +33,13 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
     filterModels();
   }, [models, searchTerm, genderFilter]);
 
-  const loadModels = () => {
-    const stored = LocalStorage.getModels();
-    setModels(stored);
+  const loadModels = async () => {
+    try {
+      const stored = await SupabaseStorageAdapter.getModels();
+      setModels(stored);
+    } catch (error) {
+      console.error('Error cargando modelos:', error);
+    }
   };
 
   const filterModels = () => {
@@ -57,10 +61,15 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
     setFilteredModels(filtered);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este modelo?')) {
-      LocalStorage.deleteModel(id);
-      loadModels();
+      try {
+        await SupabaseStorageAdapter.deleteModel(id);
+        loadModels();
+      } catch (error) {
+        console.error('Error eliminando modelo:', error);
+        alert('Error al eliminar el modelo');
+      }
     }
   };
 

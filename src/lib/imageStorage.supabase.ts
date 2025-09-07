@@ -1,5 +1,5 @@
-// Funciones de almacenamiento de imágenes que funcionan en el cliente
-// Separadas de las funciones de servidor para evitar errores de importación
+// Nuevo sistema de almacenamiento de imágenes en base64 para Supabase
+// Reemplaza el sistema anterior de archivos JPG
 
 /**
  * Convierte una imagen de Gemini (que viene como base64) a formato data URI
@@ -28,6 +28,60 @@ export function extractBase64FromDataURI(dataURI: string): string {
   }
   
   return dataURI.substring(base64Index + 7);
+}
+
+/**
+ * Convierte una imagen de archivo local a base64
+ * NOTA: Esta función solo funciona en el servidor (API routes)
+ * No usar en componentes del cliente
+ */
+export async function convertFileToBase64(filePath: string): Promise<string | null> {
+  // Solo funciona en el servidor
+  if (typeof window !== 'undefined') {
+    console.warn('convertFileToBase64 solo funciona en el servidor');
+    return null;
+  }
+  
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Verificar si el archivo existe
+    if (!fs.existsSync(filePath)) {
+      console.warn(`Archivo no encontrado: ${filePath}`);
+      return null;
+    }
+    
+    // Leer el archivo y convertir a base64
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64Data = fileBuffer.toString('base64');
+    
+    // Determinar el tipo MIME basado en la extensión
+    const ext = path.extname(filePath).toLowerCase();
+    let mimeType = 'image/jpeg';
+    
+    switch (ext) {
+      case '.png':
+        mimeType = 'image/png';
+        break;
+      case '.gif':
+        mimeType = 'image/gif';
+        break;
+      case '.webp':
+        mimeType = 'image/webp';
+        break;
+      case '.svg':
+        mimeType = 'image/svg+xml';
+        break;
+      default:
+        mimeType = 'image/jpeg';
+    }
+    
+    return formatImageAsDataURI(base64Data, mimeType);
+  } catch (error) {
+    console.error(`Error convirtiendo archivo a base64: ${filePath}`, error);
+    return null;
+  }
 }
 
 /**
@@ -124,6 +178,72 @@ export function compressBase64Image(base64Data: string, quality: number = 0.8): 
   // En producción, implementarías compresión real aquí
   console.log(`Compresión simulada con calidad ${quality}`);
   return base64Data;
+}
+
+/**
+ * Migra imágenes del sistema de archivos local a base64
+ * NOTA: Esta función solo funciona en el servidor (API routes)
+ * No usar en componentes del cliente
+ */
+export async function migrateLocalImagesToBase64(): Promise<{
+  migrated: number;
+  failed: number;
+  results: Array<{ path: string; success: boolean; base64?: string; error?: string }>;
+}> {
+  // Solo funciona en el servidor
+  if (typeof window !== 'undefined') {
+    console.warn('migrateLocalImagesToBase64 solo funciona en el servidor');
+    return { migrated: 0, failed: 0, results: [] };
+  }
+  
+  const results: Array<{ path: string; success: boolean; base64?: string; error?: string }> = [];
+  let migrated = 0;
+  let failed = 0;
+  
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const imagesDir = path.join(process.cwd(), 'public', 'generated-images');
+    
+    if (!fs.existsSync(imagesDir)) {
+      console.log('Directorio de imágenes no existe, no hay nada que migrar');
+      return { migrated: 0, failed: 0, results: [] };
+    }
+    
+    const files = fs.readdirSync(imagesDir).filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
+    });
+    
+    for (const file of files) {
+      const filePath = path.join(imagesDir, file);
+      const base64Result = await convertFileToBase64(filePath);
+      
+      if (base64Result) {
+        results.push({
+          path: filePath,
+          success: true,
+          base64: base64Result
+        });
+        migrated++;
+      } else {
+        results.push({
+          path: filePath,
+          success: false,
+          error: 'No se pudo convertir a base64'
+        });
+        failed++;
+      }
+    }
+    
+    console.log(`Migración completada: ${migrated} éxitos, ${failed} fallos`);
+    return { migrated, failed, results };
+    
+  } catch (error) {
+    console.error('Error en migración de imágenes:', error);
+    return { migrated, failed, results };
+  }
 }
 
 // Funciones de compatibilidad con el sistema anterior

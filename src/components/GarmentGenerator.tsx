@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Shirt, Plus } from 'lucide-react';
 import { generateGarmentImage } from '@/lib/gemini';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, ClothingCategory, ClothingSize, ShoeSize } from '@/types';
 import { getAvailableSizesForCategory, isValidSizeForCategory } from '@/lib/sizeUtils';
 
@@ -68,7 +68,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       
       const imageUrl = await generateGarmentImage(garmentData);
       
-      const newGarment = LocalStorage.addGarment({
+      const newGarment = await SupabaseStorageAdapter.addGarment({
         name: formData.name,
         description: formData.description,
         category: formData.category,

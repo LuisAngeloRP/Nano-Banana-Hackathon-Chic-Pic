@@ -10,7 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Palette, Wand2, X, Edit3 } from 'lucide-react';
 import { generateStyledImage } from '@/lib/gemini';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook, GarmentFitInfo, SelectedGarmentWithSize, ClothingSize, ShoeSize } from '@/types';
 import { 
   determineFitType, 
@@ -38,10 +38,19 @@ export default function FashionStylist() {
     loadData();
   }, []);
 
-  const loadData = () => {
-    setModels(LocalStorage.getModels());
-    setGarments(LocalStorage.getGarments());
-    setGeneratedLooks(LocalStorage.getStyledLooks());
+  const loadData = async () => {
+    try {
+      const [modelsData, garmentsData, looksData] = await Promise.all([
+        SupabaseStorageAdapter.getModels(),
+        SupabaseStorageAdapter.getGarments(),
+        SupabaseStorageAdapter.getStyledLooks()
+      ]);
+      setModels(modelsData);
+      setGarments(garmentsData);
+      setGeneratedLooks(looksData);
+    } catch (error) {
+      console.error('Error cargando datos de Supabase:', error);
+    }
   };
 
   const handleModelSelect = (model: Model) => {
@@ -143,13 +152,13 @@ export default function FashionStylist() {
         : `Look creado con ${selectedGarments.length} prendas. ${fitDescriptions}`;
       
       // Usar el nuevo sistema de combinación inteligente de imágenes
-      const imageUrl = await generateStyledImage(stylingData);
+      const imageBase64 = await generateStyledImage(stylingData);
 
-      const newLook = LocalStorage.addStyledLook({
+      const newLook = await SupabaseStorageAdapter.addStyledLook({
         name: lookName,
         modelId: selectedModel.id,
         garmentIds: selectedGarments.map(g => g.garment.id),
-        imageUrl,
+        imageUrl: imageBase64, // Ahora es base64
         description: enhancedDescription,
         garmentFits: garmentFits
       });
@@ -175,10 +184,15 @@ export default function FashionStylist() {
     }
   };
 
-  const deleteLook = (id: string) => {
+  const deleteLook = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar este look?')) {
-      LocalStorage.deleteStyledLook(id);
-      setGeneratedLooks(prev => prev.filter(l => l.id !== id));
+      try {
+        await SupabaseStorageAdapter.deleteStyledLook(id);
+        setGeneratedLooks(prev => prev.filter(l => l.id !== id));
+      } catch (error) {
+        console.error('Error eliminando look:', error);
+        alert('Error al eliminar el look');
+      }
     }
   };
 

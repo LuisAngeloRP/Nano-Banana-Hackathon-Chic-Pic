@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createCustomPlaceholder } from './imageStorage.client';
+import { createBase64Placeholder } from './imageStorage.client';
 
 // Configuración de Gemini API
 const API_KEY = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '';
@@ -93,8 +93,8 @@ export async function generateGarmentImage(
     // Construir descripción completa incluyendo todos los datos
     const completeDescription = buildCompleteGarmentDescription(structuredData);
     
-    // Llamar a la API route del servidor para manejar la generación y almacenamiento
-    const response = await fetch('/api/generate', {
+    // Llamar a la nueva API route que usa Supabase y base64
+    const response = await fetch('/api/generate-supabase', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -109,19 +109,19 @@ export async function generateGarmentImage(
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Imagen generada y guardada:', data.filename);
-      return data.imageUrl;
+      console.log('✅ Imagen generada en base64:', data.message);
+      return data.base64Image; // Ahora retornamos base64 en lugar de URL
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
-      // Fallback a placeholder directo
-      return createCustomPlaceholder('garment', completeDescription);
+      // Fallback a placeholder directo en base64
+      return createBase64Placeholder('garment', completeDescription);
     }
     
   } catch (error) {
     console.error('❌ Error generando imagen de prenda:', error);
     // Último fallback
     const desc = typeof garmentData === 'string' ? garmentData : garmentData.description;
-    return createCustomPlaceholder('garment', desc);
+    return createBase64Placeholder('garment', desc);
   }
 }
 
@@ -186,8 +186,8 @@ export async function generateModelImage(
     // Construir descripción completa incluyendo todos los datos
     const completeDescription = buildCompleteModelDescription(structuredData);
     
-    // Llamar a la API route del servidor
-    const response = await fetch('/api/generate', {
+    // Llamar a la nueva API route que usa Supabase y base64
+    const response = await fetch('/api/generate-supabase', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -202,17 +202,17 @@ export async function generateModelImage(
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Imagen generada y guardada:', data.filename);
-      return data.imageUrl;
+      console.log('✅ Imagen de modelo generada en base64:', data.message);
+      return data.base64Image; // Ahora retornamos base64 en lugar de URL
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
-      return createCustomPlaceholder('model', completeDescription);
+      return createBase64Placeholder('model', completeDescription);
     }
     
   } catch (error) {
     console.error('❌ Error generando imagen de modelo:', error);
     const desc = typeof modelData === 'string' ? modelData : modelData.characteristics;
-    return createCustomPlaceholder('model', desc);
+    return createBase64Placeholder('model', desc);
   }
 }
 
@@ -258,7 +258,7 @@ export async function generateStyledImage(
     if ('garmentUrl' in stylingData && 'instructions' in stylingData) {
       console.log('✨ Generando look combinado (modo legacy):', stylingData.instructions);
       
-      const response = await fetch('/api/generate', {
+      const response = await fetch('/api/generate-supabase', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -266,16 +266,16 @@ export async function generateStyledImage(
         body: JSON.stringify({
           type: 'look',
           description: stylingData.instructions,
-          garmentUrl: stylingData.garmentUrl,
-          modelUrl: stylingData.modelUrl
+          garmentImages: [stylingData.garmentUrl], // Convertir a array
+          modelImage: stylingData.modelUrl
         })
       });
 
       const data = await response.json();
       if (data.success) {
-        return data.imageUrl;
+        return data.base64Image; // Ahora retornamos base64
       } else {
-        return createCustomPlaceholder('look', stylingData.instructions);
+        return createBase64Placeholder('look', stylingData.instructions);
       }
     }
 
@@ -285,8 +285,8 @@ export async function generateStyledImage(
     // Construir instrucciones inteligentes basadas en las categorías
     const intelligentInstructions = buildIntelligentStylingInstructions(stylingData);
     
-    // Llamar a la API route del servidor con datos estructurados
-    const response = await fetch('/api/generate', {
+    // Llamar a la nueva API route con datos estructurados
+    const response = await fetch('/api/generate-supabase', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -294,7 +294,8 @@ export async function generateStyledImage(
       body: JSON.stringify({
         type: 'look',
         description: intelligentInstructions,
-        modelUrl: stylingData.modelUrl,
+        modelImage: stylingData.modelUrl,
+        garmentImages: stylingData.garments.map(g => g.imageUrl), // Extraer URLs de imágenes
         garments: stylingData.garments,
         stylingData: stylingData // Datos completos para procesamiento
       })
@@ -303,11 +304,11 @@ export async function generateStyledImage(
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Look inteligente generado:', data.filename);
-      return data.imageUrl;
+      console.log('✅ Look inteligente generado en base64:', data.message);
+      return data.base64Image; // Ahora retornamos base64
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
-      return createCustomPlaceholder('look', intelligentInstructions);
+      return createBase64Placeholder('look', intelligentInstructions);
     }
     
   } catch (error) {
@@ -315,7 +316,7 @@ export async function generateStyledImage(
     const fallbackDesc = 'garmentUrl' in stylingData ? 
       stylingData.instructions : 
       stylingData.lookDescription || 'Look personalizado';
-    return createCustomPlaceholder('look', fallbackDesc);
+    return createBase64Placeholder('look', fallbackDesc);
   }
 }
 
@@ -344,8 +345,8 @@ export async function editImageWithPrompt(
     // Construir el prompt de edición específico
     const fullPrompt = buildEditPrompt(editPrompt, type);
     
-    // Llamar a la API route para manejar la edición
-    const response = await fetch('/api/edit-image', {
+    // Llamar a la nueva API route que funciona con base64
+    const response = await fetch('/api/edit-image-supabase', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -353,7 +354,7 @@ export async function editImageWithPrompt(
       body: JSON.stringify({
         type: 'edit',
         editData: {
-          originalImageUrl: imageUrl,
+          originalImageBase64: imageUrl, // Ahora es base64 en lugar de URL
           editPrompt: editPrompt,
           itemType: type,
           fullPrompt: fullPrompt
@@ -364,8 +365,8 @@ export async function editImageWithPrompt(
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Imagen editada con Nano Banana:', data.filename);
-      return data.imageUrl;
+      console.log('✅ Imagen editada con Nano Banana:', data.message);
+      return data.base64Image; // Ahora retornamos base64
     } else {
       console.warn('⚠️ Error en edición:', data.message);
       throw new Error(data.message || 'Error al editar imagen');

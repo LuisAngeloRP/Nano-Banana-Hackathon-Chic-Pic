@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Edit3, Check, X, RefreshCw, Sparkles } from 'lucide-react';
 import { Garment, Model, StyledLook } from '@/types';
 import { generateEditedImage } from '@/lib/nanoBanana';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 
 interface DetailEditorProps {
   isOpen: boolean;
@@ -129,7 +129,7 @@ export default function DetailEditor({
     }
   };
 
-  const handleConfirmChanges = () => {
+  const handleConfirmChanges = async () => {
     if (!previewImage) return;
 
     // Actualizar el elemento con la nueva imagen
@@ -139,16 +139,22 @@ export default function DetailEditor({
     };
 
     // Guardar en localStorage según el tipo
-    switch (type) {
-      case 'garment':
-        LocalStorage.updateGarment(item.id, updatedItem as Garment);
-        break;
-      case 'model':
-        LocalStorage.updateModel(item.id, updatedItem as Model);
-        break;
-      case 'look':
-        LocalStorage.updateStyledLook(item.id, updatedItem as StyledLook);
-        break;
+    try {
+      switch (type) {
+        case 'garment':
+          await SupabaseStorageAdapter.updateGarment(item.id, updatedItem as Garment);
+          break;
+        case 'model':
+          await SupabaseStorageAdapter.updateModel(item.id, updatedItem as Model);
+          break;
+        case 'look':
+          await SupabaseStorageAdapter.updateStyledLook(item.id, updatedItem as StyledLook);
+          break;
+      }
+    } catch (error) {
+      console.error('Error actualizando item:', error);
+      alert('Error al actualizar el item');
+      return;
     }
 
     onItemUpdated(updatedItem);

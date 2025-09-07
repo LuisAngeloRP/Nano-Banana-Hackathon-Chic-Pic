@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Trash2, Shirt, Search, Edit3, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, Model, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
 
@@ -38,9 +38,13 @@ export default function GarmentWardrobe({
     filterGarments();
   }, [garments, searchTerm, categoryFilter]);
 
-  const loadGarments = () => {
-    const stored = LocalStorage.getGarments();
-    setGarments(stored);
+  const loadGarments = async () => {
+    try {
+      const stored = await SupabaseStorageAdapter.getGarments();
+      setGarments(stored);
+    } catch (error) {
+      console.error('Error cargando prendas:', error);
+    }
   };
 
   const filterGarments = () => {
@@ -61,10 +65,15 @@ export default function GarmentWardrobe({
     setFilteredGarments(filtered);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de que quieres eliminar esta prenda?')) {
-      LocalStorage.deleteGarment(id);
-      loadGarments();
+      try {
+        await SupabaseStorageAdapter.deleteGarment(id);
+        loadGarments();
+      } catch (error) {
+        console.error('Error eliminando prenda:', error);
+        alert('Error al eliminar la prenda');
+      }
     }
   };
 

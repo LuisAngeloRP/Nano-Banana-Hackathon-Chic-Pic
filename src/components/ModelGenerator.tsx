@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, User, Plus } from 'lucide-react';
 import { generateModelImage } from '@/lib/gemini';
-import { LocalStorage } from '@/lib/storage';
+import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, ClothingSize, ShoeSize } from '@/types';
 
 interface ModelGeneratorProps {
@@ -81,7 +81,7 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
       const imageUrl = await generateModelImage(modelData);
       
-      const newModel = LocalStorage.addModel({
+      const newModel = await SupabaseStorageAdapter.addModel({
         name: formData.name,
         characteristics: formData.characteristics,
         gender: formData.gender as any,
