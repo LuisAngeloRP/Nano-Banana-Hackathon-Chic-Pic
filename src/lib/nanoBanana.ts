@@ -3,77 +3,40 @@
 // Prompts optimizados para Nano Banana
 export const NANO_BANANA_PROMPTS = {
   garment: `
-    Genera una imagen hiperrealista de una prenda de vestir para catálogo de moda de alta gama.
+    CREATE IMAGE: Professional fashion catalog photography showing a garment from front and back view in the same frame.
     
-    Especificaciones técnicas:
-    - Resolución: Alta definición (mínimo 1024x1024)
-    - Iluminación: Softbox profesional con sombras suaves
-    - Fondo: Blanco puro (#FFFFFF) sin texturas
-    - Ángulo: Frontal centrado con ligera perspectiva 3/4
-    - Estilo: Fotografía comercial de lujo, estilo editorial
+    - High definition studio photography (1024x1024)
+    - Pure white seamless background
+    - Professional softbox lighting on both views
+    - Commercial catalog quality dual composition
+    - Front and back view of the garment side by side
+    - No human model, garment only
+    - Premium fashion photography style
+    - Sharp details and vibrant colors
+    - Clean, wrinkle-free presentation
     
-    Características de la prenda:
-    - Presentación impecable sin arrugas
-    - Colores vibrantes y precisos
-    - Texturas claramente definidas
-    - Detalles de costura y materiales visibles
-    - Sin modelo humano, solo la prenda
-    
-    Calidad requerida:
-    - Fotorrealismo nivel catálogo premium
-    - Nitidez cristalina en todos los detalles
-    - Colores calibrados para impresión
-    - Composición centrada y equilibrada
+    GENERATE FASHION GARMENT IMAGE NOW - NO TEXT DESCRIPTION.
   `,
   
   model: `
-    Genera una imagen hiperrealista de un modelo profesional para catálogo de moda.
+    CREATE IMAGE: Professional full body fashion model photography for premium catalog.
     
-    Especificaciones técnicas:
-    - Resolución: Alta definición (mínimo 1024x1024)
-    - Iluminación: Setup de estudio profesional con luz principal y de relleno
-    - Fondo: Blanco puro (#FFFFFF) sin gradientes
-    - Pose: Natural, elegante, apropiada para moda
-    - Estilo: Fotografía de retrato comercial de alta gama
+    - High definition studio photography (1024x1024)
+    - Pure white seamless background
+    - Professional studio lighting setup
+    - Full body composition from head to feet
+    - Natural confident pose
+    - Professional makeup and styling
+    - Minimal neutral clothing/underwear
+    - Commercial fashion photography quality
+    - Sharp focus on entire figure
+    - Perfect anatomical proportions
     
-    Características del modelo:
-    - Expresión neutra pero atractiva
-    - Postura confiada y profesional
-    - Maquillaje natural y profesional
-    - Cabello bien peinado y estilizado
-    - Ropa interior neutra o ropa básica simple
-    
-    Calidad requerida:
-    - Realismo fotográfico nivel editorial
-    - Piel con textura natural sin sobreexposición
-    - Ojos enfocados y expresivos
-    - Composición desde cintura hacia arriba o cuerpo completo
-    - Proporciones anatómicas perfectas
+    GENERATE FULL BODY FASHION MODEL IMAGE NOW - NO TEXT DESCRIPTION.
   `,
   
   styling: `
-    Genera una imagen hiperrealista combinando un modelo y prendas específicas para crear un look de catálogo de moda profesional.
-    
-    Especificaciones técnicas:
-    - Resolución: Alta definición (mínimo 1024x1024)
-    - Iluminación: Setup completo de estudio con múltiples fuentes
-    - Fondo: Blanco puro (#FFFFFF) infinito
-    - Composición: Cuerpo completo o 3/4 según la prenda
-    - Estilo: Fotografía editorial de moda de lujo
-    
-    Características del styling:
-    - Ajuste perfecto de todas las prendas al modelo
-    - Caída natural de la ropa
-    - Coordinación de colores y estilos
-    - Pose que realce las prendas
-    - Expresión que complemente el estilo
-    
-    Calidad requerida:
-    - Fotorrealismo nivel campaña publicitaria
-    - Interacción natural entre modelo y ropa
-    - Sombras y pliegues realistas
-    - Colores precisos y vibrantes
-    - Composición que destaque tanto modelo como prendas
+    Viste a la modelo con las prendas brindadas. Imagen de catálogo profesional con fondo blanco.
   `
 };
 
@@ -87,10 +50,13 @@ export const NANO_BANANA_CONFIG = {
   style: 'photorealistic',
   lighting: 'studio-professional',
   background: 'pure-white',
-  aspect_ratio: '1:1' // Ideal para catálogos
+  aspect_ratio: '1:1', // Ideal para catálogos
+  garment_composition: 'dual-view', // Vista frontal y trasera
+  model_composition: 'full-body', // Cuerpo completo
+  enhanced_detail: true // Mayor detalle para vistas duales y cuerpo completo
 };
 
-// Función para construir prompt completo con contexto
+// Función para construir prompt completo con contexto mejorado
 export function buildNanoBananaPrompt(
   type: 'garment' | 'model' | 'styling',
   description: string,
@@ -98,39 +64,121 @@ export function buildNanoBananaPrompt(
 ): string {
   const basePrompt = NANO_BANANA_PROMPTS[type];
   
+  // Mejorar el prompt extrayendo información clave según el tipo
+  let enhancedDescription = description;
+  if (type === 'garment') {
+    enhancedDescription = enhanceGarmentPrompt(description);
+  } else if (type === 'model') {
+    enhancedDescription = enhanceModelPrompt(description);
+  }
+  
   return `
     ${basePrompt}
     
-    Descripción específica: ${description}
+    SPECIFIC REQUIREMENTS: ${enhancedDescription}
     
-    ${additionalContext ? `Contexto adicional: ${additionalContext}` : ''}
+    ${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}` : ''}
     
-    Recordatorio: Esta imagen será utilizada en un catálogo profesional de moda llamado "Chic Pic".
-    La calidad debe ser excepcional y comercialmente viable.
-    
-    Generar imagen ahora.
+    IMPORTANT: Professional catalog quality for "Chic Pic" fashion brand.
+    GENERATE IMAGE NOW - NO TEXT DESCRIPTION.
   `.trim();
+}
+
+// Función para mejorar prompts específicos de prendas
+function enhanceGarmentPrompt(description: string): string {
+  // Extraer información específica si está estructurada
+  const parts = description.split('|').map(part => part.trim());
+  
+  if (parts.length > 1) {
+    // Es una descripción estructurada, mejorarla
+    let enhanced = '';
+    
+    parts.forEach(part => {
+      if (part.includes('Color principal:')) {
+        const color = part.replace('Color principal:', '').trim();
+        enhanced += `Primary color: ${color}. `;
+      } else if (part.includes('Tallas disponibles:')) {
+        const sizes = part.replace('Tallas disponibles:', '').trim();
+        enhanced += `Available sizes: ${sizes}. `;
+      } else if (part.includes('CAMISETA:') || part.includes('PANTALON:') || 
+                 part.includes('VESTIDO:') || part.includes('FALDA:') ||
+                 part.includes('CAMISA:') || part.includes('CHAQUETA:') ||
+                 part.includes('ZAPATOS:') || part.includes('ACCESORIOS:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Descripción:')) {
+        const desc = part.replace('Descripción:', '').trim();
+        enhanced += `Details: ${desc}. `;
+      }
+    });
+    
+    return enhanced.trim();
+  }
+  
+  // Si no es estructurada, devolver tal como está
+  return description;
+}
+
+// Función para mejorar prompts específicos de modelos
+function enhanceModelPrompt(description: string): string {
+  // Extraer información específica si está estructurada
+  const parts = description.split('|').map(part => part.trim());
+  
+  if (parts.length > 1) {
+    // Es una descripción estructurada, mejorarla
+    let enhanced = '';
+    
+    parts.forEach(part => {
+      if (part.includes('MODEL:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Gender:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Age:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Height:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Body type:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Hair color:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Eye color:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Skin tone:')) {
+        enhanced += `${part}. `;
+      } else if (part.includes('Additional features:')) {
+        const features = part.replace('Additional features:', '').trim();
+        enhanced += `Special characteristics: ${features}. `;
+      }
+    });
+    
+    return enhanced.trim();
+  }
+  
+  // Si no es estructurada, devolver tal como está
+  return description;
 }
 
 // Parámetros de generación optimizados
 export const GENERATION_PARAMS = {
   garment: {
-    focus: 'product',
-    emphasis: 'texture_and_detail',
-    lighting_setup: 'product_photography',
-    estimated_time: 15 // segundos
+    focus: 'dual_view_product',
+    emphasis: 'front_and_back_texture_detail',
+    lighting_setup: 'dual_product_photography',
+    composition: 'front_and_back_view',
+    estimated_time: 20 // segundos (aumentado por complejidad dual)
   },
   model: {
-    focus: 'portrait',
-    emphasis: 'natural_beauty',
-    lighting_setup: 'beauty_portrait',
-    estimated_time: 20 // segundos
+    focus: 'full_body_portrait',
+    emphasis: 'complete_figure_beauty',
+    lighting_setup: 'full_body_studio',
+    composition: 'head_to_feet',
+    estimated_time: 25 // segundos (aumentado por cuerpo completo)
   },
   styling: {
     focus: 'fashion_editorial',
     emphasis: 'overall_composition',
     lighting_setup: 'fashion_photography',
-    estimated_time: 25 // segundos
+    composition: 'model_with_garment',
+    estimated_time: 30 // segundos (aumentado por complejidad)
   }
 };
 

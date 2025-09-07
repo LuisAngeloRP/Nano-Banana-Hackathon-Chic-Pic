@@ -4,53 +4,42 @@
 export const NANO_BANANA_MODEL_PROMPTS = {
   // Prompt principal en inglés (más efectivo para Nano Banana)
   primary: `
-    Create a hyper-realistic fashion model portrait for a premium fashion catalog.
-
-    TECHNICAL SPECIFICATIONS:
-    - Resolution: Ultra high definition (minimum 1024x1024)
-    - Background: Pure white seamless studio backdrop
-    - Lighting: Professional studio setup with soft key lighting
-    - Style: High-end fashion photography, commercial catalog quality
-    - Format: Professional fashion model headshot or portrait
-
-    MODEL REQUIREMENTS:
-    - Professional fashion model appearance
-    - Natural, confident expression
-    - Perfect modeling posture
+    CREATE IMAGE: Professional full body fashion model for premium catalog photography.
+    
+    - Ultra high definition studio photography (1024x1024)
+    - Pure white seamless background
+    - Professional studio lighting setup
+    - Full body shot from head to feet
+    - Natural confident modeling pose
     - Professional makeup and styling
-    - Neutral or minimal clothing/styling
-    - Commercial catalog suitable appearance
-    - Clean, professional aesthetic
-
-    QUALITY STANDARDS:
-    - Photorealistic commercial photography quality
-    - Sharp focus on facial features
-    - Professional lighting without harsh shadows
-    - Clear, bright composition
-    - Fashion industry standard quality
-
-    Generate fashion model photo now.
+    - Minimal neutral clothing/underwear
+    - Commercial catalog quality
+    - Sharp focus entire figure
+    - Perfect anatomical proportions
+    - Fashion industry standard
+    
+    GENERATE FULL BODY FASHION MODEL IMAGE NOW - NO TEXT DESCRIPTION.
   `,
 
   // Prompt alternativo si el principal falla
   alternative: `
-    Professional fashion photography of a model for a high-end catalog.
+    CREATE IMAGE: Full body fashion model for high-end catalog.
     
-    Requirements:
-    - Studio photography with white background
-    - Professional model with natural makeup
+    - Studio photography white background
+    - Professional model natural makeup
+    - Full body head to feet visible
     - Fashion catalog quality
-    - Clean, commercial aesthetic
-    - High resolution and sharp details
+    - Clean commercial aesthetic
+    - High resolution sharp details
     
-    Create this fashion model image.
+    GENERATE FULL BODY MODEL IMAGE NOW - NO TEXT.
   `,
 
   // Prompt más simple como último recurso
   simple: `
-    Fashion model portrait photo for catalog.
-    White background, professional lighting, high quality.
-    Commercial fashion photography style.
+    CREATE IMAGE: Full body fashion model photo.
+    White background, professional lighting, catalog quality.
+    GENERATE IMAGE NOW - NO TEXT.
   `
 };
 

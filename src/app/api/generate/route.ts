@@ -14,6 +14,8 @@ import {
   validateModelDescription,
   MODEL_GENERATION_CONFIG 
 } from '@/lib/nanoBananaModels';
+import fs from 'fs';
+import path from 'path';
 
 // Configuración de Gemini API
 const API_KEY = process.env.GOOGLE_API_KEY || '';
@@ -45,13 +47,64 @@ if (API_KEY) {
   }
 }
 
+// Función para cargar imagen desde URL local y convertirla a base64
+async function loadImageAsBase64(imageUrl: string): Promise<{data: string, mimeType: string} | null> {
+  try {
+    // Si es una URL relativa, construir la ruta completa
+    let imagePath: string;
+    if (imageUrl.startsWith('/')) {
+      imagePath = path.join(process.cwd(), 'public', imageUrl);
+    } else {
+      imagePath = imageUrl;
+    }
+
+    // Verificar si el archivo existe
+    if (!fs.existsSync(imagePath)) {
+      console.warn(`❌ Imagen no encontrada: ${imagePath}`);
+      return null;
+    }
+
+    // Leer archivo
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Data = imageBuffer.toString('base64');
+    
+    // Determinar tipo MIME basado en la extensión
+    const ext = path.extname(imagePath).toLowerCase();
+    let mimeType = 'image/jpeg'; // default
+    
+    switch (ext) {
+      case '.png':
+        mimeType = 'image/png';
+        break;
+      case '.jpg':
+      case '.jpeg':
+        mimeType = 'image/jpeg';
+        break;
+      case '.webp':
+        mimeType = 'image/webp';
+        break;
+      case '.svg':
+        mimeType = 'image/svg+xml';
+        break;
+    }
+
+    console.log(`✅ Imagen cargada: ${imagePath} (${mimeType})`);
+    return { data: base64Data, mimeType };
+    
+  } catch (error) {
+    console.error(`❌ Error cargando imagen ${imageUrl}:`, error);
+    return null;
+  }
+}
+
 // Función para generar con Nano Banana con reintentos para modelos
 async function generateWithNanoBanana(
   type: 'garment' | 'model' | 'look',
   description: string,
   filename: string,
   garmentUrl?: string,
-  modelUrl?: string
+  modelUrl?: string,
+  additionalData?: any
 ) {
   if (!imageModel) {
     throw new Error('Nano Banana no disponible');
@@ -80,18 +133,70 @@ async function generateWithNanoBanana(
       } else if (type === 'garment') {
         prompt = buildNanoBananaPrompt('garment', description);
       } else {
-        prompt = buildNanoBananaPrompt('styling', description, `Garment URL: ${garmentUrl}, Model URL: ${modelUrl}`);
+        // Para looks/styling, manejar el nuevo sistema inteligente
+        let additionalContext = '';
+        
+        if (additionalData?.stylingData && additionalData?.garments) {
+          // Nuevo sistema: combinación inteligente de imágenes
+          additionalContext = `INTELLIGENT STYLING MODE:
+Model Image: ${additionalData.stylingData.modelUrl}
+Garments: ${additionalData.garments.map((g: any) => `${g.category} (${g.name}${g.color ? ', ' + g.color : ''})`).join(', ')}
+Look: ${additionalData.stylingData.lookName || 'Custom Look'}`;
+        } else {
+          // Sistema legacy
+          additionalContext = `Garment URL: ${garmentUrl}, Model URL: ${modelUrl}`;
+        }
+        
+        prompt = buildNanoBananaPrompt('styling', description, additionalContext);
       }
       
       console.log('📝 Prompt optimizado:', prompt.substring(0, 100) + '...');
+      
+      // Preparar contenido para Nano Banana
+      let contentParts: any[] = [{ text: prompt }];
+      
+      // Si es tipo 'look' y tenemos imágenes, agregarlas como input
+      if (type === 'look' && additionalData?.stylingData) {
+        console.log('🖼️ Cargando imágenes para combinación...');
+        
+        // Cargar imagen del modelo
+        if (additionalData.stylingData.modelUrl) {
+          const modelImage = await loadImageAsBase64(additionalData.stylingData.modelUrl);
+          if (modelImage) {
+            contentParts.push({
+              inlineData: {
+                data: modelImage.data,
+                mimeType: modelImage.mimeType
+              }
+            });
+            console.log('✅ Imagen de modelo cargada');
+          }
+        }
+        
+        // Cargar imágenes de las prendas
+        if (additionalData.garments) {
+          for (const garment of additionalData.garments) {
+            if (garment.imageUrl) {
+              const garmentImage = await loadImageAsBase64(garment.imageUrl);
+              if (garmentImage) {
+                contentParts.push({
+                  inlineData: {
+                    data: garmentImage.data,
+                    mimeType: garmentImage.mimeType
+                  }
+                });
+                console.log(`✅ Imagen de ${garment.category} cargada`);
+              }
+            }
+          }
+        }
+      }
       
       // Generar imagen con Nano Banana
       const result = await imageModel.generateContent({
         contents: [{
           role: 'user',
-          parts: [{
-            text: prompt
-          }]
+          parts: contentParts
         }]
       });
       
@@ -176,7 +281,7 @@ async function generateWithNanoBanana(
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { type, description, garmentUrl, modelUrl } = body;
+    const { type, description, garmentUrl, modelUrl, garments, stylingData } = body;
     
     console.log(`🎨 Generando imagen de ${type}:`, description);
     
@@ -210,7 +315,8 @@ export async function POST(request: NextRequest) {
           description,
           filename,
           garmentUrl,
-          modelUrl
+          modelUrl,
+          { stylingData, garments }
         );
         
         if (result.success) {

@@ -59,18 +59,20 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
     setIsGenerating(true);
     try {
-      const characteristicsText = `
-        Género: ${formData.gender}
-        Edad: ${formData.age || 'Adulto joven'}
-        Altura: ${formData.height || 'Promedio'}
-        Tipo de cuerpo: ${formData.bodyType || 'Atlético'}
-        Color de cabello: ${formData.hairColor || 'Castaño'}
-        Color de ojos: ${formData.eyeColor || 'Marrones'}
-        Tono de piel: ${formData.skinTone || 'Medio'}
-        Características adicionales: ${formData.characteristics}
-      `;
+      // Pasar todos los datos del formulario para una generación más precisa
+      const modelData = {
+        name: formData.name,
+        characteristics: formData.characteristics,
+        gender: formData.gender,
+        age: formData.age || 'Adulto joven',
+        height: formData.height || 'Promedio',
+        bodyType: formData.bodyType || 'Atlético',
+        hairColor: formData.hairColor || 'Castaño',
+        eyeColor: formData.eyeColor || 'Marrones',
+        skinTone: formData.skinTone || 'Medio'
+      };
 
-      const imageUrl = await generateModelImage(characteristicsText);
+      const imageUrl = await generateModelImage(modelData);
       
       const newModel = LocalStorage.addModel({
         name: formData.name,

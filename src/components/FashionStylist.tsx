@@ -60,23 +60,23 @@ export default function FashionStylist() {
 
     setIsGenerating(true);
     try {
-      const garmentDescriptions = selectedGarments.map(g => 
-        `${g.name} (${g.category}, ${g.color})`
-      ).join(', ');
+      // Preparar datos estructurados para styling inteligente
+      const stylingData = {
+        modelUrl: selectedModel.imageUrl,
+        garments: selectedGarments.map(garment => ({
+          imageUrl: garment.imageUrl,
+          category: garment.category,
+          name: garment.name,
+          color: garment.color
+        })),
+        lookName: lookName,
+        lookDescription: lookDescription
+      };
 
-      const instructions = `
-        Modelo: ${selectedModel.name} - ${selectedModel.characteristics}
-        Prendas a combinar: ${garmentDescriptions}
-        Descripción del look: ${lookDescription}
-        
-        Genera una imagen profesional de catálogo donde el modelo lleve puestas todas las prendas seleccionadas de manera natural y elegante.
-      `;
-
-      const imageUrl = await generateStyledImage(
-        selectedGarments[0].imageUrl, 
-        selectedModel.imageUrl, 
-        instructions
-      );
+      console.log('🎨 Iniciando styling inteligente:', stylingData);
+      
+      // Usar el nuevo sistema de combinación inteligente de imágenes
+      const imageUrl = await generateStyledImage(stylingData);
 
       const newLook = LocalStorage.addStyledLook({
         name: lookName,

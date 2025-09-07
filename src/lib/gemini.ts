@@ -19,45 +19,76 @@ if (API_KEY) {
 
 // Prompts estándar para mantener consistencia de estilo
 export const GARMENT_PROMPT_BASE = `
-Genera una imagen de alta calidad de una prenda de vestir para catálogo de moda.
-La imagen debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional y uniforme
-- Estilo de fotografía de catálogo comercial
-- La prenda debe estar bien presentada y visible
-- Resolución alta y nítida
-- Sin modelos, solo la prenda
-- Estilo realista y profesional
+CREATE IMAGE: Professional garment photography showing front and back view in same frame for fashion catalog.
+- White background clean neutral
+- Professional uniform lighting both views
+- Commercial catalog photography style
+- Garment well presented visible front and back
+- High resolution sharp entire composition
+- No models, garment only front and back view
+- Realistic professional style consistent both perspectives
+- Balanced composition showing front and back clearly
+GENERATE GARMENT IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
 export const MODEL_PROMPT_BASE = `
-Genera una imagen de alta calidad de un modelo para catálogo de moda.
-La imagen debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional de estudio
-- Pose natural y profesional para catálogo
-- Expresión neutra y elegante
-- Resolución alta y nítida
-- Estilo de fotografía comercial de moda
-- El modelo debe verse profesional y estar en ropa interior neutra o básica
+CREATE IMAGE: Professional full body model for fashion catalog.
+- White background clean neutral
+- Professional studio lighting
+- Natural professional pose catalog showing complete figure
+- Neutral elegant expression
+- High resolution sharp
+- Commercial fashion photography style full body
+- Model professional head to feet
+- Complete figure visible in frame
+- Neutral basic underwear
+GENERATE FULL BODY MODEL IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
 export const STYLING_PROMPT_BASE = `
-Combina de manera realista una prenda de vestir con un modelo para crear una imagen de catálogo de moda.
-La imagen final debe tener:
-- Fondo blanco limpio y neutro
-- Iluminación profesional y uniforme
-- La prenda debe verse natural en el modelo
-- Pose elegante y profesional
-- Estilo de fotografía de catálogo comercial
-- Resolución alta y nítida
-- El ajuste de la ropa debe verse realista y natural
+CREATE IMAGE: Realistic combination garment with model for fashion catalog.
+- White background clean neutral
+- Professional uniform lighting
+- Garment natural on model
+- Elegant professional pose
+- Commercial catalog photography style
+- High resolution sharp
+- Clothing fit realistic natural
+GENERATE STYLED FASHION IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
 
-export async function generateGarmentImage(description: string): Promise<string> {
+// Interface para datos estructurados de prenda
+interface GarmentData {
+  name: string;
+  description: string;
+  category: string;
+  color?: string;
+  size?: string[];
+}
+
+export async function generateGarmentImage(
+  garmentData: GarmentData | string
+): Promise<string> {
   try {
-    console.log('🎨 Generando imagen de prenda:', description);
+    // Si recibimos string (retrocompatibilidad), convertir a objeto
+    let structuredData: GarmentData;
+    if (typeof garmentData === 'string') {
+      structuredData = {
+        name: 'Prenda personalizada',
+        description: garmentData,
+        category: 'general',
+        color: '',
+        size: []
+      };
+    } else {
+      structuredData = garmentData;
+    }
+
+    console.log('🎨 Generando imagen de prenda:', structuredData);
+    
+    // Construir descripción completa incluyendo todos los datos
+    const completeDescription = buildCompleteGarmentDescription(structuredData);
     
     // Llamar a la API route del servidor para manejar la generación y almacenamiento
     const response = await fetch('/api/generate', {
@@ -67,7 +98,8 @@ export async function generateGarmentImage(description: string): Promise<string>
       },
       body: JSON.stringify({
         type: 'garment',
-        description
+        description: completeDescription,
+        garmentData: structuredData // Enviar datos estructurados también
       })
     });
 
@@ -79,19 +111,73 @@ export async function generateGarmentImage(description: string): Promise<string>
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
       // Fallback a placeholder directo
-      return createCustomPlaceholder('garment', description);
+      return createCustomPlaceholder('garment', completeDescription);
     }
     
   } catch (error) {
     console.error('❌ Error generando imagen de prenda:', error);
     // Último fallback
-    return createCustomPlaceholder('garment', description);
+    const desc = typeof garmentData === 'string' ? garmentData : garmentData.description;
+    return createCustomPlaceholder('garment', desc);
   }
 }
 
-export async function generateModelImage(characteristics: string): Promise<string> {
+// Función para construir descripción completa de prenda
+function buildCompleteGarmentDescription(data: GarmentData): string {
+  const parts = [];
+  
+  // Nombre y categoría siempre van primero
+  parts.push(`${data.category.toUpperCase()}: ${data.name}`);
+  
+  // Color si está especificado
+  if (data.color && data.color.trim()) {
+    parts.push(`Color principal: ${data.color}`);
+  }
+  
+  // Tallas si están especificadas
+  if (data.size && data.size.length > 0) {
+    parts.push(`Tallas disponibles: ${data.size.join(', ')}`);
+  }
+  
+  // Descripción detallada
+  parts.push(`Descripción: ${data.description}`);
+  
+  return parts.join(' | ');
+}
+
+// Interface para datos estructurados de modelo
+interface ModelData {
+  name: string;
+  characteristics: string;
+  gender: string;
+  age?: string;
+  height?: string;
+  bodyType?: string;
+  hairColor?: string;
+  eyeColor?: string;
+  skinTone?: string;
+}
+
+export async function generateModelImage(
+  modelData: ModelData | string
+): Promise<string> {
   try {
-    console.log('👤 Generando imagen de modelo:', characteristics);
+    // Si recibimos string (retrocompatibilidad), convertir a objeto
+    let structuredData: ModelData;
+    if (typeof modelData === 'string') {
+      structuredData = {
+        name: 'Modelo personalizado',
+        characteristics: modelData,
+        gender: 'Unisex'
+      };
+    } else {
+      structuredData = modelData;
+    }
+
+    console.log('👤 Generando imagen de modelo:', structuredData);
+    
+    // Construir descripción completa incluyendo todos los datos
+    const completeDescription = buildCompleteModelDescription(structuredData);
     
     // Llamar a la API route del servidor
     const response = await fetch('/api/generate', {
@@ -101,7 +187,8 @@ export async function generateModelImage(characteristics: string): Promise<strin
       },
       body: JSON.stringify({
         type: 'model',
-        description: characteristics
+        description: completeDescription,
+        modelData: structuredData // Enviar datos estructurados también
       })
     });
 
@@ -112,20 +199,86 @@ export async function generateModelImage(characteristics: string): Promise<strin
       return data.imageUrl;
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
-      return createCustomPlaceholder('model', characteristics);
+      return createCustomPlaceholder('model', completeDescription);
     }
     
   } catch (error) {
     console.error('❌ Error generando imagen de modelo:', error);
-    return createCustomPlaceholder('model', characteristics);
+    const desc = typeof modelData === 'string' ? modelData : modelData.characteristics;
+    return createCustomPlaceholder('model', desc);
   }
 }
 
-export async function generateStyledImage(garmentUrl: string, modelUrl: string, instructions: string): Promise<string> {
+// Función para construir descripción completa de modelo
+function buildCompleteModelDescription(data: ModelData): string {
+  const parts = [];
+  
+  // Nombre y género
+  parts.push(`MODEL: ${data.name} - Gender: ${data.gender}`);
+  
+  // Características físicas si están especificadas
+  if (data.age) parts.push(`Age: ${data.age}`);
+  if (data.height) parts.push(`Height: ${data.height}`);
+  if (data.bodyType) parts.push(`Body type: ${data.bodyType}`);
+  if (data.hairColor) parts.push(`Hair color: ${data.hairColor}`);
+  if (data.eyeColor) parts.push(`Eye color: ${data.eyeColor}`);
+  if (data.skinTone) parts.push(`Skin tone: ${data.skinTone}`);
+  
+  // Características adicionales
+  parts.push(`Additional features: ${data.characteristics}`);
+  
+  return parts.join(' | ');
+}
+
+// Interface para datos de styling inteligente
+interface StylingData {
+  modelUrl: string;
+  garments: Array<{
+    imageUrl: string;
+    category: string;
+    name: string;
+    color?: string;
+  }>;
+  lookName?: string;
+  lookDescription?: string;
+}
+
+export async function generateStyledImage(
+  stylingData: StylingData | {garmentUrl: string, modelUrl: string, instructions: string}
+): Promise<string> {
   try {
-    console.log('✨ Generando look combinado:', instructions);
+    // Retrocompatibilidad con la interfaz anterior
+    if ('garmentUrl' in stylingData && 'instructions' in stylingData) {
+      console.log('✨ Generando look combinado (modo legacy):', stylingData.instructions);
+      
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'look',
+          description: stylingData.instructions,
+          garmentUrl: stylingData.garmentUrl,
+          modelUrl: stylingData.modelUrl
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        return data.imageUrl;
+      } else {
+        return createCustomPlaceholder('look', stylingData.instructions);
+      }
+    }
+
+    // Nuevo modo: combinación inteligente de imágenes
+    console.log('✨ Generando look combinado con imágenes:', stylingData);
     
-    // Llamar a la API route del servidor
+    // Construir instrucciones inteligentes basadas en las categorías
+    const intelligentInstructions = buildIntelligentStylingInstructions(stylingData);
+    
+    // Llamar a la API route del servidor con datos estructurados
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {
@@ -133,26 +286,59 @@ export async function generateStyledImage(garmentUrl: string, modelUrl: string, 
       },
       body: JSON.stringify({
         type: 'look',
-        description: instructions,
-        garmentUrl,
-        modelUrl
+        description: intelligentInstructions,
+        modelUrl: stylingData.modelUrl,
+        garments: stylingData.garments,
+        stylingData: stylingData // Datos completos para procesamiento
       })
     });
 
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Imagen generada y guardada:', data.filename);
+      console.log('✅ Look inteligente generado:', data.filename);
       return data.imageUrl;
     } else {
       console.warn('⚠️ Usando fallback:', data.message);
-      return createCustomPlaceholder('look', instructions);
+      return createCustomPlaceholder('look', intelligentInstructions);
     }
     
   } catch (error) {
-    console.error('❌ Error generando imagen combinada:', error);
-    return createCustomPlaceholder('look', instructions);
+    console.error('❌ Error generando look combinado:', error);
+    const fallbackDesc = 'garmentUrl' in stylingData ? 
+      stylingData.instructions : 
+      stylingData.lookDescription || 'Look personalizado';
+    return createCustomPlaceholder('look', fallbackDesc);
   }
+}
+
+// Función para construir instrucciones inteligentes de styling
+function buildIntelligentStylingInstructions(data: StylingData): string {
+  // Analizar tipos de prendas para determinar el mensaje específico
+  const garmentTypes = data.garments.map(g => g.category.toLowerCase());
+  const hasUpper = garmentTypes.some(t => ['camiseta', 'camisa', 'chaqueta'].includes(t));
+  const hasLower = garmentTypes.some(t => ['pantalon', 'falda'].includes(t));
+  const hasDress = garmentTypes.some(t => ['vestido'].includes(t));
+  
+  let message = 'Viste a la modelo con las prendas brindadas.';
+  
+  // Agregar especificidad si es necesario
+  if (hasDress) {
+    message = 'Viste a la modelo con el vestido brindado.';
+  } else if (hasUpper && !hasLower) {
+    message = 'Viste a la modelo con la prenda superior brindada.';
+  } else if (hasLower && !hasUpper) {
+    message = 'Viste a la modelo con la prenda inferior brindada.';
+  }
+  
+  // Agregar instrucción adicional del campo lookDescription si existe
+  if (data.lookDescription && data.lookDescription.trim()) {
+    message += ` ${data.lookDescription}`;
+  }
+  
+  message += ' Imagen de catálogo profesional con fondo blanco.';
+  
+  return message;
 }
 
 // Función para verificar si la API está configurada correctamente

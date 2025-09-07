@@ -56,7 +56,16 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
     setIsGenerating(true);
     try {
-      const imageUrl = await generateGarmentImage(formData.description);
+      // Pasar todos los datos del formulario para una generación más precisa
+      const garmentData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        color: formData.color,
+        size: formData.size
+      };
+      
+      const imageUrl = await generateGarmentImage(garmentData);
       
       const newGarment = LocalStorage.addGarment({
         name: formData.name,
