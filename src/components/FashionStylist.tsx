@@ -7,14 +7,22 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Palette, Wand2, X } from 'lucide-react';
 import { generateStyledImage } from '@/lib/gemini';
 import { LocalStorage } from '@/lib/storage';
-import { Garment, Model, StyledLook } from '@/types';
+import { Garment, Model, StyledLook, GarmentFitInfo, SelectedGarmentWithSize, ClothingSize, ShoeSize } from '@/types';
+import { 
+  determineFitType, 
+  generateFitDescription, 
+  getModelSizeForCategory,
+  getFitBadgeColor,
+  getFitShortDescription 
+} from '@/lib/sizeUtils';
 
 export default function FashionStylist() {
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
-  const [selectedGarments, setSelectedGarments] = useState<Garment[]>([]);
+  const [selectedGarments, setSelectedGarments] = useState<SelectedGarmentWithSize[]>([]);
   const [lookName, setLookName] = useState('');
   const [lookDescription, setLookDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -38,13 +46,31 @@ export default function FashionStylist() {
   };
 
   const handleGarmentSelect = (garment: Garment) => {
-    if (!selectedGarments.find(g => g.id === garment.id)) {
-      setSelectedGarments(prev => [...prev, garment]);
+    if (!selectedGarments.find(g => g.garment.id === garment.id)) {
+      // Si la prenda solo tiene una talla disponible, seleccionarla automáticamente
+      const defaultSize = garment.availableSizes && garment.availableSizes.length === 1 
+        ? garment.availableSizes[0] 
+        : (garment.availableSizes && garment.availableSizes.length > 0 ? garment.availableSizes[0] : 'M' as ClothingSize);
+      
+      setSelectedGarments(prev => [...prev, {
+        garment,
+        selectedSize: defaultSize
+      }]);
     }
   };
 
   const removeGarment = (garmentId: string) => {
-    setSelectedGarments(prev => prev.filter(g => g.id !== garmentId));
+    setSelectedGarments(prev => prev.filter(g => g.garment.id !== garmentId));
+  };
+
+  const updateGarmentSize = (garmentId: string, newSize: ClothingSize | ShoeSize) => {
+    setSelectedGarments(prev => 
+      prev.map(g => 
+        g.garment.id === garmentId 
+          ? { ...g, selectedSize: newSize }
+          : g
+      )
+    );
   };
 
   const generateLook = async () => {
@@ -60,20 +86,58 @@ export default function FashionStylist() {
 
     setIsGenerating(true);
     try {
-      // Preparar datos estructurados para styling inteligente
+      // Generar información de ajuste para cada prenda
+      const garmentFits: GarmentFitInfo[] = selectedGarments.map(selectedGarment => {
+        const { garment, selectedSize } = selectedGarment;
+        const modelSize = getModelSizeForCategory(
+          selectedModel.upperBodySize,
+          selectedModel.lowerBodySize,
+          selectedModel.shoeSize,
+          garment.category
+        );
+        
+        const fitType = determineFitType(selectedSize, modelSize, garment.category);
+        const fitDescription = generateFitDescription(fitType, garment.name, garment.category);
+        
+        return {
+          garmentId: garment.id,
+          selectedSize: selectedSize,
+          modelSize: modelSize,
+          fitType: fitType,
+          fitDescription: fitDescription
+        };
+      });
+
+      // Preparar datos estructurados para styling inteligente con información de ajuste
       const stylingData = {
         modelUrl: selectedModel.imageUrl,
-        garments: selectedGarments.map(garment => ({
-          imageUrl: garment.imageUrl,
-          category: garment.category,
-          name: garment.name,
-          color: garment.color
+        garments: selectedGarments.map(selectedGarment => ({
+          imageUrl: selectedGarment.garment.imageUrl,
+          category: selectedGarment.garment.category,
+          name: selectedGarment.garment.name,
+          color: selectedGarment.garment.color,
+          size: selectedGarment.selectedSize
         })),
+        modelSizes: {
+          upperBodySize: selectedModel.upperBodySize,
+          lowerBodySize: selectedModel.lowerBodySize,
+          shoeSize: selectedModel.shoeSize
+        },
+        garmentFits: garmentFits,
         lookName: lookName,
         lookDescription: lookDescription
       };
 
-      console.log('🎨 Iniciando styling inteligente:', stylingData);
+      console.log('🎨 Iniciando styling inteligente con información de tallas:', stylingData);
+      
+      // Crear descripción inteligente del look con información de ajuste
+      const fitDescriptions = garmentFits.map(fit => 
+        `${fit.fitDescription}`
+      ).join(' ');
+      
+      const enhancedDescription = lookDescription 
+        ? `${lookDescription}\n\nAjuste de las prendas: ${fitDescriptions}`
+        : `Look creado con ${selectedGarments.length} prendas. ${fitDescriptions}`;
       
       // Usar el nuevo sistema de combinación inteligente de imágenes
       const imageUrl = await generateStyledImage(stylingData);
@@ -81,9 +145,10 @@ export default function FashionStylist() {
       const newLook = LocalStorage.addStyledLook({
         name: lookName,
         modelId: selectedModel.id,
-        garmentIds: selectedGarments.map(g => g.id),
+        garmentIds: selectedGarments.map(g => g.garment.id),
         imageUrl,
-        description: lookDescription || `Look creado con ${selectedGarments.length} prendas`
+        description: enhancedDescription,
+        garmentFits: garmentFits
       });
 
       setGeneratedLooks(prev => [newLook, ...prev]);
@@ -94,7 +159,7 @@ export default function FashionStylist() {
       setSelectedGarments([]);
       setSelectedModel(null);
 
-      alert('¡Look generado exitosamente!');
+      alert('¡Look generado exitosamente con análisis de ajuste!');
     } catch (error) {
       console.error('Error:', error);
       if (error instanceof Error && error.message.includes('API key')) {
@@ -142,6 +207,17 @@ export default function FashionStylist() {
                       <p className="text-sm text-muted-foreground">
                         {selectedModel.gender} • {selectedModel.age} • {selectedModel.bodyType}
                       </p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          Superior: {selectedModel.upperBodySize || 'No especificada'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Inferior: {selectedModel.lowerBodySize || 'No especificada'}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Zapatos: {selectedModel.shoeSize || 'No especificada'}
+                        </Badge>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
@@ -193,16 +269,44 @@ export default function FashionStylist() {
             {selectedGarments.length > 0 && (
               <div className="mb-4">
                 <p className="text-sm text-muted-foreground mb-2">Prendas seleccionadas:</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedGarments.map(garment => (
-                    <Badge
-                      key={garment.id}
-                      variant="secondary"
-                      className="cursor-pointer hover:bg-red-100"
-                      onClick={() => removeGarment(garment.id)}
-                    >
-                      {garment.name} <X className="ml-1 h-3 w-3" />
-                    </Badge>
+                <div className="space-y-3">
+                  {selectedGarments.map(selectedGarment => (
+                    <div key={selectedGarment.garment.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                      <img
+                        src={selectedGarment.garment.imageUrl}
+                        alt={selectedGarment.garment.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{selectedGarment.garment.name}</p>
+                        <p className="text-xs text-muted-foreground">{selectedGarment.garment.category}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Select 
+                          value={selectedGarment.selectedSize} 
+                          onValueChange={(newSize) => updateGarmentSize(selectedGarment.garment.id, newSize as ClothingSize | ShoeSize)}
+                        >
+                          <SelectTrigger className="w-20">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {selectedGarment.garment.availableSizes?.map(size => (
+                              <SelectItem key={size} value={size}>
+                                {size}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeGarment(selectedGarment.garment.id)}
+                          className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -221,7 +325,7 @@ export default function FashionStylist() {
                     <Card
                       key={garment.id}
                       className={`cursor-pointer hover:shadow-md transition-all min-w-24 ${
-                        selectedGarments.find(g => g.id === garment.id) 
+                        selectedGarments.find(g => g.garment.id === garment.id) 
                           ? 'ring-2 ring-blue-500' 
                           : ''
                       }`}
@@ -341,8 +445,36 @@ export default function FashionStylist() {
                         </div>
                       </div>
                       
+                      {/* Información de Ajuste */}
+                      {look.garmentFits && look.garmentFits.length > 0 && (
+                        <div className="space-y-2 mt-3 border-t pt-2">
+                          <p className="text-xs font-medium">Ajuste de las prendas:</p>
+                          <div className="space-y-1">
+                            {look.garmentFits.map(fit => {
+                              const garment = usedGarments.find(g => g.id === fit.garmentId);
+                              if (!garment) return null;
+                              
+                              return (
+                                <div key={fit.garmentId} className="flex items-center justify-between text-xs">
+                                  <div className="flex-1 mr-2">
+                                    <span className="truncate">{garment.name}</span>
+                                    <span className="text-muted-foreground ml-1">(Talla {fit.selectedSize})</span>
+                                  </div>
+                                  <Badge 
+                                    variant="outline" 
+                                    className={`text-xs ${getFitBadgeColor(fit.fitType)}`}
+                                  >
+                                    {getFitShortDescription(fit.fitType)}
+                                  </Badge>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
                       {look.description && (
-                        <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                        <p className="text-xs text-muted-foreground mt-2 line-clamp-3">
                           {look.description}
                         </p>
                       )}

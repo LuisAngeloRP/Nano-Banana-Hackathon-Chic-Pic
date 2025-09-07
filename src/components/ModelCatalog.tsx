@@ -158,6 +158,22 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                         <p><span className="font-medium">Piel:</span> {model.skinTone}</p>
                       </div>
                       
+                      {/* Información de Tallas */}
+                      <div className="border-t pt-2 mt-2">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Tallas:</p>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="outline" className="text-xs">
+                            Superior: {model.upperBodySize || 'No especificada'}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Inferior: {model.lowerBodySize || 'No especificada'}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            Zapatos: {model.shoeSize || 'No especificada'}
+                          </Badge>
+                        </div>
+                      </div>
+                      
                       <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
                         {model.characteristics}
                       </p>

@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, User, Plus } from 'lucide-react';
 import { generateModelImage } from '@/lib/gemini';
 import { LocalStorage } from '@/lib/storage';
-import { Model } from '@/types';
+import { Model, ClothingSize, ShoeSize } from '@/types';
 
 interface ModelGeneratorProps {
   onModelGenerated?: (model: Model) => void;
@@ -26,7 +26,10 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
     bodyType: '',
     hairColor: '',
     eyeColor: '',
-    skinTone: ''
+    skinTone: '',
+    upperBodySize: '' as ClothingSize | '',
+    lowerBodySize: '' as ClothingSize | '',
+    shoeSize: '' as ShoeSize | ''
   });
 
   const genderOptions = [
@@ -51,9 +54,13 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
     'Muy claro', 'Claro', 'Medio', 'Bronceado', 'Oscuro', 'Muy oscuro'
   ];
 
+  const clothingSizes: ClothingSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const shoeSizes: ShoeSize[] = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
+
   const handleGenerate = async () => {
-    if (!formData.name || !formData.characteristics || !formData.gender) {
-      alert('Por favor completa los campos requeridos');
+    if (!formData.name || !formData.characteristics || !formData.gender || 
+        !formData.upperBodySize || !formData.lowerBodySize || !formData.shoeSize) {
+      alert('Por favor completa todos los campos requeridos incluyendo las tallas');
       return;
     }
 
@@ -84,6 +91,9 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         hairColor: formData.hairColor || 'Castaño',
         eyeColor: formData.eyeColor || 'Marrones',
         skinTone: formData.skinTone || 'Medio',
+        upperBodySize: formData.upperBodySize,
+        lowerBodySize: formData.lowerBodySize,
+        shoeSize: formData.shoeSize,
         imageUrl
       });
 
@@ -99,7 +109,10 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         bodyType: '',
         hairColor: '',
         eyeColor: '',
-        skinTone: ''
+        skinTone: '',
+        upperBodySize: '' as ClothingSize | '',
+        lowerBodySize: '' as ClothingSize | '',
+        shoeSize: '' as ShoeSize | ''
       });
 
       alert('¡Modelo generado exitosamente!');
@@ -262,6 +275,79 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Sección de Tallas */}
+        <div className="space-y-4 border-t pt-4">
+          <h3 className="font-semibold text-lg">Tallas del Modelo *</h3>
+          <p className="text-sm text-muted-foreground">
+            Especifica las tallas del modelo para un ajuste preciso de las prendas.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Talla Superior *
+              </label>
+              <Select 
+                value={formData.upperBodySize} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, upperBodySize: value as ClothingSize }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Talla para camisetas, camisas..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {clothingSizes.map(size => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Talla Inferior *
+              </label>
+              <Select 
+                value={formData.lowerBodySize} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, lowerBodySize: value as ClothingSize }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Talla para pantalones, faldas..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {clothingSizes.map(size => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">
+                Talla de Zapatos *
+              </label>
+              <Select 
+                value={formData.shoeSize} 
+                onValueChange={(value) => setFormData(prev => ({ ...prev, shoeSize: value as ShoeSize }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Número de zapato" />
+                </SelectTrigger>
+                <SelectContent>
+                  {shoeSizes.map(size => (
+                    <SelectItem key={size} value={size}>
+                      {size}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         <div>

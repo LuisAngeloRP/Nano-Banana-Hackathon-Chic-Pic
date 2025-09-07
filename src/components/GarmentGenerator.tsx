@@ -10,7 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Shirt, Plus } from 'lucide-react';
 import { generateGarmentImage } from '@/lib/gemini';
 import { LocalStorage } from '@/lib/storage';
-import { Garment } from '@/types';
+import { Garment, ClothingCategory, ClothingSize, ShoeSize } from '@/types';
+import { getAvailableSizesForCategory, isValidSizeForCategory } from '@/lib/sizeUtils';
 
 interface GarmentGeneratorProps {
   onGarmentGenerated?: (garment: Garment) => void;
@@ -21,30 +22,27 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: '',
-    color: '',
-    size: [] as string[]
+    category: '' as ClothingCategory | '',
+    color: ''
   });
 
-  const categories = [
-    'camiseta',
-    'pantalon',
-    'vestido', 
-    'falda',
-    'camisa',
-    'chaqueta',
-    'zapatos',
-    'accesorios'
+  const categories: { value: ClothingCategory; label: string }[] = [
+    { value: 'camiseta', label: 'Camiseta' },
+    { value: 'camisa', label: 'Camisa' },
+    { value: 'chaqueta', label: 'Chaqueta' },
+    { value: 'pantalon', label: 'Pantalón' },
+    { value: 'falda', label: 'Falda' },
+    { value: 'vestido', label: 'Vestido' },
+    { value: 'zapatos', label: 'Zapatos' },
+    { value: 'accesorios', label: 'Accesorios' }
   ];
 
-  const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  // Las tallas se asignarán automáticamente según la categoría
 
-  const handleSizeToggle = (size: string) => {
+  const handleCategoryChange = (category: ClothingCategory) => {
     setFormData(prev => ({
       ...prev,
-      size: prev.size.includes(size) 
-        ? prev.size.filter(s => s !== size)
-        : [...prev.size, size]
+      category
     }));
   };
 
@@ -56,13 +54,16 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
     setIsGenerating(true);
     try {
+      // Generar tallas disponibles automáticamente según la categoría
+      const availableSizes = getAvailableSizesForCategory(formData.category as ClothingCategory) as (ClothingSize | ShoeSize)[];
+      
       // Pasar todos los datos del formulario para una generación más precisa
       const garmentData = {
         name: formData.name,
         description: formData.description,
         category: formData.category,
         color: formData.color,
-        size: formData.size
+        size: availableSizes // Pasar las tallas disponibles automáticamente
       };
       
       const imageUrl = await generateGarmentImage(garmentData);
@@ -70,9 +71,9 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       const newGarment = LocalStorage.addGarment({
         name: formData.name,
         description: formData.description,
-        category: formData.category as any,
+        category: formData.category,
         color: formData.color,
-        size: formData.size,
+        availableSizes: availableSizes,
         imageUrl
       });
 
@@ -82,9 +83,8 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       setFormData({
         name: '',
         description: '',
-        category: '',
-        color: '',
-        size: []
+        category: '' as ClothingCategory | '',
+        color: ''
       });
 
       alert('¡Prenda generada exitosamente!');
@@ -126,15 +126,15 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
           </label>
           <Select 
             value={formData.category} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+            onValueChange={(value) => handleCategoryChange(value as ClothingCategory)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecciona una categoría" />
             </SelectTrigger>
             <SelectContent>
               {categories.map(cat => (
-                <SelectItem key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                <SelectItem key={cat.value} value={cat.value}>
+                  {cat.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -152,23 +152,23 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
           />
         </div>
 
-        <div>
-          <label className="text-sm font-medium mb-2 block">
-            Tallas disponibles
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {sizes.map(size => (
-              <Badge
-                key={size}
-                variant={formData.size.includes(size) ? "default" : "outline"}
-                className="cursor-pointer"
-                onClick={() => handleSizeToggle(size)}
-              >
-                {size}
-              </Badge>
-            ))}
+        {/* Información sobre tallas */}
+        {formData.category && (
+          <div className="bg-blue-50 p-3 rounded-md">
+            <p className="text-sm text-blue-700 font-medium mb-1">
+              📝 Tallas disponibles
+            </p>
+            <p className="text-xs text-blue-600">
+              Esta prenda estará disponible en las tallas estándar para {formData.category}:
+              <span className="font-medium ml-1">
+                {getAvailableSizesForCategory(formData.category).join(', ')}
+              </span>
+            </p>
+            <p className="text-xs text-blue-500 mt-1">
+              ℹ️ En el estilista podrás seleccionar la talla específica para cada look.
+            </p>
           </div>
-        </div>
+        )}
 
         <div>
           <label className="text-sm font-medium mb-2 block">

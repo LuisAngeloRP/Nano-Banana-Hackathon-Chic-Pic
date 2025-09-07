@@ -65,7 +65,7 @@ interface GarmentData {
   description: string;
   category: string;
   color?: string;
-  size?: string[];
+  size?: string | string[]; // Admitir tanto string como array para retrocompatibilidad
 }
 
 export async function generateGarmentImage(
@@ -136,8 +136,12 @@ function buildCompleteGarmentDescription(data: GarmentData): string {
   }
   
   // Tallas si están especificadas
-  if (data.size && data.size.length > 0) {
-    parts.push(`Tallas disponibles: ${data.size.join(', ')}`);
+  if (data.size) {
+    if (Array.isArray(data.size) && data.size.length > 0) {
+      parts.push(`Tallas disponibles: ${data.size.join(', ')}`);
+    } else if (typeof data.size === 'string' && data.size.trim()) {
+      parts.push(`Talla: ${data.size}`);
+    }
   }
   
   // Descripción detallada

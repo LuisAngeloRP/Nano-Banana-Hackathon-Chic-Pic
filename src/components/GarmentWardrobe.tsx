@@ -160,15 +160,22 @@ export default function GarmentWardrobe({
                         </p>
                       )}
                       
-                      {garment.size.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-xs text-muted-foreground">Tallas disponibles:</span>
                         <div className="flex flex-wrap gap-1">
-                          {garment.size.map(size => (
-                            <Badge key={size} variant="outline" className="text-xs">
-                              {size}
+                          {garment.availableSizes && garment.availableSizes.length > 0 ? (
+                            garment.availableSizes.map(size => (
+                              <Badge key={size} variant="outline" className="text-xs">
+                                {size}
+                              </Badge>
+                            ))
+                          ) : (
+                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                              No especificadas
                             </Badge>
-                          ))}
+                          )}
                         </div>
-                      )}
+                      </div>
                       
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {garment.description}

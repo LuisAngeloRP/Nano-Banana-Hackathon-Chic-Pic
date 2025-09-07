@@ -1,4 +1,5 @@
 import { Garment, Model, StyledLook } from '@/types';
+import { migrateGarmentsList } from './migrationUtils';
 
 // Simulación de almacenamiento local hasta integrar una base de datos
 export class LocalStorage {
@@ -15,7 +16,9 @@ export class LocalStorage {
 
   // Gestión de prendas
   static getGarments(): Garment[] {
-    return this.getItems<Garment>('chic-pic-garments');
+    const rawGarments = this.getItems<any>('chic-pic-garments');
+    // Migrar prendas del formato anterior al nuevo si es necesario
+    return migrateGarmentsList(rawGarments);
   }
 
   static addGarment(garment: Omit<Garment, 'id' | 'createdAt'>): Garment {

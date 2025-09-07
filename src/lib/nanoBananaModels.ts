@@ -2,9 +2,9 @@
 // Gemini 2.5 Flash Image Preview tiene restricciones especiales para personas
 
 export const NANO_BANANA_MODEL_PROMPTS = {
-  // Prompt principal en inglés (más efectivo para Nano Banana)
+  // Prompt principal - más seguro sin mencionar ropa interior
   primary: `
-    CREATE IMAGE: Professional full body fashion model in underwear only for clothing styling.
+    CREATE IMAGE: Professional full body fashion model for clothing design.
     
     - Ultra high definition studio photography (1024x1024)
     - Pure white seamless background
@@ -12,37 +12,36 @@ export const NANO_BANANA_MODEL_PROMPTS = {
     - Full body shot from head to feet
     - Natural confident modeling pose
     - Professional makeup and styling
-    - Model wearing ONLY basic underwear (bra/panties for women, briefs/boxers for men)
-    - NO shirts, NO pants, NO dresses, NO outer clothing
-    - Body ready for fashion styling and garment fitting
+    - Model in neutral base clothing for fashion fitting
+    - Ready for virtual clothing styling
     - Commercial catalog quality
     - Sharp focus entire figure
     - Perfect anatomical proportions
     - Fashion industry standard
     
-    GENERATE FULL BODY MODEL IN UNDERWEAR NOW - NO TEXT DESCRIPTION.
+    GENERATE PROFESSIONAL FASHION MODEL NOW - NO TEXT DESCRIPTION.
   `,
 
-  // Prompt alternativo si el principal falla
+  // Prompt alternativo - aún más simple
   alternative: `
-    CREATE IMAGE: Full body fashion model in underwear for clothing styling.
+    CREATE IMAGE: Full body fashion model portrait.
     
     - Studio photography white background
     - Professional model natural makeup
     - Full body head to feet visible
-    - Model wearing only underwear, no outer clothing
+    - Neutral clothing for fashion design
     - Fashion catalog quality
     - Clean commercial aesthetic
     - High resolution sharp details
     
-    GENERATE MODEL IN UNDERWEAR NOW - NO TEXT.
+    GENERATE FASHION MODEL NOW - NO TEXT.
   `,
 
   // Prompt más simple como último recurso
   simple: `
-    CREATE IMAGE: Full body fashion model in underwear.
-    White background, professional lighting, catalog quality.
-    Model wearing only underwear, no outer clothing.
+    CREATE IMAGE: Professional fashion model full body.
+    White background, studio lighting, catalog quality.
+    Model ready for fashion design work.
     GENERATE IMAGE NOW - NO TEXT.
   `
 };
@@ -107,10 +106,11 @@ export function validateModelDescription(description: string): {
   const issues: string[] = [];
   const suggestions: string[] = [];
   
-  // Palabras que pueden causar problemas con modelos
+  // Palabras que pueden causar problemas con modelos (ampliada)
   const problematicWords = [
     'sexy', 'provocative', 'sensual', 'nude', 'naked',
-    'revealing', 'intimate', 'seductive'
+    'revealing', 'intimate', 'seductive', 'underwear', 'lingerie',
+    'bikini', 'swimsuit', 'bra', 'panties', 'briefs'
   ];
   
   // Buscar palabras problemáticas
@@ -151,7 +151,14 @@ export function sanitizeModelDescription(description: string): string {
     'provocative': 'sofisticado',
     'sensual': 'atractivo',
     'revealing': 'moderno',
-    'seductive': 'carismático'
+    'seductive': 'carismático',
+    'underwear': 'ropa básica',
+    'lingerie': 'ropa interior',
+    'bikini': 'traje de baño',
+    'swimsuit': 'traje de baño',
+    'bra': 'prenda superior',
+    'panties': 'prenda inferior',
+    'briefs': 'ropa interior'
   };
   
   Object.entries(replacements).forEach(([problematic, safe]) => {
