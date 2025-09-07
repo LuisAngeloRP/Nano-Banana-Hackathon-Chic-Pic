@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, User, Search } from 'lucide-react';
+import { Trash2, User, Search, Edit3 } from 'lucide-react';
 import { LocalStorage } from '@/lib/storage';
-import { Model } from '@/types';
+import { Model, Garment, StyledLook } from '@/types';
+import DetailEditor from './DetailEditor';
 
 interface ModelCatalogProps {
   onModelSelect?: (model: Model) => void;
@@ -21,6 +22,8 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   const [filteredModels, setFilteredModels] = useState<Model[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [genderFilter, setGenderFilter] = useState('all');
+  const [selectedModelForEdit, setSelectedModelForEdit] = useState<Model | null>(null);
+  const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
 
   useEffect(() => {
     loadModels();
@@ -67,6 +70,20 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
 
   const isSelected = (modelId: string) => {
     return selectedModelId === modelId;
+  };
+
+  const handleEditModel = (model: Model) => {
+    setSelectedModelForEdit(model);
+    setIsDetailEditorOpen(true);
+  };
+
+  const handleModelUpdated = (updatedItem: Garment | Model | StyledLook) => {
+    loadModels(); // Recargar la lista
+  };
+
+  const handleCloseDetailEditor = () => {
+    setIsDetailEditorOpen(false);
+    setSelectedModelForEdit(null);
   };
 
   const genderOptions = [
@@ -183,17 +200,32 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                       <span className="text-xs text-muted-foreground">
                         {new Date(model.createdAt).toLocaleDateString()}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(model.id);
-                        }}
-                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditModel(model);
+                          }}
+                          className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
+                          title="Editar modelo"
+                        >
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(model.id);
+                          }}
+                          className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                          title="Eliminar modelo"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -202,6 +234,15 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
           )}
         </ScrollArea>
       </CardContent>
+      
+      {/* Modal de edición detallada */}
+      <DetailEditor
+        isOpen={isDetailEditorOpen}
+        onClose={handleCloseDetailEditor}
+        item={selectedModelForEdit}
+        type="model"
+        onItemUpdated={handleModelUpdated}
+      />
     </Card>
   );
 }

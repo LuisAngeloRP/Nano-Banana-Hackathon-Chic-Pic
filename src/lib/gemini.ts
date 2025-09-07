@@ -47,14 +47,16 @@ GENERATE FULL BODY MODEL IN UNDERWEAR NOW - NO TEXT DESCRIPTION.
 `;
 
 export const STYLING_PROMPT_BASE = `
-CREATE IMAGE: Realistic combination garment with model for fashion catalog.
+CREATE IMAGE: Dress the model with the provided garments for fashion catalog.
 - White background clean neutral
 - Professional uniform lighting
-- Garment natural on model
+- Garments naturally fitted on model
 - Elegant professional pose
 - Commercial catalog photography style
 - High resolution sharp
-- Clothing fit realistic natural
+- Perfect clothing fit and draping
+- NO additional styling modifications
+- ONLY put on the clothes as provided
 GENERATE STYLED FASHION IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
@@ -319,34 +321,110 @@ export async function generateStyledImage(
 
 // Función para construir instrucciones inteligentes de styling
 function buildIntelligentStylingInstructions(data: StylingData): string {
-  // Analizar tipos de prendas para determinar el mensaje específico
-  const garmentTypes = data.garments.map(g => g.category.toLowerCase());
-  const hasUpper = garmentTypes.some(t => ['camiseta', 'camisa', 'chaqueta'].includes(t));
-  const hasLower = garmentTypes.some(t => ['pantalon', 'falda'].includes(t));
-  const hasDress = garmentTypes.some(t => ['vestido'].includes(t));
+  // Instrucción específica para combinación visual de imágenes
+  let message = 'Visual combination: Take the model from the model image and dress them with the garments from the garment images. Use the exact model and exact garments as shown in their respective images.';
   
-  let message = 'Viste a la modelo con las prendas brindadas.';
+  // NO agregar instrucciones adicionales del lookDescription para evitar confusión
+  // Solo usar lookDescription si es muy específico sobre el estilo de la imagen, no sobre el contenido
   
-  // Agregar especificidad si es necesario
-  if (hasDress) {
-    message = 'Viste a la modelo con el vestido brindado.';
-  } else if (hasUpper && !hasLower) {
-    message = 'Viste a la modelo con la prenda superior brindada.';
-  } else if (hasLower && !hasUpper) {
-    message = 'Viste a la modelo con la prenda inferior brindada.';
-  }
-  
-  // Agregar instrucción de ajuste perfecto
-  message += ' La ropa debe ajustarse perfectamente al cuerpo del modelo.';
-  
-  // Agregar instrucción adicional del campo lookDescription si existe
-  if (data.lookDescription && data.lookDescription.trim()) {
-    message += ` ${data.lookDescription}`;
-  }
-  
-  message += ' Imagen de catálogo profesional con fondo blanco.';
+  message += ' Professional catalog image with white background.';
   
   return message;
+}
+
+// Función para editar imagen existente con Nano Banana
+export async function editImageWithPrompt(
+  imageUrl: string,
+  editPrompt: string,
+  type: 'garment' | 'model' | 'look'
+): Promise<string> {
+  try {
+    console.log('🎨 Editando imagen con Nano Banana:', { imageUrl, editPrompt, type });
+    
+    // Construir el prompt de edición específico
+    const fullPrompt = buildEditPrompt(editPrompt, type);
+    
+    // Llamar a la API route para manejar la edición
+    const response = await fetch('/api/edit-image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'edit',
+        editData: {
+          originalImageUrl: imageUrl,
+          editPrompt: editPrompt,
+          itemType: type,
+          fullPrompt: fullPrompt
+        }
+      }),
+    });
+
+    const data = await response.json();
+    
+    if (data.success) {
+      console.log('✅ Imagen editada con Nano Banana:', data.filename);
+      return data.imageUrl;
+    } else {
+      console.warn('⚠️ Error en edición:', data.message);
+      throw new Error(data.message || 'Error al editar imagen');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error editando imagen:', error);
+    
+    if (error instanceof Error && error.message.includes('API key')) {
+      throw new Error('Error: API key no configurada. Ve a la sección "Acerca" para configurar.');
+    }
+    
+    throw new Error(`Error al editar imagen: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+  }
+}
+
+// Función auxiliar para construir prompt de edición
+function buildEditPrompt(editPrompt: string, type: 'garment' | 'model' | 'look'): string {
+  const typeInstructions = {
+    garment: `
+      GENERATE IMAGE: Edit the fashion garment in the provided image based on user instructions.
+      - Professional catalog photography style
+      - White seamless background
+      - High quality studio lighting
+      - Focus on the garment modifications requested
+      - Maintain garment structure and realism
+    `,
+    model: `
+      GENERATE IMAGE: Edit the fashion model in the provided image based on user instructions.
+      - Professional studio photography style
+      - White seamless background
+      - Full body composition maintained
+      - Natural and professional appearance
+      - Apply changes while keeping model realistic
+    `,
+    look: `
+      GENERATE IMAGE: Edit the styled fashion look in the provided image based on user instructions.
+      - Professional fashion photography style
+      - White seamless background
+      - Maintain model-garment fit and proportion
+      - Apply styling changes as requested
+      - Keep overall composition coherent
+    `
+  };
+
+  return `
+    ${typeInstructions[type]}
+    
+    EDIT INSTRUCTIONS: ${editPrompt}
+    
+    TECHNICAL REQUIREMENTS:
+    - Output: High definition image (1024x1024)
+    - Quality: Professional catalog/studio standard
+    - Changes: Apply ONLY what is requested
+    - Style: Maintain original lighting and composition
+    - Result: Realistic and coherent modifications
+    
+    GENERATE EDITED IMAGE NOW - OUTPUT IMAGE ONLY, NO TEXT.
+  `.trim();
 }
 
 // Función para verificar si la API está configurada correctamente

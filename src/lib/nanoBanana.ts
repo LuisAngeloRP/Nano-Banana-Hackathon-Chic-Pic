@@ -38,7 +38,24 @@ export const NANO_BANANA_PROMPTS = {
   `,
   
   styling: `
-    Viste a la modelo con las prendas brindadas. La ropa debe ajustarse perfectamente al cuerpo del modelo. Imagen de catálogo profesional con fondo blanco.
+    CREATE IMAGE: Visual combination of provided images - Take the model from the first image and dress them with the garments from the subsequent images.
+    
+    VISUAL COMPOSITION INSTRUCTIONS:
+    - Use the EXACT model shown in the model image (same person)
+    - Take each garment from its individual product image
+    - Place/fit each garment onto the model's body
+    - Maintain the model's original appearance
+    - Keep the garments' original colors, textures, and design details
+    - Ensure realistic fit and draping on the model's body
+    
+    TECHNICAL REQUIREMENTS:
+    - High definition studio photography (1024x1024)
+    - Pure white seamless background
+    - Professional studio lighting matching the model image
+    - Commercial fashion photography quality
+    - Photorealistic combination of all provided images
+    
+    GENERATE VISUAL COMBINATION NOW - NO TEXT DESCRIPTION.
   `
 };
 
@@ -202,3 +219,158 @@ export function processNanoBananaImage(imageData: any, filename: string): string
   // Por ahora retornamos la URL local estándar
   return `/generated-images/${filename}`;
 }
+
+// Función para generar imagen editada con Nano Banana
+export async function generateEditedImage(
+  type: 'garment' | 'model' | 'look',
+  originalItem: any,
+  editPrompt: string,
+  originalDescription: string
+): Promise<string> {
+  try {
+    console.log('Editando imagen con Nano Banana:', {
+      type,
+      imageUrl: originalItem.imageUrl,
+      editPrompt
+    });
+    
+    // Usar la nueva función de edición de imágenes
+    const { editImageWithPrompt } = await import('./gemini');
+    
+    const editedImageUrl = await editImageWithPrompt(
+      originalItem.imageUrl,
+      editPrompt,
+      type
+    );
+    
+    return editedImageUrl;
+    
+  } catch (error) {
+    console.error('Error en generateEditedImage:', error);
+    // Si hay error con la API, mostrar mensaje más útil
+    if (error instanceof Error && error.message.includes('API key')) {
+      throw new Error('Error: API key no configurada. Ve a la sección "Acerca" para ver las instrucciones de configuración.');
+    } else {
+      throw new Error('Error al generar la imagen editada. Verifica tu conexión y configuración de API.');
+    }
+  }
+}
+
+// Función para construir prompt específico de edición
+function buildEditingPrompt(
+  type: 'garment' | 'model' | 'look',
+  originalItem: any,
+  editPrompt: string,
+  originalDescription: string
+): string {
+  const baseEditPrompt = NANO_BANANA_EDIT_PROMPTS[type];
+  
+  let contextualInfo = '';
+  
+  switch (type) {
+    case 'garment':
+      contextualInfo = `
+        PRENDA ORIGINAL:
+        - Nombre: ${originalItem.name}
+        - Categoría: ${originalItem.category}
+        - Color: ${originalItem.color || 'No especificado'}
+        - Descripción: ${originalDescription}
+      `;
+      break;
+      
+    case 'model':
+      contextualInfo = `
+        MODELO ORIGINAL:
+        - Nombre: ${originalItem.name}
+        - Género: ${originalItem.gender}
+        - Edad: ${originalItem.age}
+        - Tipo de cuerpo: ${originalItem.bodyType}
+        - Cabello: ${originalItem.hairColor}
+        - Ojos: ${originalItem.eyeColor}
+        - Piel: ${originalItem.skinTone}
+        - Características: ${originalDescription}
+      `;
+      break;
+      
+    case 'look':
+      contextualInfo = `
+        LOOK ORIGINAL:
+        - Nombre: ${originalItem.name}
+        - Descripción: ${originalDescription}
+        - Número de prendas: ${originalItem.garmentIds?.length || 0}
+      `;
+      break;
+  }
+  
+  return `
+    ${baseEditPrompt}
+    
+    ${contextualInfo}
+    
+    CAMBIOS SOLICITADOS: ${editPrompt}
+    
+    INSTRUCCIONES ESPECÍFICAS:
+    - Mantén la calidad profesional de la imagen original
+    - Aplica solo los cambios solicitados
+    - Preserva el estilo general y composición
+    - Mantén la iluminación y fondo profesional
+    - Asegúrate de que el resultado sea coherente y realista
+    
+    GENERATE EDITED IMAGE NOW - NO TEXT DESCRIPTION.
+  `.trim();
+}
+
+// Prompts específicos para edición con Nano Banana
+export const NANO_BANANA_EDIT_PROMPTS = {
+  garment: `
+    EDIT IMAGE: Modify the existing fashion garment image based on specific instructions.
+    
+    - Maintain high definition studio photography (1024x1024)
+    - Keep pure white seamless background
+    - Preserve professional softbox lighting
+    - Maintain commercial catalog quality
+    - Apply only the requested modifications
+    - Keep the dual view composition (front and back)
+    - Ensure the garment remains wrinkle-free and professional
+    - Preserve sharp details and vibrant colors
+  `,
+  
+  model: `
+    EDIT IMAGE: Modify the existing fashion model image based on specific instructions.
+    
+    - Maintain high definition studio photography (1024x1024)
+    - Keep pure white seamless background
+    - Preserve professional studio lighting setup
+    - Maintain full body composition from head to feet
+    - Apply only the requested modifications
+    - Keep natural confident pose
+    - Preserve professional makeup and styling quality
+    - Maintain perfect anatomical proportions
+  `,
+  
+  look: `
+    EDIT IMAGE: Modify the existing styled look image based on specific instructions.
+    
+    - Maintain high definition fashion photography (1024x1024)
+    - Keep pure white seamless background
+    - Preserve professional fashion photography lighting
+    - Apply only the requested modifications
+    - Ensure garments fit perfectly on the model
+    - Maintain overall composition and styling quality
+    - Keep commercial catalog professional appearance
+  `
+};
+
+// Función para validar prompt de edición
+export function validateEditPrompt(prompt: string): boolean {
+  if (!prompt || prompt.trim().length < 10) {
+    return false;
+  }
+  
+  // Verificar que no contenga contenido inapropiado
+  const inappropriateTerms = ['nude', 'naked', 'sexual', 'inappropriate'];
+  const lowerPrompt = prompt.toLowerCase();
+  
+  return !inappropriateTerms.some(term => lowerPrompt.includes(term));
+}
+

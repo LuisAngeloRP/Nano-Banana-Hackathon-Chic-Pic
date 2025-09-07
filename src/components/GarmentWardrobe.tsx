@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Shirt, Search } from 'lucide-react';
+import { Trash2, Shirt, Search, Edit3, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LocalStorage } from '@/lib/storage';
-import { Garment } from '@/types';
+import { Garment, Model, StyledLook } from '@/types';
+import DetailEditor from './DetailEditor';
 
 interface GarmentWardrobeProps {
   onGarmentSelect?: (garment: Garment) => void;
@@ -26,6 +27,8 @@ export default function GarmentWardrobe({
   const [filteredGarments, setFilteredGarments] = useState<Garment[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedGarmentForEdit, setSelectedGarmentForEdit] = useState<Garment | null>(null);
+  const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
 
   useEffect(() => {
     loadGarments();
@@ -71,6 +74,20 @@ export default function GarmentWardrobe({
 
   const isSelected = (garmentId: string) => {
     return selectedGarments.includes(garmentId);
+  };
+
+  const handleEditGarment = (garment: Garment) => {
+    setSelectedGarmentForEdit(garment);
+    setIsDetailEditorOpen(true);
+  };
+
+  const handleGarmentUpdated = (updatedItem: Garment | Model | StyledLook) => {
+    loadGarments(); // Recargar la lista
+  };
+
+  const handleCloseDetailEditor = () => {
+    setIsDetailEditorOpen(false);
+    setSelectedGarmentForEdit(null);
   };
 
   const categories = [
@@ -186,17 +203,32 @@ export default function GarmentWardrobe({
                       <span className="text-xs text-muted-foreground">
                         {new Date(garment.createdAt).toLocaleDateString()}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(garment.id);
-                        }}
-                        className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditGarment(garment);
+                          }}
+                          className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
+                          title="Editar prenda"
+                        >
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(garment.id);
+                          }}
+                          className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                          title="Eliminar prenda"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -205,6 +237,15 @@ export default function GarmentWardrobe({
           )}
         </ScrollArea>
       </CardContent>
+      
+      {/* Modal de edición detallada */}
+      <DetailEditor
+        isOpen={isDetailEditorOpen}
+        onClose={handleCloseDetailEditor}
+        item={selectedGarmentForEdit}
+        type="garment"
+        onItemUpdated={handleGarmentUpdated}
+      />
     </Card>
   );
 }

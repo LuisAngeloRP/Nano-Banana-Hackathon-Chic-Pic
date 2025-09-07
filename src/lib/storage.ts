@@ -38,6 +38,15 @@ export class LocalStorage {
     this.setItems('chic-pic-garments', garments);
   }
 
+  static updateGarment(id: string, updatedGarment: Garment): void {
+    const garments = this.getGarments();
+    const index = garments.findIndex(g => g.id === id);
+    if (index !== -1) {
+      garments[index] = { ...updatedGarment, id };
+      this.setItems('chic-pic-garments', garments);
+    }
+  }
+
   // Gestión de modelos
   static getModels(): Model[] {
     return this.getItems<Model>('chic-pic-models');
@@ -60,6 +69,15 @@ export class LocalStorage {
     this.setItems('chic-pic-models', models);
   }
 
+  static updateModel(id: string, updatedModel: Model): void {
+    const models = this.getModels();
+    const index = models.findIndex(m => m.id === id);
+    if (index !== -1) {
+      models[index] = { ...updatedModel, id };
+      this.setItems('chic-pic-models', models);
+    }
+  }
+
   // Gestión de looks estilizados
   static getStyledLooks(): StyledLook[] {
     return this.getItems<StyledLook>('chic-pic-styled-looks');
@@ -80,5 +98,14 @@ export class LocalStorage {
   static deleteStyledLook(id: string): void {
     const looks = this.getStyledLooks().filter(l => l.id !== id);
     this.setItems('chic-pic-styled-looks', looks);
+  }
+
+  static updateStyledLook(id: string, updatedLook: StyledLook): void {
+    const looks = this.getStyledLooks();
+    const index = looks.findIndex(l => l.id === id);
+    if (index !== -1) {
+      looks[index] = { ...updatedLook, id };
+      this.setItems('chic-pic-styled-looks', looks);
+    }
   }
 }

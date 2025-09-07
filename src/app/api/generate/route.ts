@@ -137,14 +137,16 @@ async function generateWithNanoBanana(
         let additionalContext = '';
         
         if (additionalData?.stylingData && additionalData?.garments) {
-          // Nuevo sistema: combinación inteligente de imágenes
-          additionalContext = `INTELLIGENT STYLING MODE:
-Model Image: ${additionalData.stylingData.modelUrl}
-Garments: ${additionalData.garments.map((g: any) => `${g.category} (${g.name}${g.color ? ', ' + g.color : ''})`).join(', ')}
-Look: ${additionalData.stylingData.lookName || 'Custom Look'}`;
+          // Nuevo sistema: combinación visual específica
+          additionalContext = `VISUAL COMBINATION MODE:
+- FIRST IMAGE: Model to be dressed (use this exact model)
+- SUBSEQUENT IMAGES: Individual garments to place on the model
+- TASK: Visually combine - take model from first image, take garments from other images, dress the model
+- PRESERVE: Model's appearance and garment details exactly as shown
+- RESULT: Single image showing the model wearing all the provided garments`;
         } else {
           // Sistema legacy
-          additionalContext = `Garment URL: ${garmentUrl}, Model URL: ${modelUrl}`;
+          additionalContext = `VISUAL COMBINATION: Combine model and garment images`;
         }
         
         prompt = buildNanoBananaPrompt('styling', description, additionalContext);

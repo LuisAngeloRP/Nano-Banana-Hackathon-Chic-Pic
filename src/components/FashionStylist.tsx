@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Palette, Wand2, X } from 'lucide-react';
+import { Loader2, Palette, Wand2, X, Edit3 } from 'lucide-react';
 import { generateStyledImage } from '@/lib/gemini';
 import { LocalStorage } from '@/lib/storage';
 import { Garment, Model, StyledLook, GarmentFitInfo, SelectedGarmentWithSize, ClothingSize, ShoeSize } from '@/types';
@@ -19,6 +19,7 @@ import {
   getFitBadgeColor,
   getFitShortDescription 
 } from '@/lib/sizeUtils';
+import DetailEditor from './DetailEditor';
 
 export default function FashionStylist() {
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
@@ -27,6 +28,8 @@ export default function FashionStylist() {
   const [lookDescription, setLookDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLooks, setGeneratedLooks] = useState<StyledLook[]>([]);
+  const [selectedLookForEdit, setSelectedLookForEdit] = useState<StyledLook | null>(null);
+  const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
 
   const [models, setModels] = useState<Model[]>([]);
   const [garments, setGarments] = useState<Garment[]>([]);
@@ -177,6 +180,21 @@ export default function FashionStylist() {
       LocalStorage.deleteStyledLook(id);
       setGeneratedLooks(prev => prev.filter(l => l.id !== id));
     }
+  };
+
+  const handleEditLook = (look: StyledLook) => {
+    setSelectedLookForEdit(look);
+    setIsDetailEditorOpen(true);
+  };
+
+  const handleLookUpdated = (updatedItem: Garment | Model | StyledLook) => {
+    const updatedLook = updatedItem as StyledLook;
+    setGeneratedLooks(prev => prev.map(l => l.id === updatedLook.id ? updatedLook : l));
+  };
+
+  const handleCloseDetailEditor = () => {
+    setIsDetailEditorOpen(false);
+    setSelectedLookForEdit(null);
   };
 
   return (
@@ -483,14 +501,26 @@ export default function FashionStylist() {
                         <span className="text-xs text-muted-foreground">
                           {new Date(look.createdAt).toLocaleDateString()}
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteLook(look.id)}
-                          className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditLook(look)}
+                            className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
+                            title="Editar look"
+                          >
+                            <Edit3 className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteLook(look.id)}
+                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                            title="Eliminar look"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -500,6 +530,15 @@ export default function FashionStylist() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Modal de edición detallada para looks */}
+      <DetailEditor
+        isOpen={isDetailEditorOpen}
+        onClose={handleCloseDetailEditor}
+        item={selectedLookForEdit}
+        type="look"
+        onItemUpdated={handleLookUpdated}
+      />
     </div>
   );
 }
