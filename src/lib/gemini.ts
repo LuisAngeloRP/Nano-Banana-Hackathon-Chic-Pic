@@ -32,7 +32,7 @@ GENERATE GARMENT IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
 export const MODEL_PROMPT_BASE = `
-CREATE IMAGE: Professional full body model for fashion catalog.
+CREATE IMAGE: Professional full body model in underwear for fashion styling.
 - White background clean neutral
 - Professional studio lighting
 - Natural professional pose catalog showing complete figure
@@ -41,8 +41,9 @@ CREATE IMAGE: Professional full body model for fashion catalog.
 - Commercial fashion photography style full body
 - Model professional head to feet
 - Complete figure visible in frame
-- Neutral basic underwear
-GENERATE FULL BODY MODEL IMAGE NOW - NO TEXT DESCRIPTION.
+- Model wearing ONLY basic underwear (bra/panties for women, briefs for men)
+- NO outer clothing, ready for garment styling
+GENERATE FULL BODY MODEL IN UNDERWEAR NOW - NO TEXT DESCRIPTION.
 `;
 
 export const STYLING_PROMPT_BASE = `
@@ -330,6 +331,9 @@ function buildIntelligentStylingInstructions(data: StylingData): string {
   } else if (hasLower && !hasUpper) {
     message = 'Viste a la modelo con la prenda inferior brindada.';
   }
+  
+  // Agregar instrucción de ajuste perfecto
+  message += ' La ropa debe ajustarse perfectamente al cuerpo del modelo.';
   
   // Agregar instrucción adicional del campo lookDescription si existe
   if (data.lookDescription && data.lookDescription.trim()) {

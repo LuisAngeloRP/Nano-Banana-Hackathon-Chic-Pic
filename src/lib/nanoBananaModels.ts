@@ -4,7 +4,7 @@
 export const NANO_BANANA_MODEL_PROMPTS = {
   // Prompt principal en inglés (más efectivo para Nano Banana)
   primary: `
-    CREATE IMAGE: Professional full body fashion model for premium catalog photography.
+    CREATE IMAGE: Professional full body fashion model in underwear only for clothing styling.
     
     - Ultra high definition studio photography (1024x1024)
     - Pure white seamless background
@@ -12,33 +12,37 @@ export const NANO_BANANA_MODEL_PROMPTS = {
     - Full body shot from head to feet
     - Natural confident modeling pose
     - Professional makeup and styling
-    - Minimal neutral clothing/underwear
+    - Model wearing ONLY basic underwear (bra/panties for women, briefs/boxers for men)
+    - NO shirts, NO pants, NO dresses, NO outer clothing
+    - Body ready for fashion styling and garment fitting
     - Commercial catalog quality
     - Sharp focus entire figure
     - Perfect anatomical proportions
     - Fashion industry standard
     
-    GENERATE FULL BODY FASHION MODEL IMAGE NOW - NO TEXT DESCRIPTION.
+    GENERATE FULL BODY MODEL IN UNDERWEAR NOW - NO TEXT DESCRIPTION.
   `,
 
   // Prompt alternativo si el principal falla
   alternative: `
-    CREATE IMAGE: Full body fashion model for high-end catalog.
+    CREATE IMAGE: Full body fashion model in underwear for clothing styling.
     
     - Studio photography white background
     - Professional model natural makeup
     - Full body head to feet visible
+    - Model wearing only underwear, no outer clothing
     - Fashion catalog quality
     - Clean commercial aesthetic
     - High resolution sharp details
     
-    GENERATE FULL BODY MODEL IMAGE NOW - NO TEXT.
+    GENERATE MODEL IN UNDERWEAR NOW - NO TEXT.
   `,
 
   // Prompt más simple como último recurso
   simple: `
-    CREATE IMAGE: Full body fashion model photo.
+    CREATE IMAGE: Full body fashion model in underwear.
     White background, professional lighting, catalog quality.
+    Model wearing only underwear, no outer clothing.
     GENERATE IMAGE NOW - NO TEXT.
   `
 };
@@ -89,9 +93,6 @@ export function buildModelPrompt(
     ${basePrompt}
     
     Model description: ${description}
-    
-    Important: This image will be used in a professional fashion catalog called "Chic Pic".
-    Quality must be exceptional and commercially viable.
     
     Generate the fashion model photo now.
   `.trim();

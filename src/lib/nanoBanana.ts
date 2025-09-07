@@ -19,7 +19,7 @@ export const NANO_BANANA_PROMPTS = {
   `,
   
   model: `
-    CREATE IMAGE: Professional full body fashion model photography for premium catalog.
+    CREATE IMAGE: Professional full body fashion model in underwear for fashion styling.
     
     - High definition studio photography (1024x1024)
     - Pure white seamless background
@@ -27,16 +27,18 @@ export const NANO_BANANA_PROMPTS = {
     - Full body composition from head to feet
     - Natural confident pose
     - Professional makeup and styling
-    - Minimal neutral clothing/underwear
+    - Model wearing only basic underwear (bra/panties for women, briefs for men)
+    - NO outer clothing, NO shirts, NO pants, NO dresses
+    - Ready for clothing styling and fitting
     - Commercial fashion photography quality
     - Sharp focus on entire figure
     - Perfect anatomical proportions
     
-    GENERATE FULL BODY FASHION MODEL IMAGE NOW - NO TEXT DESCRIPTION.
+    GENERATE FULL BODY MODEL IN UNDERWEAR NOW - NO TEXT DESCRIPTION.
   `,
   
   styling: `
-    Viste a la modelo con las prendas brindadas. Imagen de catálogo profesional con fondo blanco.
+    Viste a la modelo con las prendas brindadas. La ropa debe ajustarse perfectamente al cuerpo del modelo. Imagen de catálogo profesional con fondo blanco.
   `
 };
 
@@ -72,14 +74,13 @@ export function buildNanoBananaPrompt(
     enhancedDescription = enhanceModelPrompt(description);
   }
   
-  return `
+    return `
     ${basePrompt}
     
     SPECIFIC REQUIREMENTS: ${enhancedDescription}
     
     ${additionalContext ? `ADDITIONAL CONTEXT: ${additionalContext}` : ''}
     
-    IMPORTANT: Professional catalog quality for "Chic Pic" fashion brand.
     GENERATE IMAGE NOW - NO TEXT DESCRIPTION.
   `.trim();
 }
