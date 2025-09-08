@@ -34,9 +34,9 @@ export default function APIStatus() {
   };
 
   const getStatusText = () => {
-    if (hasAPIKey && hasTextModel) return 'Configurado';
-    if (hasAPIKey) return 'Configuración parcial';
-    return 'No configurado';
+    if (hasAPIKey && hasTextModel) return 'Configured';
+    if (hasAPIKey) return 'Partial configuration';
+    return 'Not configured';
   };
 
   const getStatusIcon = () => {
@@ -51,7 +51,7 @@ export default function APIStatus() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           {getStatusIcon()}
-          Estado de Nano Banana API
+          Nano Banana API Status
           <Badge variant={getStatusColor() === 'green' ? 'default' : 'destructive'}>
             {getStatusText()}
           </Badge>
@@ -70,14 +70,14 @@ export default function APIStatus() {
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              <strong>API Key no configurada</strong>
-              <p className="mt-2">Para usar Nano Banana (Gemini 2.5 Flash Image), necesitas configurar tu API key:</p>
+              <strong>API Key not configured</strong>
+              <p className="mt-2">To use Nano Banana (Gemini 2.5 Flash Image), you need to configure your API key:</p>
               <ol className="list-decimal list-inside mt-2 space-y-1 text-sm">
-                <li>Ve a <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline inline-flex items-center gap-1">Google AI Studio <ExternalLink className="h-3 w-3" /></a></li>
-                <li>Crea una API key para Gemini</li>
-                <li>Crea un archivo <code className="bg-gray-100 px-1 rounded">.env.local</code> en la raíz del proyecto</li>
-                <li>Añade: <code className="bg-gray-100 px-1 rounded">GOOGLE_API_KEY=tu_api_key_aqui</code></li>
-                <li>Reinicia el servidor de desarrollo</li>
+                <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline inline-flex items-center gap-1">Google AI Studio <ExternalLink className="h-3 w-3" /></a></li>
+                <li>Create an API key for Gemini</li>
+                <li>Create a <code className="bg-gray-100 px-1 rounded">.env.local</code> file in the project root</li>
+                <li>Add: <code className="bg-gray-100 px-1 rounded">GOOGLE_API_KEY=your_api_key_here</code></li>
+                <li>Restart the development server</li>
               </ol>
             </AlertDescription>
           </Alert>
@@ -87,12 +87,12 @@ export default function APIStatus() {
           <Alert className="border-yellow-200 bg-yellow-50">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              <strong>Error de inicialización</strong>
-              <p className="mt-2">La API key está configurada pero hay un problema con la inicialización del modelo. Verifica que:</p>
+              <strong>Initialization error</strong>
+              <p className="mt-2">The API key is configured but there's a problem with model initialization. Verify that:</p>
               <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
-                <li>La API key sea válida y esté activa</li>
-                <li>Tengas acceso a Gemini API</li>
-                <li>No haya caracteres extra o espacios en la API key</li>
+                <li>The API key is valid and active</li>
+                <li>You have access to Gemini API</li>
+                <li>There are no extra characters or spaces in the API key</li>
               </ul>
             </AlertDescription>
           </Alert>
@@ -102,20 +102,20 @@ export default function APIStatus() {
           <Alert className="border-green-200 bg-green-50">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              <strong>¡API configurada correctamente!</strong>
+              <strong>API configured correctly!</strong>
               <p className="mt-2">
                 {hasImageModel 
-                  ? "🍌 Nano Banana (Gemini 2.5 Flash Image Preview) está configurado para generar imágenes reales de alta calidad."
-                  : "API configurada. Usando placeholders hasta que Nano Banana esté disponible."
+                  ? "🍌 Nano Banana (Gemini 2.5 Flash Image Preview) is configured to generate real high-quality images."
+                  : "API configured. Using placeholders until Nano Banana is available."
                 }
               </p>
               <div className="mt-2 space-y-1">
                 <p className="text-sm">
-                  <strong>Estado Nano Banana:</strong> {hasImageModel ? "✅ Gemini 2.5 Flash Image Preview" : "⏳ Pendiente de disponibilidad"}
+                  <strong>Nano Banana Status:</strong> {hasImageModel ? "✅ Gemini 2.5 Flash Image Preview" : "⏳ Pending availability"}
                 </p>
                 {hasImageModel && (
                   <p className="text-xs text-green-700">
-                    ✨ Generación real de imágenes activa • Prompts optimizados • Validación automática • Guardado local
+                    ✨ Real image generation active • Optimized prompts • Automatic validation • Local storage
                   </p>
                 )}
               </div>
@@ -128,33 +128,33 @@ export default function APIStatus() {
           size="sm"
           onClick={() => setShowDetails(!showDetails)}
         >
-          {showDetails ? 'Ocultar' : 'Mostrar'} detalles técnicos
+          {showDetails ? 'Hide' : 'Show'} technical details
         </Button>
 
         {showDetails && (
           <div className="bg-gray-50 p-4 rounded-lg text-sm">
-            <h4 className="font-semibold mb-2">Detalles de configuración:</h4>
+            <h4 className="font-semibold mb-2">Configuration details:</h4>
             <ul className="space-y-1">
               <li className="flex justify-between">
-                <span>API Key presente:</span>
+                <span>API Key present:</span>
                 <Badge variant={hasAPIKey ? 'default' : 'destructive'}>
-                  {hasAPIKey ? 'Sí' : 'No'}
+                  {hasAPIKey ? 'Yes' : 'No'}
                 </Badge>
               </li>
               <li className="flex justify-between">
-                <span>Longitud API Key:</span>
-                <span>{apiKeyLength} caracteres</span>
+                <span>API Key length:</span>
+                <span>{apiKeyLength} characters</span>
               </li>
               <li className="flex justify-between">
-                <span>Modelo de texto:</span>
+                <span>Text model:</span>
                 <Badge variant={hasTextModel ? 'default' : 'destructive'}>
-                  {hasTextModel ? 'Inicializado' : 'Error'}
+                  {hasTextModel ? 'Initialized' : 'Error'}
                 </Badge>
               </li>
               <li className="flex justify-between">
-                <span>Modelo de imagen:</span>
+                <span>Image model:</span>
                 <Badge variant={hasImageModel ? 'default' : 'destructive'}>
-                  {hasImageModel ? 'Inicializado' : 'Error'}
+                  {hasImageModel ? 'Initialized' : 'Error'}
                 </Badge>
               </li>
             </ul>
@@ -162,30 +162,30 @@ export default function APIStatus() {
         )}
 
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-2">🍌 Acerca de Nano Banana</h4>
+          <h4 className="font-semibold text-blue-800 mb-2">🍌 About Nano Banana</h4>
           <div className="space-y-2 text-blue-700 text-sm">
             <p>
-              <strong>Nano Banana</strong> es el nombre en clave de Gemini 2.5 Flash Image, el modelo de generación de imágenes más avanzado de Google.
+              <strong>Nano Banana</strong> is the codename for Gemini 2.5 Flash Image, Google's most advanced image generation model.
             </p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>🎨 Generación de imágenes realistas desde texto</li>
-              <li>👥 Consistencia de personajes y estilo</li>
-              <li>🔄 Ediciones conversacionales inteligentes</li>
-              <li>🏷️ Marcas de agua SynthID automáticas</li>
+              <li>🎨 Realistic image generation from text</li>
+              <li>👥 Character and style consistency</li>
+              <li>🔄 Intelligent conversational editing</li>
+              <li>🏷️ Automatic SynthID watermarks</li>
             </ul>
             <div className="mt-3 p-2 bg-blue-100 rounded">
               <p className="text-xs">
-                <strong>Estado actual:</strong> {hasImageModel 
-                  ? "🍌 Nano Banana (gemini-2.5-flash-image-preview) configurado y listo para generar imágenes reales de moda profesionales con calidad de catálogo."
-                  : "Usando fallback con placeholders. Configura API key para activar Nano Banana."
+                <strong>Current status:</strong> {hasImageModel 
+                  ? "🍌 Nano Banana (gemini-2.5-flash-image-preview) configured and ready to generate real professional fashion images with catalog quality."
+                  : "Using fallback with placeholders. Configure API key to activate Nano Banana."
                 }
               </p>
               {hasImageModel && (
                 <div className="mt-2 text-xs space-y-1">
-                  <p>🎯 <strong>Modelo:</strong> gemini-2.5-flash-image-preview</p>
+                  <p>🎯 <strong>Model:</strong> gemini-2.5-flash-image-preview</p>
                   <p>⚙️ <strong>Config:</strong> Temperature 0.7, TopP 0.8, MaxTokens 8192</p>
-                  <p>🔍 <strong>Validación:</strong> MIME types, tamaño, formato base64</p>
-                  <p>💾 <strong>Guardado:</strong> Archivos JPG locales con metadata</p>
+                  <p>🔍 <strong>Validation:</strong> MIME types, size, base64 format</p>
+                  <p>💾 <strong>Storage:</strong> Local JPG files with metadata</p>
                 </div>
               )}
             </div>
@@ -197,7 +197,7 @@ export default function APIStatus() {
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline inline-flex items-center gap-1 text-sm"
             >
-              Documentación oficial <ExternalLink className="h-3 w-3" />
+              Official documentation <ExternalLink className="h-3 w-3" />
             </a>
           </div>
         </div>

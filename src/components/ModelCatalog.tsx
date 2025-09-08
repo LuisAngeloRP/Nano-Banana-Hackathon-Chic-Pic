@@ -42,7 +42,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
       const stored = await SupabaseStorageAdapter.getModels();
       setModels(stored);
     } catch (error) {
-      console.error('Error cargando modelos:', error);
+      console.error('Error loading models:', error);
     }
   };
 
@@ -66,13 +66,13 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este modelo?')) {
+    if (confirm('Are you sure you want to delete this model?')) {
       try {
         await SupabaseStorageAdapter.deleteModel(id);
         loadModels();
       } catch (error) {
-        console.error('Error eliminando modelo:', error);
-        alert('Error al eliminar el modelo');
+        console.error('Error deleting model:', error);
+        alert('Error deleting the model');
       }
     }
   };
@@ -109,9 +109,9 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   };
 
   const genderOptions = [
-    { value: 'all', label: 'Todos los géneros' },
-    { value: 'masculino', label: 'Masculino' },
-    { value: 'femenino', label: 'Femenino' },
+    { value: 'all', label: 'All genders' },
+    { value: 'masculino', label: 'Male' },
+    { value: 'femenino', label: 'Female' },
     { value: 'unisex', label: 'Unisex' }
   ];
 
@@ -121,19 +121,19 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Catálogo de Modelos ({filteredModels.length})
+            Model Catalog ({filteredModels.length})
           </CardTitle>
           
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Upload className="h-4 w-4 mr-2" />
-                Subir Modelo
+                Upload Model
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Subir Nuevo Modelo</DialogTitle>
+                <DialogTitle>Upload New Model</DialogTitle>
               </DialogHeader>
               <CustomModelUpload 
                 onModelUploaded={handleModelUploaded}
@@ -146,7 +146,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
         <div className="flex gap-2 mt-4">
           <div className="flex-1">
             <Input
-              placeholder="Buscar modelos..."
+              placeholder="Search models..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -172,8 +172,8 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
           {filteredModels.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {models.length === 0 
-                ? "No hay modelos en el catálogo. ¡Genera tu primer modelo!"
-                : "No se encontraron modelos con los filtros aplicados."
+                ? "No models in the catalog. Generate your first model!"
+                : "No models found with the applied filters."
               }
             </div>
           ) : (
@@ -211,25 +211,25 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                       </div>
                       
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p><span className="font-medium">Altura:</span> {model.height}</p>
-                        <p><span className="font-medium">Tipo:</span> {model.bodyType}</p>
-                        <p><span className="font-medium">Cabello:</span> {model.hairColor}</p>
-                        <p><span className="font-medium">Ojos:</span> {model.eyeColor}</p>
-                        <p><span className="font-medium">Piel:</span> {model.skinTone}</p>
+                        <p><span className="font-medium">Height:</span> {model.height}</p>
+                        <p><span className="font-medium">Type:</span> {model.bodyType}</p>
+                        <p><span className="font-medium">Hair:</span> {model.hairColor}</p>
+                        <p><span className="font-medium">Eyes:</span> {model.eyeColor}</p>
+                        <p><span className="font-medium">Skin:</span> {model.skinTone}</p>
                       </div>
                       
                       {/* Información de Tallas */}
                       <div className="border-t pt-2 mt-2">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Tallas:</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Sizes:</p>
                         <div className="flex flex-wrap gap-1">
                           <Badge variant="outline" className="text-xs">
-                            Superior: {model.upperBodySize || 'No especificada'}
+                            Upper: {model.upperBodySize || 'Not specified'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
-                            Inferior: {model.lowerBodySize || 'No especificada'}
+                            Lower: {model.lowerBodySize || 'Not specified'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
-                            Zapatos: {model.shoeSize || 'No especificada'}
+                            Shoes: {model.shoeSize || 'Not specified'}
                           </Badge>
                         </div>
                       </div>
@@ -252,7 +252,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                             handleEditModel(model);
                           }}
                           className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
-                          title="Editar modelo"
+                          title="Edit model"
                         >
                           <Edit3 className="h-3 w-3" />
                         </Button>
@@ -264,7 +264,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                             handleDelete(model.id);
                           }}
                           className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                          title="Eliminar modelo"
+                          title="Delete model"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>

@@ -25,7 +25,7 @@ export default function ImageStats() {
   const loadStats = async () => {
     setIsLoading(true);
     try {
-      // Usar las estadísticas de Supabase Storage en lugar de la API obsoleta
+      // Use Supabase Storage statistics instead of the obsolete API
       const { SupabaseStorageAdapter } = await import('@/lib/storage.supabase');
       const data = await SupabaseStorageAdapter.getStats();
       
@@ -37,8 +37,8 @@ export default function ImageStats() {
         lastUpdated: new Date().toLocaleString()
       });
     } catch (error) {
-      console.error('Error cargando estadísticas:', error);
-      // Fallback a estadísticas vacías en caso de error
+      console.error('Error loading statistics:', error);
+      // Fallback to empty statistics in case of error
       setStats({
         garments: 0,
         models: 0,
@@ -52,13 +52,13 @@ export default function ImageStats() {
   };
 
   const openStorageDashboard = () => {
-    // Abrir el dashboard de Supabase Storage
-    alert('Las imágenes se almacenan en Supabase Storage.\n\nPuedes ver y gestionar las imágenes desde el Dashboard de Supabase en la sección Storage.');
+    // Open the Supabase Storage dashboard
+    alert('Images are stored in Supabase Storage.\n\nYou can view and manage images from the Supabase Dashboard in the Storage section.');
   };
 
   const cleanOldImages = async () => {
-    // Función deshabilitada - las imágenes en Supabase Storage se gestionan desde el dashboard
-    alert('La limpieza de imágenes se realiza desde el Dashboard de Supabase Storage.\n\nEsta función no está disponible en la interfaz web por seguridad.');
+    // Function disabled - images in Supabase Storage are managed from the dashboard
+    alert('Image cleanup is performed from the Supabase Storage Dashboard.\n\nThis function is not available in the web interface for security reasons.');
   };
 
   if (!stats) {
@@ -70,7 +70,7 @@ export default function ImageStats() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Image className="h-5 w-5" />
-          Almacenamiento Local de Imágenes
+          Local Image Storage
           <Button
             variant="ghost"
             size="sm"
@@ -86,11 +86,11 @@ export default function ImageStats() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-pink-50 rounded-lg">
             <div className="text-2xl font-bold text-pink-600">{stats.garments}</div>
-            <div className="text-sm text-pink-700">Prendas</div>
+            <div className="text-sm text-pink-700">Garments</div>
           </div>
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <div className="text-2xl font-bold text-blue-600">{stats.models}</div>
-            <div className="text-sm text-blue-700">Modelos</div>
+            <div className="text-sm text-blue-700">Models</div>
           </div>
           <div className="text-center p-3 bg-purple-50 rounded-lg">
             <div className="text-2xl font-bold text-purple-600">{stats.looks}</div>
@@ -104,47 +104,47 @@ export default function ImageStats() {
 
         <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
           <div>
-            <h4 className="font-semibold text-green-800">💾 Almacenamiento Local Activo</h4>
+            <h4 className="font-semibold text-green-800">💾 Active Local Storage</h4>
             <p className="text-sm text-green-700">
-              Las imágenes se guardan en: <code className="bg-green-100 px-1 rounded">public/generated-images/</code>
+              Images are saved in: <code className="bg-green-100 px-1 rounded">public/generated-images/</code>
             </p>
             <p className="text-xs text-green-600 mt-1">
-              Última actualización: {stats.lastUpdated}
+              Last updated: {stats.lastUpdated}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={openStorageDashboard}>
               <FolderOpen className="h-4 w-4 mr-2" />
-              Ver Carpeta
+              View Folder
             </Button>
             {stats.total > 0 && (
               <Button variant="outline" size="sm" onClick={cleanOldImages} disabled={isLoading}>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Limpiar
+                Clean
               </Button>
             )}
           </div>
         </div>
 
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-2">ℹ️ Información del Sistema</h4>
+          <h4 className="font-semibold text-blue-800 mb-2">ℹ️ System Information</h4>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• <strong>Formato:</strong> JPG optimizado para web</li>
-            <li>• <strong>Nomenclatura:</strong> tipo-descripcion-timestamp.jpg</li>
-            <li>• <strong>Acceso:</strong> Disponible vía /generated-images/[filename]</li>
-            <li>• <strong>Limpieza:</strong> Automática después de 7 días (configurable)</li>
+            <li>• <strong>Format:</strong> Web-optimized JPG</li>
+            <li>• <strong>Naming:</strong> type-description-timestamp.jpg</li>
+            <li>• <strong>Access:</strong> Available via /generated-images/[filename]</li>
+            <li>• <strong>Cleanup:</strong> Automatic after 7 days (configurable)</li>
           </ul>
         </div>
 
         <div className="flex gap-2">
           <Badge variant="outline" className="text-xs">
-            📁 Directorio: public/generated-images/
+            📁 Directory: public/generated-images/
           </Badge>
           <Badge variant="outline" className="text-xs">
-            🔄 Auto-actualización
+            🔄 Auto-refresh
           </Badge>
           <Badge variant="outline" className="text-xs">
-            🗂️ Organización por tipo
+            🗂️ Organized by type
           </Badge>
         </div>
       </CardContent>

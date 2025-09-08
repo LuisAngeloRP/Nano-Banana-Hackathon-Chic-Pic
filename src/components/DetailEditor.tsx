@@ -44,7 +44,7 @@ export default function DetailEditor({
       case 'look':
         return (item as StyledLook).name;
       default:
-        return 'Elemento';
+        return 'Item';
     }
   };
 
@@ -70,30 +70,30 @@ export default function DetailEditor({
       case 'garment':
         const garment = item as Garment;
         return [
-          { label: 'Categoría', value: garment.category },
-          { label: 'Color', value: garment.color || 'No especificado' },
-          { label: 'Tallas', value: garment.availableSizes?.join(', ') || 'No especificadas' },
-          { label: 'Creado', value: new Date(garment.createdAt).toLocaleDateString() }
+          { label: 'Category', value: garment.category },
+          { label: 'Color', value: garment.color || 'Not specified' },
+          { label: 'Sizes', value: garment.availableSizes?.join(', ') || 'Not specified' },
+          { label: 'Created', value: new Date(garment.createdAt).toLocaleDateString() }
         ];
       case 'model':
         const model = item as Model;
         return [
-          { label: 'Género', value: model.gender },
-          { label: 'Edad', value: model.age },
-          { label: 'Altura', value: model.height },
-          { label: 'Tipo de cuerpo', value: model.bodyType },
-          { label: 'Cabello', value: model.hairColor },
-          { label: 'Ojos', value: model.eyeColor },
-          { label: 'Piel', value: model.skinTone },
-          { label: 'Tallas', value: `Superior: ${model.upperBodySize}, Inferior: ${model.lowerBodySize}, Zapatos: ${model.shoeSize}` },
-          { label: 'Creado', value: new Date(model.createdAt).toLocaleDateString() }
+          { label: 'Gender', value: model.gender },
+          { label: 'Age', value: model.age },
+          { label: 'Height', value: model.height },
+          { label: 'Body type', value: model.bodyType },
+          { label: 'Hair', value: model.hairColor },
+          { label: 'Eyes', value: model.eyeColor },
+          { label: 'Skin', value: model.skinTone },
+          { label: 'Sizes', value: `Upper: ${model.upperBodySize}, Lower: ${model.lowerBodySize}, Shoes: ${model.shoeSize}` },
+          { label: 'Created', value: new Date(model.createdAt).toLocaleDateString() }
         ];
       case 'look':
         const look = item as StyledLook;
         return [
-          { label: 'Modelo ID', value: look.modelId },
-          { label: 'Prendas', value: `${look.garmentIds.length} prendas` },
-          { label: 'Creado', value: new Date(look.createdAt).toLocaleDateString() }
+          { label: 'Model ID', value: look.modelId },
+          { label: 'Garments', value: `${look.garmentIds.length} garments` },
+          { label: 'Created', value: new Date(look.createdAt).toLocaleDateString() }
         ];
       default:
         return [];
@@ -102,7 +102,7 @@ export default function DetailEditor({
 
   const handleGenerateEdit = async () => {
     if (!editPrompt.trim()) {
-      alert('Por favor ingresa una descripción de los cambios que quieres hacer');
+      alert('Please enter a description of the changes you want to make');
       return;
     }
 
@@ -122,8 +122,8 @@ export default function DetailEditor({
       setIterationHistory(prev => [...prev, editPrompt]);
       
     } catch (error) {
-      console.error('Error al generar edición:', error);
-      alert('Error al generar la edición. Por favor intenta de nuevo.');
+      console.error('Error generating edit:', error);
+      alert('Error generating the edit. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -152,8 +152,8 @@ export default function DetailEditor({
           break;
       }
     } catch (error) {
-      console.error('Error actualizando item:', error);
-      alert('Error al actualizar el item');
+      console.error('Error updating item:', error);
+      alert('Error updating the item');
       return;
     }
 
@@ -164,7 +164,7 @@ export default function DetailEditor({
     setShowConfirmation(false);
     setEditPrompt('');
     
-    alert('¡Cambios guardados exitosamente!');
+    alert('Changes saved successfully!');
   };
 
   const handleDiscardChanges = () => {
@@ -202,13 +202,13 @@ export default function DetailEditor({
   const getTypeName = () => {
     switch (type) {
       case 'garment':
-        return 'Prenda';
+        return 'Garment';
       case 'model':
-        return 'Modelo';
+        return 'Model';
       case 'look':
         return 'Look';
       default:
-        return 'Elemento';
+        return 'Item';
     }
   };
 
@@ -218,10 +218,10 @@ export default function DetailEditor({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <span className="text-2xl">{getTypeIcon()}</span>
-            Editar {getTypeName()}: {getItemTitle()}
+            Edit {getTypeName()}: {getItemTitle()}
           </DialogTitle>
           <DialogDescription>
-            Haz cambios rápidos usando Nano Banana con un simple prompt
+            Make quick changes using Nano Banana with a simple prompt
           </DialogDescription>
         </DialogHeader>
 
@@ -230,7 +230,7 @@ export default function DetailEditor({
           <div className="space-y-4">
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Información Actual</h3>
+                <h3 className="font-semibold mb-3">Current Information</h3>
                 
                 {/* Imagen actual */}
                 <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
@@ -243,7 +243,7 @@ export default function DetailEditor({
 
                 {/* Descripción */}
                 <div className="mb-4">
-                  <h4 className="font-medium text-sm mb-2">Descripción:</h4>
+                  <h4 className="font-medium text-sm mb-2">Description:</h4>
                   <p className="text-sm text-muted-foreground">
                     {getItemDescription()}
                   </p>
@@ -251,7 +251,7 @@ export default function DetailEditor({
 
                 {/* Detalles específicos */}
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Detalles:</h4>
+                  <h4 className="font-medium text-sm">Details:</h4>
                   {getItemDetails().map((detail, index) => (
                     <div key={index} className="flex justify-between text-xs">
                       <span className="font-medium">{detail.label}:</span>
@@ -268,11 +268,11 @@ export default function DetailEditor({
             {iterationHistory.length > 0 && (
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-3">Historial de Cambios</h3>
+                  <h3 className="font-semibold mb-3">Change History</h3>
                   <div className="space-y-2">
                     {iterationHistory.map((prompt, index) => (
                       <div key={index} className="text-xs bg-blue-50 p-2 rounded">
-                        <span className="font-medium">Cambio #{index + 1}:</span>
+                        <span className="font-medium">Change #{index + 1}:</span>
                         <p className="text-muted-foreground mt-1">{prompt}</p>
                       </div>
                     ))}
@@ -290,16 +290,16 @@ export default function DetailEditor({
                 <CardContent className="p-4">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
                     <Edit3 className="h-4 w-4" />
-                    Edición Rápida con IA
+                    Quick AI Editing
                   </h3>
                   
                   <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium mb-2 block">
-                        Describe los cambios que quieres hacer:
+                        Describe the changes you want to make:
                       </label>
                       <Textarea
-                        placeholder="Ej: Cambia el color a azul marino, agrega botones dorados, haz el corte más ajustado..."
+                        placeholder="Ex: Change color to navy blue, add golden buttons, make the cut more fitted..."
                         value={editPrompt}
                         onChange={(e) => setEditPrompt(e.target.value)}
                         rows={4}
@@ -310,8 +310,8 @@ export default function DetailEditor({
                     <div className="bg-blue-50 p-3 rounded-lg">
                       <p className="text-xs text-blue-700">
                         <Sparkles className="h-3 w-3 inline mr-1" />
-                        <strong>Consejos:</strong> Sé específico en tus cambios. 
-                        Puedes mencionar colores, texturas, formas, estilos, etc.
+                        <strong>Tips:</strong> Be specific in your changes. 
+                        You can mention colors, textures, shapes, styles, etc.
                       </p>
                     </div>
 
@@ -324,12 +324,12 @@ export default function DetailEditor({
                       {isGenerating ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generando cambios...
+                          Generating changes...
                         </>
                       ) : (
                         <>
                           <Sparkles className="mr-2 h-4 w-4" />
-                          Generar Cambios con IA
+                          Generate Changes with AI
                         </>
                       )}
                     </Button>
@@ -340,7 +340,7 @@ export default function DetailEditor({
               /* Modo confirmación */
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-3">Vista Previa de Cambios</h3>
+                  <h3 className="font-semibold mb-3">Change Preview</h3>
                   
                   {/* Imagen editada */}
                   <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
@@ -353,7 +353,7 @@ export default function DetailEditor({
 
                   <div className="bg-amber-50 p-3 rounded-lg mb-4">
                     <p className="text-sm text-amber-700">
-                      <strong>Cambio aplicado:</strong> {editPrompt}
+                      <strong>Applied change:</strong> {editPrompt}
                     </p>
                   </div>
 
@@ -363,7 +363,7 @@ export default function DetailEditor({
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
                       <Check className="mr-2 h-4 w-4" />
-                      Confirmar y Guardar Cambios
+                      Confirm and Save Changes
                     </Button>
                     
                     <Button 
@@ -372,7 +372,7 @@ export default function DetailEditor({
                       className="w-full"
                     >
                       <RefreshCw className="mr-2 h-4 w-4" />
-                      Seguir Iterando
+                      Continue Iterating
                     </Button>
                     
                     <Button 
@@ -381,7 +381,7 @@ export default function DetailEditor({
                       className="w-full"
                     >
                       <X className="mr-2 h-4 w-4" />
-                      Descartar Cambios
+                      Discard Changes
                     </Button>
                   </div>
                 </CardContent>
@@ -392,7 +392,7 @@ export default function DetailEditor({
             {showConfirmation && (
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-3">Comparación</h3>
+                  <h3 className="font-semibold mb-3">Comparison</h3>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-xs font-medium mb-2 text-center">Original</p>
@@ -405,7 +405,7 @@ export default function DetailEditor({
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs font-medium mb-2 text-center">Editado</p>
+                      <p className="text-xs font-medium mb-2 text-center">Edited</p>
                       <div className="aspect-square bg-gray-100 rounded overflow-hidden">
                         <img
                           src={previewImage || ''}

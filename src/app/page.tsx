@@ -26,8 +26,8 @@ export default function Home() {
             </h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Sistema de moda con IA powered by Nano Banana. Genera prendas, modelos y crea looks únicos 
-            con inteligencia artificial para catálogos profesionales.
+            AI fashion system powered by Nano Banana. Generate garments, models and create unique looks 
+            with artificial intelligence for professional catalogs.
           </p>
         </div>
 
@@ -43,19 +43,19 @@ export default function Home() {
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="wardrobe" className="flex items-center gap-2">
               <Shirt className="h-4 w-4" />
-              Armario
+              Wardrobe
             </TabsTrigger>
             <TabsTrigger value="models" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              Modelos
+              Models
             </TabsTrigger>
             <TabsTrigger value="stylist" className="flex items-center gap-2">
               <Palette className="h-4 w-4" />
-              Estilista
+              Stylist
             </TabsTrigger>
             <TabsTrigger value="about" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              Acerca
+              About
             </TabsTrigger>
           </TabsList>
 
@@ -65,14 +65,14 @@ export default function Home() {
               <div>
                 <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                   <Shirt className="h-6 w-6 text-pink-500" />
-                  Generar Prendas
+                  Generate Garments
                 </h2>
                 <GarmentGenerator />
               </div>
               <div>
                 <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                   <Shirt className="h-6 w-6 text-purple-500" />
-                  Mi Armario
+                  My Wardrobe
                 </h2>
                 <GarmentWardrobe />
               </div>
@@ -85,14 +85,14 @@ export default function Home() {
               <div>
                 <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                   <User className="h-6 w-6 text-blue-500" />
-                  Generar Modelos
+                  Generate Models
                 </h2>
                 <ModelGenerator />
               </div>
               <div>
                 <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                   <User className="h-6 w-6 text-green-500" />
-                  Catálogo de Modelos
+                  Model Catalog
                 </h2>
                 <ModelCatalog />
               </div>
@@ -104,7 +104,7 @@ export default function Home() {
             <div>
               <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
                 <Palette className="h-6 w-6 text-orange-500" />
-                Estilista de Moda IA
+                AI Fashion Stylist
               </h2>
               <FashionStylist />
             </div>
@@ -117,22 +117,22 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Sparkles className="h-5 w-5 text-yellow-500" />
-                    Acerca de Chic Pic
+                    About Chic Pic
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-muted-foreground">
-                    Chic Pic es un innovador sistema de moda que utiliza inteligencia artificial 
-                    para revolucionar la forma en que se crean y combinan prendas de vestir.
+                    Chic Pic is an innovative fashion system that uses artificial intelligence 
+                    to revolutionize the way clothing is created and combined.
                   </p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                     <Card className="bg-pink-50 border-pink-200">
                       <CardContent className="p-4 text-center">
                         <Shirt className="h-8 w-8 text-pink-500 mx-auto mb-2" />
-                        <h3 className="font-semibold">Generación de Prendas</h3>
+                        <h3 className="font-semibold">Garment Generation</h3>
                         <p className="text-sm text-muted-foreground">
-                          Crea prendas únicas con descripciones en lenguaje natural
+                          Create unique garments with natural language descriptions
                         </p>
                       </CardContent>
                     </Card>
@@ -140,9 +140,9 @@ export default function Home() {
                     <Card className="bg-blue-50 border-blue-200">
                       <CardContent className="p-4 text-center">
                         <User className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                        <h3 className="font-semibold">Modelos Virtuales</h3>
+                        <h3 className="font-semibold">Virtual Models</h3>
                         <p className="text-sm text-muted-foreground">
-                          Genera modelos diversos para representar tu marca
+                          Generate diverse models to represent your brand
                         </p>
                       </CardContent>
                     </Card>
@@ -150,9 +150,9 @@ export default function Home() {
                     <Card className="bg-purple-50 border-purple-200">
                       <CardContent className="p-4 text-center">
                         <Palette className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-                        <h3 className="font-semibold">Estilismo IA</h3>
+                        <h3 className="font-semibold">AI Styling</h3>
                         <p className="text-sm text-muted-foreground">
-                          Combina prendas y modelos para crear looks únicos
+                          Combine garments and models to create unique looks
                         </p>
                       </CardContent>
                     </Card>
@@ -162,7 +162,7 @@ export default function Home() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Tecnologías Utilizadas</CardTitle>
+                  <CardTitle>Technologies Used</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -196,27 +196,27 @@ export default function Home() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Configuración</CardTitle>
+                  <CardTitle>Configuration</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <h4 className="font-semibold text-yellow-800 mb-2">⚠️ Configuración Requerida</h4>
+                      <h4 className="font-semibold text-yellow-800 mb-2">⚠️ Required Configuration</h4>
                       <p className="text-sm text-yellow-700">
-                        Para usar las funcionalidades de IA, necesitas configurar tu API key de Google Gemini:
+                        To use AI functionalities, you need to configure your Google Gemini API key:
                       </p>
                       <ol className="list-decimal list-inside text-sm text-yellow-700 mt-2 space-y-1">
-                        <li>Crea un archivo <code className="bg-yellow-100 px-1 rounded">.env.local</code> en la raíz del proyecto</li>
-                        <li>Añade tu API key: <code className="bg-yellow-100 px-1 rounded">GOOGLE_API_KEY=tu_api_key_aqui</code></li>
-                        <li>Reinicia el servidor de desarrollo</li>
+                        <li>Create a <code className="bg-yellow-100 px-1 rounded">.env.local</code> file in the project root</li>
+                        <li>Add your API key: <code className="bg-yellow-100 px-1 rounded">GOOGLE_API_KEY=your_api_key_here</code></li>
+                        <li>Restart the development server</li>
                       </ol>
                     </div>
                     
                     <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="font-semibold text-blue-800 mb-2">📝 Nota</h4>
+                      <h4 className="font-semibold text-blue-800 mb-2">📝 Note</h4>
                       <p className="text-sm text-blue-700">
-                        Esta versión usa placeholders para las imágenes generadas. 
-                        En producción, integrarías con la API real de generación de imágenes de Google.
+                        This version uses placeholders for generated images. 
+                        In production, you would integrate with Google's real image generation API.
                       </p>
                     </div>
                   </div>

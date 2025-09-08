@@ -52,7 +52,7 @@ export default function FashionStylist() {
       setGarments(garmentsData);
       setGeneratedLooks(looksData);
     } catch (error) {
-      console.error('Error cargando datos de Supabase:', error);
+      console.error('Error loading Supabase data:', error);
     }
   };
 
@@ -90,12 +90,12 @@ export default function FashionStylist() {
 
   const generateLook = async () => {
     if (!selectedModel || selectedGarments.length === 0) {
-      alert('Por favor selecciona un modelo y al menos una prenda');
+      alert('Please select a model and at least one garment');
       return;
     }
 
     if (!lookName) {
-      alert('Por favor ingresa un nombre para el look');
+      alert('Please enter a name for the look');
       return;
     }
 
@@ -143,19 +143,19 @@ export default function FashionStylist() {
         lookDescription: lookDescription
       };
 
-      console.log('🎨 Iniciando styling inteligente con información de tallas:', stylingData);
+      console.log('🎨 Starting intelligent styling with size information:', stylingData);
       
-      // Crear descripción inteligente del look con información de ajuste
+      // Create intelligent look description with fit information
       const fitDescriptions = garmentFits.map(fit => 
         `${fit.fitDescription}`
       ).join(' ');
       
       const enhancedDescription = lookDescription 
-        ? `${lookDescription}\n\nAjuste de las prendas: ${fitDescriptions}`
-        : `Look creado con ${selectedGarments.length} prendas. ${fitDescriptions}`;
+        ? `${lookDescription}\n\nGarment fit: ${fitDescriptions}`
+        : `Look created with ${selectedGarments.length} garments. ${fitDescriptions}`;
       
-      // Generar imagen con IA y subirla directamente a Supabase Storage
-      console.log('🎨 Generando imagen de look con IA y subiendo a Supabase Storage...');
+      // Generate AI image and upload directly to Supabase Storage
+      console.log('🎨 Generating look image with AI and uploading to Supabase Storage...');
       const imageResult = await generateAndUploadStyledImage(stylingData);
 
       const newLook = await SupabaseStorageAdapter.addStyledLook({
@@ -177,13 +177,13 @@ export default function FashionStylist() {
       setSelectedGarments([]);
       setSelectedModel(null);
 
-      alert('¡Look generado exitosamente con análisis de ajuste!');
+      alert('Look generated successfully with fit analysis!');
     } catch (error) {
       console.error('Error:', error);
       if (error instanceof Error && error.message.includes('API key')) {
-        alert('Error: API key no configurada. Ve a la sección "Acerca" para ver las instrucciones de configuración.');
+        alert('Error: API key not configured. Go to the "About" section to see configuration instructions.');
       } else {
-        alert('Look generado correctamente con placeholder. Configura la API key para usar generación real.');
+        alert('Look generated correctly with placeholder. Configure the API key to use real generation.');
       }
     } finally {
       setIsGenerating(false);
@@ -191,13 +191,13 @@ export default function FashionStylist() {
   };
 
   const deleteLook = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar este look?')) {
+    if (confirm('Are you sure you want to delete this look?')) {
       try {
         await SupabaseStorageAdapter.deleteStyledLook(id);
         setGeneratedLooks(prev => prev.filter(l => l.id !== id));
       } catch (error) {
-        console.error('Error eliminando look:', error);
-        alert('Error al eliminar el look');
+        console.error('Error deleting look:', error);
+        alert('Error deleting the look');
       }
     }
   };
@@ -224,13 +224,13 @@ export default function FashionStylist() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Palette className="h-5 w-5" />
-            Estilista de Moda IA
+            AI Fashion Stylist
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Selección de Modelo */}
           <div>
-            <h3 className="font-semibold mb-3">1. Selecciona un Modelo</h3>
+            <h3 className="font-semibold mb-3">1. Select a Model</h3>
             {selectedModel ? (
               <Card className="border-green-200 bg-green-50">
                 <CardContent className="p-4">
@@ -248,13 +248,13 @@ export default function FashionStylist() {
                       </p>
                       <div className="flex flex-wrap gap-1 mt-1">
                         <Badge variant="outline" className="text-xs">
-                          Superior: {selectedModel.upperBodySize || 'No especificada'}
+                          Upper: {selectedModel.upperBodySize || 'Not specified'}
                         </Badge>
                         <Badge variant="outline" className="text-xs">
-                          Inferior: {selectedModel.lowerBodySize || 'No especificada'}
+                          Lower: {selectedModel.lowerBodySize || 'Not specified'}
                         </Badge>
                         <Badge variant="outline" className="text-xs">
-                          Zapatos: {selectedModel.shoeSize || 'No especificada'}
+                          Shoes: {selectedModel.shoeSize || 'Not specified'}
                         </Badge>
                       </div>
                     </div>
@@ -272,8 +272,8 @@ export default function FashionStylist() {
               <div>
                 <p className="text-sm text-muted-foreground mb-3">
                   {models.length === 0 
-                    ? "No hay modelos disponibles. Genera algunos primero."
-                    : "Haz clic en un modelo para seleccionarlo:"
+                    ? "No models available. Generate some first."
+                    : "Click on a model to select it:"
                   }
                 </p>
                 <ScrollArea className="h-32">
@@ -305,10 +305,10 @@ export default function FashionStylist() {
 
           {/* Selección de Prendas */}
           <div>
-            <h3 className="font-semibold mb-3">2. Selecciona Prendas</h3>
+            <h3 className="font-semibold mb-3">2. Select Garments</h3>
             {selectedGarments.length > 0 && (
               <div className="mb-4">
-                <p className="text-sm text-muted-foreground mb-2">Prendas seleccionadas:</p>
+                <p className="text-sm text-muted-foreground mb-2">Selected garments:</p>
                 <div className="space-y-3">
                   {selectedGarments.map(selectedGarment => (
                     <div key={selectedGarment.garment.id} className="flex items-center gap-2 p-3 border rounded-lg">
@@ -356,8 +356,8 @@ export default function FashionStylist() {
             <div>
               <p className="text-sm text-muted-foreground mb-3">
                 {garments.length === 0 
-                  ? "No hay prendas disponibles. Genera algunas primero."
-                  : "Haz clic en las prendas para agregarlas al look:"
+                    ? "No garments available. Generate some first."
+                    : "Click on garments to add them to the look:"
                 }
               </p>
               <ScrollArea className="h-32">
@@ -395,14 +395,14 @@ export default function FashionStylist() {
 
           {/* Configuración del Look */}
           <div className="space-y-4">
-            <h3 className="font-semibold">3. Configura el Look</h3>
+            <h3 className="font-semibold">3. Configure the Look</h3>
             
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Nombre del look *
+                Look name *
               </label>
               <Input
-                placeholder="Ej: Look casual de verano"
+                placeholder="Ex: Summer casual look"
                 value={lookName}
                 onChange={(e) => setLookName(e.target.value)}
               />
@@ -410,10 +410,10 @@ export default function FashionStylist() {
 
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Instrucciones de Pose y Presentación (opcional)
+                Pose and Presentation Instructions (optional)
               </label>
               <Textarea
-                placeholder="Ej: 'pose de espalda mostrando la chaqueta', 'gesto elegante con mano en la cintura', 'vista de perfil', 'pose relajada sentado', etc."
+                placeholder="Ex: 'back pose showing the jacket', 'elegant gesture with hand on waist', 'profile view', 'relaxed sitting pose', etc."
                 value={lookDescription}
                 onChange={(e) => setLookDescription(e.target.value)}
                 rows={3}
@@ -428,12 +428,12 @@ export default function FashionStylist() {
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando look...
+                  Generating look...
                 </>
               ) : (
                 <>
                   <Wand2 className="mr-2 h-4 w-4" />
-                  Generar Look con IA
+                  Generate Look with AI
                 </>
               )}
             </Button>
@@ -444,12 +444,12 @@ export default function FashionStylist() {
       {/* Galería de Looks Generados */}
       <Card>
         <CardHeader>
-          <CardTitle>Looks Generados ({generatedLooks.length})</CardTitle>
+          <CardTitle>Generated Looks ({generatedLooks.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {generatedLooks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No hay looks generados aún. ¡Crea tu primer look!
+              No looks generated yet. Create your first look!
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -473,12 +473,12 @@ export default function FashionStylist() {
                       
                       {model && (
                         <p className="text-sm text-muted-foreground mb-2">
-                          Modelo: {model.name}
+                          Model: {model.name}
                         </p>
                       )}
                       
                       <div className="space-y-2">
-                        <p className="text-xs font-medium">Prendas usadas:</p>
+                        <p className="text-xs font-medium">Garments used:</p>
                         <div className="flex flex-wrap gap-1">
                           {usedGarments.map(garment => (
                             <Badge key={garment.id} variant="outline" className="text-xs">
@@ -491,7 +491,7 @@ export default function FashionStylist() {
                       {/* Información de Ajuste */}
                       {look.garmentFits && look.garmentFits.length > 0 && (
                         <div className="space-y-2 mt-3 border-t pt-2">
-                          <p className="text-xs font-medium">Ajuste de las prendas:</p>
+                          <p className="text-xs font-medium">Garment fit:</p>
                           <div className="space-y-1">
                             {look.garmentFits.map(fit => {
                               const garment = usedGarments.find(g => g.id === fit.garmentId);
@@ -501,7 +501,7 @@ export default function FashionStylist() {
                                 <div key={fit.garmentId} className="flex items-center justify-between text-xs">
                                   <div className="flex-1 mr-2">
                                     <span className="truncate">{garment.name}</span>
-                                    <span className="text-muted-foreground ml-1">(Talla {fit.selectedSize})</span>
+                                    <span className="text-muted-foreground ml-1">(Size {fit.selectedSize})</span>
                                   </div>
                                   <Badge 
                                     variant="outline" 
@@ -532,7 +532,7 @@ export default function FashionStylist() {
                             size="sm"
                             onClick={() => handleEditLook(look)}
                             className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
-                            title="Editar look"
+                            title="Edit look"
                           >
                             <Edit3 className="h-3 w-3" />
                           </Button>
@@ -541,7 +541,7 @@ export default function FashionStylist() {
                             size="sm"
                             onClick={() => deleteLook(look.id)}
                             className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                            title="Eliminar look"
+                            title="Delete look"
                           >
                             <X className="h-3 w-3" />
                           </Button>

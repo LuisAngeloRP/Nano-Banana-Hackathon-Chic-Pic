@@ -30,14 +30,14 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
   });
 
   const clothingCategories = [
-    { value: 'camiseta', label: 'Camiseta' },
-    { value: 'pantalon', label: 'Pantalón' },
-    { value: 'vestido', label: 'Vestido' },
-    { value: 'falda', label: 'Falda' },
-    { value: 'camisa', label: 'Camisa' },
-    { value: 'chaqueta', label: 'Chaqueta' },
-    { value: 'zapatos', label: 'Zapatos' },
-    { value: 'accesorios', label: 'Accesorios' }
+    { value: 'camiseta', label: 'T-shirt' },
+    { value: 'pantalon', label: 'Pants' },
+    { value: 'vestido', label: 'Dress' },
+    { value: 'falda', label: 'Skirt' },
+    { value: 'camisa', label: 'Shirt' },
+    { value: 'chaqueta', label: 'Jacket' },
+    { value: 'zapatos', label: 'Shoes' },
+    { value: 'accesorios', label: 'Accessories' }
   ];
 
   const handleImageUpload = (file: File, url: string, thumbnailUrl?: string, storagePath?: string) => {
@@ -68,12 +68,12 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
 
   const handleUpload = async () => {
     if (!formData.name || !formData.description || !formData.category || !uploadedImage) {
-      alert('Por favor completa todos los campos requeridos y sube una imagen');
+      alert('Please complete all required fields and upload an image');
       return;
     }
 
     if (formData.customSizes.length === 0) {
-      alert('Por favor selecciona al menos una talla disponible');
+      alert('Please select at least one available size');
       return;
     }
 
@@ -101,11 +101,11 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
       });
       setUploadedImage(null);
 
-      alert('¡Prenda subida exitosamente!');
+      alert('Garment uploaded successfully!');
       onClose?.();
     } catch (error) {
-      console.error('Error subiendo prenda:', error);
-      alert('Error al subir la prenda. Inténtalo de nuevo.');
+      console.error('Error uploading garment:', error);
+      alert('Error uploading the garment. Try again.');
     } finally {
       setIsUploading(false);
     }
@@ -126,14 +126,14 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          Subir Prenda Personalizada
+          Upload Custom Garment
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Carga de imagen */}
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Imagen de la prenda *
+            Garment image *
           </label>
           <FileUpload
             onFileUpload={handleImageUpload}
@@ -149,10 +149,10 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Nombre de la prenda *
+              Garment name *
             </label>
             <Input
-              placeholder="Ej: Camiseta básica blanca"
+              placeholder="Ex: Basic white t-shirt"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               disabled={isUploading}
@@ -164,7 +164,7 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
               Color *
             </label>
             <Input
-              placeholder="Ej: Blanco, Negro, Azul marino"
+              placeholder="Ex: White, Black, Navy blue"
               value={formData.color}
               onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
               disabled={isUploading}
@@ -175,7 +175,7 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
         {/* Categoría */}
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Categoría *
+            Category *
           </label>
           <Select 
             value={formData.category} 
@@ -183,7 +183,7 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
             disabled={isUploading}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona una categoría" />
+              <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
               {clothingCategories.map(cat => (
@@ -198,10 +198,10 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
         {/* Descripción */}
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Descripción *
+            Description *
           </label>
           <Textarea
-            placeholder="Describe la prenda: material, estilo, ocasión de uso, etc."
+            placeholder="Describe the garment: material, style, occasion of use, etc."
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             rows={3}
@@ -213,10 +213,10 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
         {formData.category && (
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Tallas disponibles *
+              Available sizes *
             </label>
             <p className="text-xs text-muted-foreground mb-3">
-              Selecciona las tallas que están disponibles para esta prenda
+              Select the sizes that are available for this garment
             </p>
             <div className="flex flex-wrap gap-2">
               {getAvailableSizesForSelection().map(size => (
@@ -236,7 +236,7 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
             </div>
             {formData.customSizes.length > 0 && (
               <p className="text-xs text-muted-foreground mt-2">
-                Tallas seleccionadas: {formData.customSizes.join(', ')}
+                Selected sizes: {formData.customSizes.join(', ')}
               </p>
             )}
           </div>
@@ -252,12 +252,12 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
             {isUploading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Subiendo...
+                Uploading...
               </>
             ) : (
               <>
                 <Plus className="mr-2 h-4 w-4" />
-                Subir Prenda
+                Upload Garment
               </>
             )}
           </Button>
@@ -268,7 +268,7 @@ export default function CustomGarmentUpload({ onGarmentUploaded, onClose }: Cust
               onClick={onClose}
               disabled={isUploading}
             >
-              Cancelar
+              Cancel
             </Button>
           )}
         </div>

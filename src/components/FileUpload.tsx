@@ -15,7 +15,7 @@ interface FileUploadProps {
   disabled?: boolean;
   currentImage?: string;
   onRemove?: () => void;
-  folder?: string; // Carpeta en Supabase Storage
+  folder?: string; // Folder in Supabase Storage
 }
 
 export default function FileUpload({
@@ -34,15 +34,15 @@ export default function FileUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    // Validar tipo de archivo
+    // Validate file type
     if (!file.type.startsWith('image/')) {
-      return 'Por favor selecciona un archivo de imagen válido';
+      return 'Please select a valid image file';
     }
 
-    // Validar tamaño
+    // Validate size
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
-      return `El archivo es demasiado grande. Máximo ${maxSizeMB}MB permitidos`;
+      return `File is too large. Maximum ${maxSizeMB}MB allowed`;
     }
 
     return null;
@@ -51,7 +51,7 @@ export default function FileUpload({
   const handleFileSelect = async (file: File) => {
     setError(null);
     
-    // Validar archivo
+    // Validate file
     const validationError = validateFile(file);
     if (validationError) {
       setError(validationError);
@@ -60,17 +60,17 @@ export default function FileUpload({
 
     setIsProcessing(true);
     try {
-      // Subir a Supabase Storage
+      // Upload to Supabase Storage
       const result = await supabaseStorage.uploadImage(file, folder);
       
       if (result.success && result.url) {
         onFileUpload(file, result.url, result.thumbnailUrl, result.path);
-        console.log('✅ Imagen subida a Supabase Storage:', result.url);
+        console.log('✅ Image uploaded to Supabase Storage:', result.url);
       } else {
-        setError(result.error || 'Error al subir la imagen');
+        setError(result.error || 'Error uploading the image');
       }
     } catch (err) {
-      setError('Error al subir el archivo');
+      setError('Error uploading the file');
       console.error('Error uploading to Supabase Storage:', err);
     } finally {
       setIsProcessing(false);
@@ -125,7 +125,7 @@ export default function FileUpload({
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Área de carga */}
+      {/* Upload area */}
       <Card
         className={cn(
           "border-2 border-dashed transition-all cursor-pointer",
@@ -144,7 +144,7 @@ export default function FileUpload({
               <>
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 <p className="text-sm text-muted-foreground">
-                  Procesando imagen...
+                  Processing image...
                 </p>
               </>
             ) : (
@@ -154,10 +154,10 @@ export default function FileUpload({
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium">
-                    Arrastra una imagen aquí o haz clic para seleccionar
+                    Drag an image here or click to select
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Formatos soportados: JPG, PNG, WEBP, GIF (máx. {maxSizeMB}MB)
+                    Supported formats: JPG, PNG, WEBP, GIF (max. {maxSizeMB}MB)
                   </p>
                 </div>
               </>
@@ -166,7 +166,7 @@ export default function FileUpload({
         </CardContent>
       </Card>
 
-      {/* Input oculto */}
+      {/* Hidden input */}
       <input
         ref={fileInputRef}
         type="file"
@@ -176,14 +176,14 @@ export default function FileUpload({
         disabled={disabled}
       />
 
-      {/* Mostrar error */}
+      {/* Show error */}
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
-      {/* Vista previa de imagen actual */}
+      {/* Current image preview */}
       {currentImage && (
         <Card>
           <CardContent className="p-4">
@@ -192,15 +192,15 @@ export default function FileUpload({
                 <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                   <img
                     src={currentImage}
-                    alt="Imagen actual"
+                    alt="Current image"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium">Imagen actual</p>
+                <p className="text-sm font-medium">Current image</p>
                 <p className="text-xs text-muted-foreground">
-                  Sube una nueva imagen para reemplazarla
+                  Upload a new image to replace it
                 </p>
               </div>
               {onRemove && (

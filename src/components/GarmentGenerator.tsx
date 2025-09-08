@@ -27,14 +27,14 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
   });
 
   const categories: { value: ClothingCategory; label: string }[] = [
-    { value: 'camiseta', label: 'Camiseta' },
-    { value: 'camisa', label: 'Camisa' },
-    { value: 'chaqueta', label: 'Chaqueta' },
-    { value: 'pantalon', label: 'Pantalón' },
-    { value: 'falda', label: 'Falda' },
-    { value: 'vestido', label: 'Vestido' },
-    { value: 'zapatos', label: 'Zapatos' },
-    { value: 'accesorios', label: 'Accesorios' }
+    { value: 'camiseta', label: 'T-shirt' },
+    { value: 'camisa', label: 'Shirt' },
+    { value: 'chaqueta', label: 'Jacket' },
+    { value: 'pantalon', label: 'Pants' },
+    { value: 'falda', label: 'Skirt' },
+    { value: 'vestido', label: 'Dress' },
+    { value: 'zapatos', label: 'Shoes' },
+    { value: 'accesorios', label: 'Accessories' }
   ];
 
   // Las tallas se asignarán automáticamente según la categoría
@@ -50,7 +50,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
   const handleGenerate = async () => {
     if (!formData.name || !formData.description || !formData.category) {
-      alert('Por favor completa todos los campos requeridos');
+      alert('Please complete all required fields');
       return;
     }
 
@@ -68,7 +68,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         size: availableSizes // Pasar las tallas disponibles automáticamente
       };
       
-      console.log('🎨 Generando imagen con IA y subiendo a Supabase Storage...');
+      console.log('🎨 Generating image with AI and uploading to Supabase Storage...');
       const imageResult = await generateAndUploadGarmentImage(garmentData);
       
       // Crear prenda con URLs de Storage
@@ -93,13 +93,13 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         color: ''
       });
 
-      alert('¡Prenda generada exitosamente!');
+      alert('Garment generated successfully!');
     } catch (error) {
       console.error('Error:', error);
       if (error instanceof Error && error.message.includes('API key')) {
-        alert('Error: API key no configurada. Ve a la sección "Acerca" para ver las instrucciones de configuración.');
+        alert('Error: API key not configured. Go to the "About" section to see configuration instructions.');
       } else {
-        alert('Error al generar prenda: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+        alert('Error generating garment: ' + (error instanceof Error ? error.message : 'Unknown error'));
       }
     } finally {
       setIsGenerating(false);
@@ -111,16 +111,16 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shirt className="h-5 w-5" />
-          Generador de Prendas IA
+          AI Garment Generator
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Nombre de la prenda *
+            Garment name *
           </label>
           <Input
-            placeholder="Ej: Camiseta elegante de verano"
+            placeholder="Ex: Elegant summer t-shirt"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           />
@@ -128,14 +128,14 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Categoría *
+            Category *
           </label>
           <Select 
             value={formData.category} 
             onValueChange={(value) => handleCategoryChange(value as ClothingCategory)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona una categoría" />
+              <SelectValue placeholder="Select a category" />
             </SelectTrigger>
             <SelectContent>
               {categories.map(cat => (
@@ -152,7 +152,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
             Color
           </label>
           <Input
-            placeholder="Ej: Azul marino, Rojo escarlata, etc."
+              placeholder="Ex: Navy blue, Scarlet red, etc."
             value={formData.color}
             onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
           />
@@ -162,26 +162,26 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         {formData.category && (
           <div className="bg-blue-50 p-3 rounded-md">
             <p className="text-sm text-blue-700 font-medium mb-1">
-              📝 Tallas disponibles
+              📝 Available sizes
             </p>
             <p className="text-xs text-blue-600">
-              Esta prenda estará disponible en las tallas estándar para {formData.category}:
+              This garment will be available in standard sizes for {formData.category}:
               <span className="font-medium ml-1">
                 {getAvailableSizesForCategory(formData.category).join(', ')}
               </span>
             </p>
             <p className="text-xs text-blue-500 mt-1">
-              ℹ️ En el estilista podrás seleccionar la talla específica para cada look.
+              ℹ️ In the stylist you can select the specific size for each look.
             </p>
           </div>
         )}
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Descripción detallada *
+            Detailed description *
           </label>
           <Textarea
-            placeholder="Describe la prenda en detalle: estilo, material, características especiales, etc."
+            placeholder="Describe the garment in detail: style, material, special features, etc."
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             rows={4}
@@ -196,12 +196,12 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generando prenda...
+              Generating garment...
             </>
           ) : (
             <>
               <Plus className="mr-2 h-4 w-4" />
-              Generar Prenda con IA
+              Generate Garment with AI
             </>
           )}
         </Button>

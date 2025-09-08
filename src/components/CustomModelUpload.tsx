@@ -37,68 +37,68 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
   });
 
   const genderOptions = [
-    { value: 'masculino', label: 'Masculino' },
-    { value: 'femenino', label: 'Femenino' },
+    { value: 'masculino', label: 'Male' },
+    { value: 'femenino', label: 'Female' },
     { value: 'unisex', label: 'Unisex' }
   ];
 
   const ageOptions = [
-    'Niño/a (5-12 años)',
-    'Adolescente (13-17 años)',
-    'Adulto joven (18-30 años)',
-    'Adulto (31-50 años)',
-    'Adulto mayor (51+ años)'
+    'Child (5-12 years)',
+    'Teenager (13-17 years)',
+    'Young adult (18-30 years)',
+    'Adult (31-50 years)',
+    'Senior adult (51+ years)'
   ];
 
   const heightOptions = [
-    'Muy bajo/a (< 1.60m)',
-    'Bajo/a (1.60-1.65m)',
-    'Promedio (1.66-1.75m)',
-    'Alto/a (1.76-1.85m)',
-    'Muy alto/a (> 1.85m)'
+    'Very short (< 1.60m)',
+    'Short (1.60-1.65m)',
+    'Average (1.66-1.75m)',
+    'Tall (1.76-1.85m)',
+    'Very tall (> 1.85m)'
   ];
 
   const bodyTypeOptions = [
-    'Atlético',
-    'Delgado',
-    'Medio',
-    'Curvilíneo',
-    'Robusto',
-    'Pera',
-    'Manzana',
-    'Reloj de arena'
+    'Athletic',
+    'Slim',
+    'Average',
+    'Curvy',
+    'Robust',
+    'Pear',
+    'Apple',
+    'Hourglass'
   ];
 
   const hairColorOptions = [
-    'Negro',
-    'Castaño oscuro',
-    'Castaño claro',
-    'Rubio oscuro',
-    'Rubio claro',
-    'Pelirrojo',
-    'Gris',
-    'Blanco',
-    'Teñido (colores fantasia)'
+    'Black',
+    'Dark brown',
+    'Light brown',
+    'Dark blonde',
+    'Light blonde',
+    'Red',
+    'Gray',
+    'White',
+    'Dyed (fantasy colors)'
   ];
 
   const eyeColorOptions = [
-    'Marrones',
-    'Azules',
-    'Verdes',
-    'Avellana',
-    'Grises',
-    'Negros',
-    'Ámbar'
+    'Brown',
+    'Blue',
+    'Green',
+    'Hazel',
+    'Gray',
+    'Black',
+    'Amber'
   ];
 
   const skinToneOptions = [
-    'Muy claro',
-    'Claro',
-    'Medio claro',
-    'Medio',
-    'Medio oscuro',
-    'Oscuro',
-    'Muy oscuro'
+    'Very light',
+    'Light',
+    'Medium light',
+    'Medium',
+    'Medium dark',
+    'Dark',
+    'Very dark'
   ];
 
   const clothingSizes: ClothingSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -113,7 +113,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
   const handleUpload = async () => {
     if (!formData.name || !formData.characteristics || !formData.gender || !uploadedImage ||
         !formData.upperBodySize || !formData.lowerBodySize || !formData.shoeSize) {
-      alert('Por favor completa todos los campos requeridos, incluye las tallas y sube una imagen');
+      alert('Please complete all required fields, include sizes and upload an image');
       return;
     }
 
@@ -123,12 +123,12 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
         name: formData.name,
         characteristics: formData.characteristics,
         gender: formData.gender as any,
-        age: formData.age || 'Adulto joven',
-        height: formData.height || 'Promedio',
-        bodyType: formData.bodyType || 'Medio',
-        hairColor: formData.hairColor || 'Castaño',
-        eyeColor: formData.eyeColor || 'Marrones',
-        skinTone: formData.skinTone || 'Medio',
+        age: formData.age || 'Young adult',
+        height: formData.height || 'Average',
+        bodyType: formData.bodyType || 'Average',
+        hairColor: formData.hairColor || 'Brown',
+        eyeColor: formData.eyeColor || 'Brown',
+        skinTone: formData.skinTone || 'Medium',
         upperBodySize: formData.upperBodySize,
         lowerBodySize: formData.lowerBodySize,
         shoeSize: formData.shoeSize,
@@ -155,11 +155,11 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
       });
       setUploadedImage(null);
 
-      alert('¡Modelo subido exitosamente!');
+      alert('Model uploaded successfully!');
       onClose?.();
     } catch (error) {
-      console.error('Error subiendo modelo:', error);
-      alert('Error al subir el modelo. Inténtalo de nuevo.');
+      console.error('Error uploading model:', error);
+      alert('Error uploading the model. Try again.');
     } finally {
       setIsUploading(false);
     }
@@ -174,17 +174,17 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Subir Modelo Personalizado
+          Upload Custom Model
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Carga de imagen */}
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Fotografía del modelo *
+            Model photograph *
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            Sube una foto clara del modelo de cuerpo entero para mejores resultados
+            Upload a clear full-body photo of the model for better results
           </p>
           <FileUpload
             onFileUpload={handleImageUpload}
@@ -200,10 +200,10 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Nombre del modelo *
+              Model name *
             </label>
             <Input
-              placeholder="Ej: Ana García, Modelo 1, etc."
+              placeholder="Ex: Ana Garcia, Model 1, etc."
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               disabled={isUploading}
@@ -212,7 +212,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
 
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Género *
+              Gender *
             </label>
             <Select 
               value={formData.gender} 
@@ -220,7 +220,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
               disabled={isUploading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona género" />
+                <SelectValue placeholder="Select gender" />
               </SelectTrigger>
               <SelectContent>
                 {genderOptions.map(option => (
@@ -237,7 +237,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Edad
+              Age
             </label>
             <Select 
               value={formData.age} 
@@ -245,7 +245,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
               disabled={isUploading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona edad" />
+                <SelectValue placeholder="Select age" />
               </SelectTrigger>
               <SelectContent>
                 {ageOptions.map(option => (
@@ -259,7 +259,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
 
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Altura
+              Height
             </label>
             <Select 
               value={formData.height} 
@@ -267,7 +267,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
               disabled={isUploading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona altura" />
+                <SelectValue placeholder="Select height" />
               </SelectTrigger>
               <SelectContent>
                 {heightOptions.map(option => (
@@ -281,7 +281,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
 
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Tipo de cuerpo
+              Body type
             </label>
             <Select 
               value={formData.bodyType} 
@@ -289,7 +289,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
               disabled={isUploading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona tipo" />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 {bodyTypeOptions.map(option => (

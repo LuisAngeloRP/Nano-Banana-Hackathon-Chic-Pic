@@ -47,7 +47,7 @@ export default function GarmentWardrobe({
       const stored = await SupabaseStorageAdapter.getGarments();
       setGarments(stored);
     } catch (error) {
-      console.error('Error cargando prendas:', error);
+      console.error('Error loading garments:', error);
     }
   };
 
@@ -70,13 +70,13 @@ export default function GarmentWardrobe({
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de que quieres eliminar esta prenda?')) {
+    if (confirm('Are you sure you want to delete this garment?')) {
       try {
         await SupabaseStorageAdapter.deleteGarment(id);
         loadGarments();
       } catch (error) {
-        console.error('Error eliminando prenda:', error);
-        alert('Error al eliminar la prenda');
+        console.error('Error deleting garment:', error);
+        alert('Error deleting the garment');
       }
     }
   };
@@ -113,15 +113,15 @@ export default function GarmentWardrobe({
   };
 
   const categories = [
-    { value: 'all', label: 'Todas las categorías' },
-    { value: 'camiseta', label: 'Camisetas' },
-    { value: 'pantalon', label: 'Pantalones' },
-    { value: 'vestido', label: 'Vestidos' },
-    { value: 'falda', label: 'Faldas' },
-    { value: 'camisa', label: 'Camisas' },
-    { value: 'chaqueta', label: 'Chaquetas' },
-    { value: 'zapatos', label: 'Zapatos' },
-    { value: 'accesorios', label: 'Accesorios' }
+    { value: 'all', label: 'All categories' },
+    { value: 'camiseta', label: 'T-shirts' },
+    { value: 'pantalon', label: 'Pants' },
+    { value: 'vestido', label: 'Dresses' },
+    { value: 'falda', label: 'Skirts' },
+    { value: 'camisa', label: 'Shirts' },
+    { value: 'chaqueta', label: 'Jackets' },
+    { value: 'zapatos', label: 'Shoes' },
+    { value: 'accesorios', label: 'Accessories' }
   ];
 
   return (
@@ -130,19 +130,19 @@ export default function GarmentWardrobe({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Shirt className="h-5 w-5" />
-            Armario de Prendas ({filteredGarments.length})
+            Garment Wardrobe ({filteredGarments.length})
           </CardTitle>
           
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Upload className="h-4 w-4 mr-2" />
-                Subir Prenda
+                Upload Garment
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Subir Nueva Prenda</DialogTitle>
+                <DialogTitle>Upload New Garment</DialogTitle>
               </DialogHeader>
               <CustomGarmentUpload 
                 onGarmentUploaded={handleGarmentUploaded}
@@ -155,7 +155,7 @@ export default function GarmentWardrobe({
         <div className="flex gap-2 mt-4">
           <div className="flex-1">
             <Input
-              placeholder="Buscar prendas..."
+              placeholder="Search garments..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -181,8 +181,8 @@ export default function GarmentWardrobe({
           {filteredGarments.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {garments.length === 0 
-                ? "No hay prendas en el armario. ¡Genera tu primera prenda!"
-                : "No se encontraron prendas con los filtros aplicados."
+                ? "No garments in the wardrobe. Generate your first garment!"
+                : "No garments found with the applied filters."
               }
             </div>
           ) : (
@@ -221,7 +221,7 @@ export default function GarmentWardrobe({
                       )}
                       
                       <div className="space-y-1">
-                        <span className="text-xs text-muted-foreground">Tallas disponibles:</span>
+                        <span className="text-xs text-muted-foreground">Available sizes:</span>
                         <div className="flex flex-wrap gap-1">
                           {garment.availableSizes && garment.availableSizes.length > 0 ? (
                             garment.availableSizes.map(size => (
@@ -231,7 +231,7 @@ export default function GarmentWardrobe({
                             ))
                           ) : (
                             <Badge variant="outline" className="text-xs text-muted-foreground">
-                              No especificadas
+                              Not specified
                             </Badge>
                           )}
                         </div>
@@ -255,7 +255,7 @@ export default function GarmentWardrobe({
                             handleEditGarment(garment);
                           }}
                           className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
-                          title="Editar prenda"
+                          title="Edit garment"
                         >
                           <Edit3 className="h-3 w-3" />
                         </Button>
@@ -267,7 +267,7 @@ export default function GarmentWardrobe({
                             handleDelete(garment.id);
                           }}
                           className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                          title="Eliminar prenda"
+                          title="Delete garment"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>

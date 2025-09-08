@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chic Pic - Sistema de Moda con IA",
-  description: "Genera prendas, modelos y crea looks únicos con inteligencia artificial powered by Nano Banana",
+  title: "Chic Pic - AI Fashion System",
+  description: "Generate garments, models and create unique looks with artificial intelligence powered by Nano Banana",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
