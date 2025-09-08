@@ -85,7 +85,7 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
       const newModel = await SupabaseStorageAdapter.addModel({
         name: formData.name,
         characteristics: formData.characteristics,
-        gender: formData.gender as any,
+        gender: formData.gender as Model['gender'],
         age: formData.age || 'Young adult',
         height: formData.height || 'Average',
         bodyType: formData.bodyType || 'Athletic',
@@ -284,7 +284,7 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         <div className="space-y-4 border-t pt-4">
           <h3 className="font-semibold text-lg">Model Sizes *</h3>
           <p className="text-sm text-muted-foreground">
-            Specify the model's sizes for precise garment fitting.
+            Specify the model&apos;s sizes for precise garment fitting.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

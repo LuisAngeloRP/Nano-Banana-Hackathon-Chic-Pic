@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { createBase64Placeholder } from './imageStorage.client';
 import { supabaseStorage } from './supabaseStorage';
 
@@ -6,8 +6,8 @@ import { supabaseStorage } from './supabaseStorage';
 const API_KEY = process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '';
 
 let genAI: GoogleGenerativeAI | null = null;
-let textModel: any = null;
-let imageModel: any = null;
+let textModel: GenerativeModel | null = null;
+let imageModel: GenerativeModel | null = null;
 
 // Inicializar solo si tenemos API key
 if (API_KEY) {

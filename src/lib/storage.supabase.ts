@@ -219,7 +219,8 @@ export class SupabaseStorageAdapter {
   static async testConnection(): Promise<boolean> {
     try {
       // Hacer una consulta simple para probar la conectividad
-      const garments = await SupabaseStorageClient.getGarments();
+      // Test connection by attempting to fetch garments
+      await SupabaseStorageClient.getGarments();
       return true; // Si no hay error, la conexión funciona
     } catch (error) {
       console.error('Error de conectividad con Supabase:', error);

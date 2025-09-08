@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel, EnhancedGenerateContentResponse } from '@google/generative-ai';
 import { formatImageAsDataURI, extractBase64FromDataURI, createBase64Placeholder } from '@/lib/imageStorage.client';
-import { buildNanoBananaPrompt, GENERATION_PARAMS } from '@/lib/nanoBanana';
+import { buildNanoBananaPrompt } from '@/lib/nanoBanana';
 import { 
   processNanoBananaResponse, 
-  validateNanoBananaImage, 
-  buildNanoBananaResponse,
+  validateNanoBananaImage,
   logNanoBananaActivity 
 } from '@/lib/nanoBananaHandler';
 import { 
@@ -19,8 +18,8 @@ import {
 const API_KEY = process.env.GOOGLE_API_KEY || '';
 
 let genAI: GoogleGenerativeAI | null = null;
-let textModel: any = null;
-let imageModel: any = null;
+let textModel: GenerativeModel | null = null;
+let imageModel: GenerativeModel | null = null;
 
 // Inicializar modelos si hay API key
 if (API_KEY) {
@@ -103,7 +102,7 @@ async function generateWithNanoBanana(
   description: string,
   garmentImages?: string[],
   modelImage?: string,
-  additionalData?: any
+  additionalData?: Record<string, unknown>
 ): Promise<{success: boolean, base64Image?: string, message: string, attempts?: number}> {
   if (!imageModel) {
     throw new Error('Nano Banana no disponible');
@@ -154,7 +153,7 @@ async function generateWithNanoBanana(
       console.log('📝 Prompt optimizado:', prompt.substring(0, 100) + '...');
       
       // Preparar contenido para Nano Banana
-      let contentParts: any[] = [{ text: prompt }];
+      const contentParts: Array<{text: string} | {inlineData: {data: string, mimeType: string}}> = [{ text: prompt }];
       
       // Si es tipo 'look' y tenemos imágenes, agregarlas como input
       if (type === 'look') {
@@ -208,7 +207,7 @@ async function generateWithNanoBanana(
       
       // Procesar respuesta
       const processedResponse = processNanoBananaResponse(
-        response, 
+        response as EnhancedGenerateContentResponse, 
         type, 
         description, 
         `temp-${Date.now()}`

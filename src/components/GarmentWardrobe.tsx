@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Trash2, Shirt, Search, Edit3, Eye, Upload, Plus } from 'lucide-react';
+import { Trash2, Shirt, Edit3, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
@@ -18,12 +18,13 @@ import CustomGarmentUpload from './CustomGarmentUpload';
 interface GarmentWardrobeProps {
   onGarmentSelect?: (garment: Garment) => void;
   selectedGarments?: string[];
-  multiSelect?: boolean;
+  multiSelect?: boolean; // Currently not implemented but kept for future use
 }
 
 export default function GarmentWardrobe({ 
   onGarmentSelect, 
   selectedGarments = [], 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   multiSelect = false 
 }: GarmentWardrobeProps) {
   const [garments, setGarments] = useState<Garment[]>([]);
@@ -37,19 +38,6 @@ export default function GarmentWardrobe({
   useEffect(() => {
     loadGarments();
   }, []);
-
-  useEffect(() => {
-    filterGarments();
-  }, [garments, searchTerm, categoryFilter]);
-
-  const loadGarments = async () => {
-    try {
-      const stored = await SupabaseStorageAdapter.getGarments();
-      setGarments(stored);
-    } catch (error) {
-      console.error('Error loading garments:', error);
-    }
-  };
 
   const filterGarments = () => {
     let filtered = garments;
@@ -67,6 +55,20 @@ export default function GarmentWardrobe({
     }
 
     setFilteredGarments(filtered);
+  };
+
+  useEffect(() => {
+    filterGarments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [garments, searchTerm, categoryFilter]);
+
+  const loadGarments = async () => {
+    try {
+      const stored = await SupabaseStorageAdapter.getGarments();
+      setGarments(stored);
+    } catch (error) {
+      console.error('Error loading garments:', error);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -94,7 +96,8 @@ export default function GarmentWardrobe({
     setIsDetailEditorOpen(true);
   };
 
-  const handleGarmentUpdated = (updatedItem: Garment | Model | StyledLook) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleGarmentUpdated = (_updatedItem: Garment | Model | StyledLook) => {
     loadGarments(); // Recargar la lista
   };
 

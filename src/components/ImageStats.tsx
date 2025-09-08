@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FolderOpen, Image, RefreshCw, Trash2 } from 'lucide-react';
+import { FolderOpen, FileImage, RefreshCw, Trash2 } from 'lucide-react';
 
 interface ImageStats {
   garments: number;
@@ -69,7 +69,7 @@ export default function ImageStats() {
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Image className="h-5 w-5" />
+          <FileImage className="h-5 w-5" />
           Local Image Storage
           <Button
             variant="ghost"

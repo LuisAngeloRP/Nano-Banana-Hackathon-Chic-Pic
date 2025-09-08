@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, User, Search, Edit3, Upload, Plus } from 'lucide-react';
+import { Trash2, User, Edit3, Upload } from 'lucide-react';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, Garment, StyledLook } from '@/types';
 import DetailEditor from './DetailEditor';
@@ -29,24 +29,16 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   const [isDetailEditorOpen, setIsDetailEditorOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
-  useEffect(() => {
-    loadModels();
-  }, []);
-
-  useEffect(() => {
-    filterModels();
-  }, [models, searchTerm, genderFilter]);
-
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     try {
       const stored = await SupabaseStorageAdapter.getModels();
       setModels(stored);
     } catch (error) {
       console.error('Error loading models:', error);
     }
-  };
+  }, []);
 
-  const filterModels = () => {
+  const filterModels = useCallback(() => {
     let filtered = models;
 
     if (searchTerm) {
@@ -63,7 +55,15 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
     }
 
     setFilteredModels(filtered);
-  };
+  }, [models, searchTerm, genderFilter]);
+
+  useEffect(() => {
+    loadModels();
+  }, [loadModels]);
+
+  useEffect(() => {
+    filterModels();
+  }, [filterModels]);
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this model?')) {
@@ -90,7 +90,8 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
     setIsDetailEditorOpen(true);
   };
 
-  const handleModelUpdated = (updatedItem: Garment | Model | StyledLook) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleModelUpdated = (_updatedItem: Garment | Model | StyledLook) => {
     loadModels(); // Recargar la lista
   };
 

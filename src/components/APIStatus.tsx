@@ -9,7 +9,7 @@ import { CheckCircle, XCircle, AlertTriangle, RefreshCw, ExternalLink } from 'lu
 import { getAPIStatus } from '@/lib/gemini';
 
 export default function APIStatus() {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<{hasAPIKey: boolean, hasTextModel: boolean, hasImageModel: boolean, apiKeyLength: number} | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export default function APIStatus() {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>Initialization error</strong>
-              <p className="mt-2">The API key is configured but there's a problem with model initialization. Verify that:</p>
+              <p className="mt-2">The API key is configured but there&apos;s a problem with model initialization. Verify that:</p>
               <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
                 <li>The API key is valid and active</li>
                 <li>You have access to Gemini API</li>
@@ -165,7 +165,7 @@ export default function APIStatus() {
           <h4 className="font-semibold text-blue-800 mb-2">🍌 About Nano Banana</h4>
           <div className="space-y-2 text-blue-700 text-sm">
             <p>
-              <strong>Nano Banana</strong> is the codename for Gemini 2.5 Flash Image, Google's most advanced image generation model.
+              <strong>Nano Banana</strong> is the codename for Gemini 2.5 Flash Image, Google&apos;s most advanced image generation model.
             </p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>🎨 Realistic image generation from text</li>

@@ -201,7 +201,7 @@ export const GENERATION_PARAMS = {
 };
 
 // Función para validar respuesta de Nano Banana
-export function validateNanoBananaResponse(response: any): boolean {
+export function validateNanoBananaResponse(response: unknown): boolean {
   // Validaciones básicas para asegurar que la respuesta es válida
   if (!response) return false;
   
@@ -212,7 +212,7 @@ export function validateNanoBananaResponse(response: any): boolean {
 }
 
 // Función para procesar imagen de Nano Banana
-export function processNanoBananaImage(imageData: any, filename: string): string {
+export function processNanoBananaImage(imageData: unknown, filename: string): string {
   // Aquí iría el procesamiento específico de la imagen de Nano Banana
   // Por ejemplo: optimización, redimensionado, compresión, etc.
   
@@ -223,9 +223,10 @@ export function processNanoBananaImage(imageData: any, filename: string): string
 // Función para generar imagen editada con Nano Banana
 export async function generateEditedImage(
   type: 'garment' | 'model' | 'look',
-  originalItem: any,
+  originalItem: { imageUrl: string } & Record<string, unknown>,
   editPrompt: string,
-  originalDescription: string
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _originalDescription: string
 ): Promise<string> {
   try {
     console.log('Editando imagen con Nano Banana:', {
@@ -256,10 +257,11 @@ export async function generateEditedImage(
   }
 }
 
-// Función para construir prompt específico de edición
+// Función para construir prompt específico de edición (no utilizada actualmente)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function buildEditingPrompt(
   type: 'garment' | 'model' | 'look',
-  originalItem: any,
+  originalItem: { imageUrl?: string; name?: string; category?: string; color?: string; gender?: string; age?: string; bodyType?: string; hairColor?: string; eyeColor?: string; skinTone?: string; garmentIds?: string[] } & Record<string, unknown>,
   editPrompt: string,
   originalDescription: string
 ): string {

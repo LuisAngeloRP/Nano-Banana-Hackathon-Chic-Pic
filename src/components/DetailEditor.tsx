@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// Badge import removed - not used
 import { Loader2, Edit3, Check, X, RefreshCw, Sparkles } from 'lucide-react';
 import { Garment, Model, StyledLook } from '@/types';
 import { generateEditedImage } from '@/lib/nanoBanana';
@@ -110,7 +110,7 @@ export default function DetailEditor({
     try {
       const editedImageUrl = await generateEditedImage(
         type,
-        item,
+        item as unknown as { imageUrl: string } & Record<string, unknown>,
         editPrompt,
         getItemDescription()
       );

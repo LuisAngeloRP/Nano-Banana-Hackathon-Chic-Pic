@@ -377,7 +377,7 @@ export class SupabaseStorage {
       id: dbGarment.id,
       name: dbGarment.name,
       description: dbGarment.description,
-      category: dbGarment.category as any,
+      category: dbGarment.category as Garment['category'],
       imageUrl: dbGarment.image_url,
       thumbnailUrl: dbGarment.thumbnail_url,
       storagePath: dbGarment.storage_path,
@@ -392,7 +392,7 @@ export class SupabaseStorage {
       id: dbModel.id,
       name: dbModel.name,
       characteristics: dbModel.characteristics,
-      gender: dbModel.gender as any,
+      gender: dbModel.gender as Model['gender'],
       age: dbModel.age,
       height: dbModel.height,
       bodyType: dbModel.body_type,
@@ -427,7 +427,7 @@ export class SupabaseStorage {
   // === UTILIDADES ===
   static async testConnection(): Promise<boolean> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('garments')
         .select('count', { count: 'exact', head: true });
 
@@ -455,6 +455,7 @@ export class SupabaseStorage {
           description: garment.description,
           category: garment.category,
           imageUrl: garment.imageUrl,
+          storagePath: garment.storagePath || `garments/${garment.id || Date.now()}.jpg`,
           color: garment.color,
           availableSizes: garment.availableSizes,
         });
@@ -478,6 +479,7 @@ export class SupabaseStorage {
           lowerBodySize: model.lowerBodySize,
           shoeSize: model.shoeSize,
           imageUrl: model.imageUrl,
+          storagePath: model.storagePath || `models/${model.id || Date.now()}.jpg`,
         });
         if (result) results.models++;
       }
@@ -490,6 +492,7 @@ export class SupabaseStorage {
           modelId: look.modelId,
           garmentIds: look.garmentIds,
           imageUrl: look.imageUrl,
+          storagePath: look.storagePath || `looks/${look.id || Date.now()}.jpg`,
           description: look.description,
           garmentFits: look.garmentFits,
         });

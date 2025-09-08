@@ -80,5 +80,5 @@ export interface StyledLook {
 export interface GenerationRequest {
   type: 'garment' | 'model' | 'styling';
   description: string;
-  additionalParams?: Record<string, any>;
+  additionalParams?: Record<string, unknown>;
 }

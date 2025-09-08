@@ -1,4 +1,5 @@
 // Manejador específico para respuestas de Nano Banana (Gemini 2.5 Flash Image Preview)
+import { EnhancedGenerateContentResponse } from '@google/generative-ai';
 
 export interface NanoBananaResponse {
   success: boolean;
@@ -9,7 +10,7 @@ export interface NanoBananaResponse {
   model?: string;
   aiDescription?: string;
   error?: string;
-  debugInfo?: any;
+  debugInfo?: Record<string, unknown>;
 }
 
 export interface NanoBananaImagePart {
@@ -28,18 +29,21 @@ export interface NanoBananaCandidate {
 
 // Función para procesar respuesta de Nano Banana
 export function processNanoBananaResponse(
-  response: any,
-  type: 'garment' | 'model' | 'look',
-  description: string,
-  filename: string
+  response: EnhancedGenerateContentResponse,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _type: 'garment' | 'model' | 'look',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _description: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _filename: string
 ): {
   hasImage: boolean;
   imageData?: string;
   mimeType?: string;
   textResponse?: string;
-  debugInfo: any;
+  debugInfo: Record<string, unknown>;
 } {
-  const debugInfo: any = {
+  const debugInfo: Record<string, unknown> = {
     hasResponse: !!response,
     hasCandidates: !!(response?.candidates),
     candidatesLength: response?.candidates?.length || 0,
@@ -186,7 +190,7 @@ export function logNanoBananaActivity(
   action: string,
   type: 'garment' | 'model' | 'look',
   success: boolean,
-  details?: any
+  details?: Record<string, unknown>
 ) {
   const logData = {
     timestamp: new Date().toISOString(),

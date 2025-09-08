@@ -216,7 +216,7 @@ export default function Home() {
                       <h4 className="font-semibold text-blue-800 mb-2">📝 Note</h4>
                       <p className="text-sm text-blue-700">
                         This version uses placeholders for generated images. 
-                        In production, you would integrate with Google's real image generation API.
+                        In production, you would integrate with Google&apos;s real image generation API.
                       </p>
                     </div>
                   </div>

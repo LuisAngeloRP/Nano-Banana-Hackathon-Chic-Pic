@@ -82,7 +82,7 @@ export function isValidBase64(str: string): boolean {
     // Intentar decodificar
     const decoded = Buffer.from(base64Data, 'base64').toString('base64');
     return decoded === base64Data;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

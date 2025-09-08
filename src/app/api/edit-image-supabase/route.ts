@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { formatImageAsDataURI, extractBase64FromDataURI, createBase64Placeholder } from '@/lib/imageStorage.client';
 
 // Configuración de Gemini API
 const API_KEY = process.env.GOOGLE_API_KEY || '';
 
 let genAI: GoogleGenerativeAI | null = null;
-let imageModel: any = null;
+let imageModel: GenerativeModel | null = null;
 
 // Inicializar modelos si hay API key
 if (API_KEY) {

@@ -245,7 +245,8 @@ class SupabaseStorageService {
   /**
    * Obtener URL optimizada con transformaciones
    */
-  getOptimizedUrl(url: string, options?: {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getOptimizedUrl(url: string, _options?: {
     width?: number;
     height?: number;
     quality?: number;

@@ -6,12 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+// Badge import removed - not used
 import { Loader2, Shirt, Plus } from 'lucide-react';
 import { generateAndUploadGarmentImage } from '@/lib/gemini';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Garment, ClothingCategory, ClothingSize, ShoeSize } from '@/types';
-import { getAvailableSizesForCategory, isValidSizeForCategory } from '@/lib/sizeUtils';
+import { getAvailableSizesForCategory } from '@/lib/sizeUtils';
 
 interface GarmentGeneratorProps {
   onGarmentGenerated?: (garment: Garment) => void;

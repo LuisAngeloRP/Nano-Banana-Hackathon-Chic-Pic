@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, Plus, User } from 'lucide-react';
+import { Loader2, Plus, User } from 'lucide-react';
 import { SupabaseStorageAdapter } from '@/lib/storage.supabase';
 import { Model, ClothingSize, ShoeSize } from '@/types';
 import FileUpload from './FileUpload';
@@ -122,7 +122,7 @@ export default function CustomModelUpload({ onModelUploaded, onClose }: CustomMo
       const newModel = await SupabaseStorageAdapter.addModel({
         name: formData.name,
         characteristics: formData.characteristics,
-        gender: formData.gender as any,
+        gender: formData.gender as Model['gender'],
         age: formData.age || 'Young adult',
         height: formData.height || 'Average',
         bodyType: formData.bodyType || 'Average',
