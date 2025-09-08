@@ -329,7 +329,7 @@ export default function DetailEditor({
                       ) : (
                         <>
                           <Sparkles className="mr-2 h-4 w-4" />
-                          Generate Changes with AI
+                          Generate Changes
                         </>
                       )}
                     </Button>

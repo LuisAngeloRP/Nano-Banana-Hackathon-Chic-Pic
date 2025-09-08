@@ -1,6 +1,6 @@
 import { ClothingSize, ShoeSize, FitType, ClothingCategory } from '@/types';
 
-// Mapa de tallas de ropa a números para comparaciones
+// Clothing size to number mapping for comparisons
 const CLOTHING_SIZE_ORDER: Record<ClothingSize, number> = {
   'XS': 1,
   'S': 2,
@@ -10,134 +10,134 @@ const CLOTHING_SIZE_ORDER: Record<ClothingSize, number> = {
   'XXL': 6
 };
 
-// Función para determinar el tipo de ajuste basado en las diferencias de tallas
+// Function to determine fit type based on size differences
 export function determineFitType(
   garmentSize: ClothingSize | ShoeSize,
   modelSize: ClothingSize | ShoeSize,
   category: ClothingCategory
 ): FitType {
-  // Para accesorios, siempre es perfecto
-  if (category === 'accesorios') {
-    return 'perfecto';
+  // For accessories, always perfect fit
+  if (category === 'accessories') {
+    return 'perfect';
   }
 
-  // Para zapatos, comparar números directamente
-  if (category === 'zapatos') {
+  // For shoes, compare numbers directly
+  if (category === 'shoes') {
     const garmentNum = parseInt(garmentSize as string);
     const modelNum = parseInt(modelSize as string);
     const diff = garmentNum - modelNum;
     
-    if (diff <= -2) return 'muy_ajustado';
-    if (diff === -1) return 'ajustado';
-    if (diff === 0) return 'perfecto';
-    if (diff === 1) return 'suelto';
-    return 'muy_suelto';
+    if (diff <= -2) return 'very_tight';
+    if (diff === -1) return 'tight';
+    if (diff === 0) return 'perfect';
+    if (diff === 1) return 'loose';
+    return 'very_loose';
   }
 
-  // Para ropa, usar el orden de tallas
+  // For clothing, use size order
   const garmentOrder = CLOTHING_SIZE_ORDER[garmentSize as ClothingSize];
   const modelOrder = CLOTHING_SIZE_ORDER[modelSize as ClothingSize];
   const diff = garmentOrder - modelOrder;
 
-  if (diff <= -2) return 'muy_ajustado';
-  if (diff === -1) return 'ajustado';
-  if (diff === 0) return 'perfecto';
-  if (diff === 1) return 'suelto';
-  return 'muy_suelto';
+  if (diff <= -2) return 'very_tight';
+  if (diff === -1) return 'tight';
+  if (diff === 0) return 'perfect';
+  if (diff === 1) return 'loose';
+  return 'very_loose';
 }
 
-// Función para generar descripción del ajuste
+// Function to generate fit description
 export function generateFitDescription(
   fitType: FitType,
   garmentName: string,
   category: ClothingCategory
 ): string {
   const descriptions: Record<FitType, Record<ClothingCategory | 'default', string>> = {
-    'muy_ajustado': {
-      'camiseta': `La ${garmentName} queda muy ajustada, marcando la figura y posiblemente limitando el movimiento.`,
-      'camisa': `La ${garmentName} queda muy ceñida al cuerpo, con las mangas y torso muy justos.`,
-      'chaqueta': `La ${garmentName} queda muy ajustada, dificultando cerrarla y limitando la comodidad.`,
-      'pantalon': `El ${garmentName} queda muy ajustado en cintura y piernas, marcando mucho la silueta.`,
-      'falda': `La ${garmentName} queda muy ceñida en caderas y cintura, limitando el movimiento.`,
-      'vestido': `El ${garmentName} queda muy ajustado en todas las áreas, marcando completamente la figura.`,
-      'zapatos': `Los ${garmentName} quedan muy pequeños, causando incomodidad y posibles molestias.`,
-      'accesorios': `El ${garmentName} se ajusta perfectamente.`,
-      'default': `${garmentName} queda muy ajustado.`
+    'very_tight': {
+      'shirt': `The ${garmentName} fits very tightly, hugging the figure and possibly limiting movement.`,
+      'blouse': `The ${garmentName} fits very snugly to the body, with sleeves and torso very tight.`,
+      'jacket': `The ${garmentName} fits very tightly, making it difficult to close and limiting comfort.`,
+      'pants': `The ${garmentName} fits very tightly at waist and legs, emphasizing the silhouette significantly.`,
+      'skirt': `The ${garmentName} fits very snugly at hips and waist, limiting movement.`,
+      'dress': `The ${garmentName} fits very tightly in all areas, completely outlining the figure.`,
+      'shoes': `The ${garmentName} are too small, causing discomfort and possible pain.`,
+      'accessories': `The ${garmentName} fits perfectly.`,
+      'default': `${garmentName} fits very tightly.`
     },
-    'ajustado': {
-      'camiseta': `La ${garmentName} queda ajustada pero cómoda, siguiendo las líneas del cuerpo sin apretar.`,
-      'camisa': `La ${garmentName} queda bien ajustada, con un corte favorecedor y elegante.`,
-      'chaqueta': `La ${garmentName} queda ajustada pero permite movimiento cómodo, con un corte entallado.`,
-      'pantalon': `El ${garmentName} queda ajustado en cintura y piernas, con un corte favorecedor.`,
-      'falda': `La ${garmentName} queda ajustada en caderas, creando una silueta elegante.`,
-      'vestido': `El ${garmentName} queda ajustado, resaltando la figura de manera favorecedora.`,
-      'zapatos': `Los ${garmentName} quedan un poco justos pero cómodos para usar.`,
-      'accesorios': `El ${garmentName} se ajusta perfectamente.`,
-      'default': `${garmentName} queda ajustado pero cómodo.`
+    'tight': {
+      'shirt': `The ${garmentName} fits snugly but comfortably, following the body lines without squeezing.`,
+      'blouse': `The ${garmentName} fits well-tailored, with a flattering and elegant cut.`,
+      'jacket': `The ${garmentName} fits snugly but allows comfortable movement, with a fitted cut.`,
+      'pants': `The ${garmentName} fits snugly at waist and legs, with a flattering cut.`,
+      'skirt': `The ${garmentName} fits snugly at hips, creating an elegant silhouette.`,
+      'dress': `The ${garmentName} fits snugly, highlighting the figure in a flattering way.`,
+      'shoes': `The ${garmentName} are a bit snug but comfortable to wear.`,
+      'accessories': `The ${garmentName} fits perfectly.`,
+      'default': `${garmentName} fits snugly but comfortably.`
     },
-    'perfecto': {
-      'camiseta': `La ${garmentName} queda perfecta, con el ajuste ideal para comodidad y estilo.`,
-      'camisa': `La ${garmentName} tiene el ajuste perfecto, ni muy suelta ni muy ajustada.`,
-      'chaqueta': `La ${garmentName} queda perfecta, permitiendo libertad de movimiento y un look impecable.`,
-      'pantalon': `El ${garmentName} tiene el ajuste perfecto en cintura, caderas y largo.`,
-      'falda': `La ${garmentName} queda perfecta, con el ajuste ideal en caderas y cintura.`,
-      'vestido': `El ${garmentName} queda perfecto, con el ajuste ideal en todas las áreas.`,
-      'zapatos': `Los ${garmentName} calzan perfectamente, proporcionando comodidad total.`,
-      'accesorios': `El ${garmentName} se ajusta perfectamente.`,
-      'default': `${garmentName} queda perfecto.`
+    'perfect': {
+      'shirt': `The ${garmentName} fits perfectly, with the ideal fit for comfort and style.`,
+      'blouse': `The ${garmentName} has the perfect fit, neither too loose nor too tight.`,
+      'jacket': `The ${garmentName} fits perfectly, allowing freedom of movement and an impeccable look.`,
+      'pants': `The ${garmentName} has the perfect fit at waist, hips, and length.`,
+      'skirt': `The ${garmentName} fits perfectly, with the ideal fit at hips and waist.`,
+      'dress': `The ${garmentName} fits perfectly, with the ideal fit in all areas.`,
+      'shoes': `The ${garmentName} fit perfectly, providing total comfort.`,
+      'accessories': `The ${garmentName} fits perfectly.`,
+      'default': `${garmentName} fits perfectly.`
     },
-    'suelto': {
-      'camiseta': `La ${garmentName} queda suelta pero elegante, proporcionando comodidad y un look relajado.`,
-      'camisa': `La ${garmentName} queda suelta, creando un estilo cómodo y casual.`,
-      'chaqueta': `La ${garmentName} queda suelta, permitiendo capas debajo y un look oversized.`,
-      'pantalon': `El ${garmentName} queda suelto, proporcionando comodidad y un estilo relajado.`,
-      'falda': `La ${garmentName} queda suelta en caderas, creando un look fluido y cómodo.`,
-      'vestido': `El ${garmentName} queda suelto, proporcionando comodidad y un estilo elegante.`,
-      'zapatos': `Los ${garmentName} quedan un poco grandes pero aún usables con calcetines.`,
-      'accesorios': `El ${garmentName} se ajusta perfectamente.`,
-      'default': `${garmentName} queda suelto pero cómodo.`
+    'loose': {
+      'shirt': `The ${garmentName} fits loosely but elegantly, providing comfort and a relaxed look.`,
+      'blouse': `The ${garmentName} fits loosely, creating a comfortable and casual style.`,
+      'jacket': `The ${garmentName} fits loosely, allowing layers underneath and an oversized look.`,
+      'pants': `The ${garmentName} fits loosely, providing comfort and a relaxed style.`,
+      'skirt': `The ${garmentName} fits loosely at hips, creating a fluid and comfortable look.`,
+      'dress': `The ${garmentName} fits loosely, providing comfort and an elegant style.`,
+      'shoes': `The ${garmentName} are a bit large but still wearable with socks.`,
+      'accessories': `The ${garmentName} fits perfectly.`,
+      'default': `${garmentName} fits loosely but comfortably.`
     },
-    'muy_suelto': {
-      'camiseta': `La ${garmentName} queda muy suelta, creando un look oversized muy pronunciado.`,
-      'camisa': `La ${garmentName} queda muy holgada, con un estilo oversized muy marcado.`,
-      'chaqueta': `La ${garmentName} queda muy suelta, con un estilo oversized que puede verse desproporcionado.`,
-      'pantalon': `El ${garmentName} queda muy suelto, posiblemente necesitando cinturón para mantenerse en su lugar.`,
-      'falda': `La ${garmentName} queda muy suelta, creando un volumen considerable.`,
-      'vestido': `El ${garmentName} queda muy suelto, con un look oversized muy pronunciado.`,
-      'zapatos': `Los ${garmentName} quedan muy grandes, dificultando caminar con comodidad.`,
-      'accesorios': `El ${garmentName} se ajusta perfectamente.`,
-      'default': `${garmentName} queda muy suelto.`
+    'very_loose': {
+      'shirt': `The ${garmentName} fits very loosely, creating a very pronounced oversized look.`,
+      'blouse': `The ${garmentName} fits very loosely, with a very marked oversized style.`,
+      'jacket': `The ${garmentName} fits very loosely, with an oversized style that may look disproportionate.`,
+      'pants': `The ${garmentName} fits very loosely, possibly needing a belt to stay in place.`,
+      'skirt': `The ${garmentName} fits very loosely, creating considerable volume.`,
+      'dress': `The ${garmentName} fits very loosely, with a very pronounced oversized look.`,
+      'shoes': `The ${garmentName} are too large, making it difficult to walk comfortably.`,
+      'accessories': `The ${garmentName} fits perfectly.`,
+      'default': `${garmentName} fits very loosely.`
     }
   };
 
   return descriptions[fitType][category] || descriptions[fitType]['default'];
 }
 
-// Función para obtener el color de badge según el tipo de ajuste
+// Function to get badge color according to fit type
 export function getFitBadgeColor(fitType: FitType): string {
   const colors: Record<FitType, string> = {
-    'muy_ajustado': 'bg-red-100 text-red-700',
-    'ajustado': 'bg-orange-100 text-orange-700',
-    'perfecto': 'bg-green-100 text-green-700',
-    'suelto': 'bg-blue-100 text-blue-700',
-    'muy_suelto': 'bg-purple-100 text-purple-700'
+    'very_tight': 'bg-red-100 text-red-700',
+    'tight': 'bg-orange-100 text-orange-700',
+    'perfect': 'bg-green-100 text-green-700',
+    'loose': 'bg-blue-100 text-blue-700',
+    'very_loose': 'bg-purple-100 text-purple-700'
   };
   return colors[fitType];
 }
 
-// Función para obtener la descripción corta del ajuste
+// Function to get short fit description
 export function getFitShortDescription(fitType: FitType): string {
   const descriptions: Record<FitType, string> = {
-    'muy_ajustado': 'Muy Ajustado',
-    'ajustado': 'Ajustado',
-    'perfecto': 'Perfecto',
-    'suelto': 'Suelto',
-    'muy_suelto': 'Muy Suelto'
+    'very_tight': 'Very Tight',
+    'tight': 'Tight',
+    'perfect': 'Perfect',
+    'loose': 'Loose',
+    'very_loose': 'Very Loose'
   };
   return descriptions[fitType];
 }
 
-// Función para determinar la talla del modelo según la categoría de prenda
+// Function to determine model size according to garment category
 export function getModelSizeForCategory(
   upperBodySize: ClothingSize,
   lowerBodySize: ClothingSize,
@@ -145,51 +145,51 @@ export function getModelSizeForCategory(
   category: ClothingCategory
 ): ClothingSize | ShoeSize {
   switch (category) {
-    case 'camiseta':
-    case 'camisa':
-    case 'chaqueta':
+    case 'shirt':
+    case 'blouse':
+    case 'jacket':
       return upperBodySize;
-    case 'pantalon':
-    case 'falda':
+    case 'pants':
+    case 'skirt':
       return lowerBodySize;
-    case 'vestido':
-      // Para vestidos, usar la talla superior como referencia
+    case 'dress':
+      // For dresses, use upper body size as reference
       return upperBodySize;
-    case 'zapatos':
+    case 'shoes':
       return shoeSize;
-    case 'accesorios':
-      // Los accesorios no tienen talla específica
-      return upperBodySize; // Valor por defecto
+    case 'accessories':
+      // Accessories don't have specific size
+      return upperBodySize; // Default value
     default:
       return upperBodySize;
   }
 }
 
-// Función para validar si una talla es válida para una categoría
+// Function to validate if a size is valid for a category
 export function isValidSizeForCategory(
   size: string,
   category: ClothingCategory
 ): boolean {
-  if (category === 'zapatos') {
+  if (category === 'shoes') {
     const shoeSize = parseInt(size);
     return shoeSize >= 35 && shoeSize <= 46;
   }
   
-  if (category === 'accesorios') {
-    return true; // Los accesorios pueden tener cualquier "talla" descriptiva
+  if (category === 'accessories') {
+    return true; // Accessories can have any descriptive "size"
   }
   
   return ['XS', 'S', 'M', 'L', 'XL', 'XXL'].includes(size);
 }
 
-// Función para obtener las tallas disponibles según la categoría
+// Function to get available sizes according to category
 export function getAvailableSizesForCategory(category: ClothingCategory): string[] {
-  if (category === 'zapatos') {
+  if (category === 'shoes') {
     return ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
   }
   
-  if (category === 'accesorios') {
-    return ['Único']; // Talla única para accesorios
+  if (category === 'accessories') {
+    return ['One Size']; // One size for accessories
   }
   
   return ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
