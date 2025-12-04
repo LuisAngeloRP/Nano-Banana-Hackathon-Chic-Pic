@@ -14,7 +14,7 @@ if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
   // Modelo para texto (Gemini 2.5 Flash)
   textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image)
+  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview - Free Tier)
   imageModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image-preview' });
 }
 

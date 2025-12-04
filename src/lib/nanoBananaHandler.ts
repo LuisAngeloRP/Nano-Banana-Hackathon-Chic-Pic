@@ -1,4 +1,4 @@
-// Manejador específico para respuestas de Nano Banana (Gemini 2.5 Flash Image Preview)
+// Manejador específico para respuestas de Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier)
 import { EnhancedGenerateContentResponse } from '@google/generative-ai';
 
 export interface NanoBananaResponse {

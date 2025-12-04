@@ -1,4 +1,4 @@
-// Configuración específica para Nano Banana (Gemini 2.5 Flash Image)
+// Configuración específica para Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier)
 
 // Prompts optimizados para Nano Banana
 export const NANO_BANANA_PROMPTS = {

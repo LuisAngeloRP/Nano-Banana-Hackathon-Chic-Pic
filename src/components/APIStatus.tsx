@@ -71,7 +71,7 @@ export default function APIStatus() {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
               <strong>API Key not configured</strong>
-              <p className="mt-2">To use Nano Banana (Gemini 2.5 Flash Image), you need to configure your API key:</p>
+              <p className="mt-2">To use Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier), you need to configure your API key:</p>
               <ol className="list-decimal list-inside mt-2 space-y-1 text-sm">
                 <li>Go to <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline inline-flex items-center gap-1">Google AI Studio <ExternalLink className="h-3 w-3" /></a></li>
                 <li>Create an API key for Gemini</li>
@@ -105,13 +105,13 @@ export default function APIStatus() {
               <strong>API configured correctly!</strong>
               <p className="mt-2">
                 {hasImageModel 
-                  ? "🍌 Nano Banana (Gemini 2.5 Flash Image Preview) is configured to generate real high-quality images."
+                  ? "🍌 Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier) is configured to generate real high-quality images."
                   : "API configured. Using placeholders until Nano Banana is available."
                 }
               </p>
               <div className="mt-2 space-y-1">
                 <p className="text-sm">
-                  <strong>Nano Banana Status:</strong> {hasImageModel ? "✅ Gemini 2.5 Flash Image Preview" : "⏳ Pending availability"}
+                  <strong>Nano Banana Status:</strong> {hasImageModel ? "✅ Gemini 2.5 Flash Image Preview (Free Tier)" : "⏳ Pending availability"}
                 </p>
                 {hasImageModel && (
                   <p className="text-xs text-green-700">
@@ -165,7 +165,7 @@ export default function APIStatus() {
           <h4 className="font-semibold text-blue-800 mb-2">🍌 About Nano Banana</h4>
           <div className="space-y-2 text-blue-700 text-sm">
             <p>
-              <strong>Nano Banana</strong> is the codename for Gemini 2.5 Flash Image, Google&apos;s most advanced image generation model.
+              <strong>Nano Banana</strong> is the codename for Gemini 2.5 Flash Image Preview, Google&apos;s image generation model available in the free tier.
             </p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>🎨 Realistic image generation from text</li>
@@ -176,13 +176,13 @@ export default function APIStatus() {
             <div className="mt-3 p-2 bg-blue-100 rounded">
               <p className="text-xs">
                 <strong>Current status:</strong> {hasImageModel 
-                  ? "🍌 Nano Banana (gemini-2.5-flash-image-preview) configured and ready to generate real professional fashion images with catalog quality."
+                  ? "🍌 Nano Banana (gemini-2.5-flash-image-preview - Free Tier) configured and ready to generate real professional fashion images with catalog quality."
                   : "Using fallback with placeholders. Configure API key to activate Nano Banana."
                 }
               </p>
               {hasImageModel && (
                 <div className="mt-2 text-xs space-y-1">
-                  <p>🎯 <strong>Model:</strong> gemini-2.5-flash-image-preview</p>
+                  <p>🎯 <strong>Model:</strong> gemini-2.5-flash-image-preview (Free Tier)</p>
                   <p>⚙️ <strong>Config:</strong> Temperature 0.7, TopP 0.8, MaxTokens 8192</p>
                   <p>🔍 <strong>Validation:</strong> MIME types, size, base64 format</p>
                   <p>💾 <strong>Storage:</strong> Local JPG files with metadata</p>

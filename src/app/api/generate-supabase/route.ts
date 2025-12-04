@@ -24,9 +24,9 @@ let imageModel: GenerativeModel | null = null;
 // Inicializar modelos si hay API key
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
-  // Modelo para texto (Gemini 1.5 Flash)
-  textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview)
+  // Modelo para texto (Gemini 2.5 Flash)
+  textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview - Free Tier)
   try {
     imageModel = genAI.getGenerativeModel({ 
       model: 'gemini-2.5-flash-image-preview',
@@ -37,7 +37,7 @@ if (API_KEY) {
         topK: 40,
       }
     });
-    console.log('🍌 Nano Banana (Gemini 2.5 Flash Image Preview) inicializado correctamente');
+    console.log('🍌 Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier) inicializado correctamente');
   } catch (error) {
     console.warn('⚠️ Nano Banana no disponible, usando fallback:', error);
     imageModel = null;
@@ -96,6 +96,66 @@ async function processImageData(imageData: string): Promise<{data: string, mimeT
   return { data: imageData, mimeType: 'image/jpeg' };
 }
 
+// Función helper para detectar y extraer información de errores de cuota (429)
+function extractQuotaErrorInfo(error: unknown): { isQuotaError: boolean; retryDelay?: number; message?: string } {
+  if (!error || typeof error !== 'object') {
+    return { isQuotaError: false };
+  }
+
+  const errorObj = error as Record<string, unknown>;
+  
+  // Verificar si es un error 429
+  if (errorObj.status === 429 || (errorObj.message && String(errorObj.message).includes('429'))) {
+    let retryDelay: number | undefined;
+    let message = 'Cuota de API excedida. Por favor, espera antes de reintentar.';
+
+    // Intentar extraer retryDelay del errorDetails
+    if (errorObj.errorDetails && Array.isArray(errorObj.errorDetails)) {
+      for (const detail of errorObj.errorDetails) {
+        if (detail && typeof detail === 'object') {
+          const detailObj = detail as Record<string, unknown>;
+          
+          // Buscar RetryInfo
+          if (detailObj['@type'] === 'type.googleapis.com/google.rpc.RetryInfo') {
+            const retryInfo = detailObj as { retryDelay?: string };
+            if (retryInfo.retryDelay) {
+              // El formato es "19s" o "19.616520489s"
+              const match = retryInfo.retryDelay.match(/(\d+\.?\d*)/);
+              if (match) {
+                retryDelay = Math.ceil(parseFloat(match[1])) + 1; // Añadir 1 segundo de margen
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // También buscar en el mensaje de error directamente
+    if (!retryDelay && errorObj.message) {
+      const messageStr = String(errorObj.message);
+      const retryMatch = messageStr.match(/retry in ([\d.]+)s/i);
+      if (retryMatch) {
+        retryDelay = Math.ceil(parseFloat(retryMatch[1])) + 1;
+      }
+    }
+
+    return {
+      isQuotaError: true,
+      retryDelay,
+      message: retryDelay 
+        ? `Cuota excedida. Reintentando en ${retryDelay} segundos...`
+        : message
+    };
+  }
+
+  return { isQuotaError: false };
+}
+
+// Función helper para esperar un tiempo determinado
+function sleep(seconds: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
 // Función para generar con Nano Banana y retornar base64
 async function generateWithNanoBanana(
   type: 'garment' | 'model' | 'look',
@@ -109,7 +169,7 @@ async function generateWithNanoBanana(
   }
 
   const isModelGeneration = type === 'model';
-  const maxRetries = isModelGeneration ? MODEL_GENERATION_CONFIG.maxRetries : 1;
+  const maxRetries = isModelGeneration ? MODEL_GENERATION_CONFIG.maxRetries : 3; // Aumentar retries para manejar cuotas
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -261,6 +321,33 @@ async function generateWithNanoBanana(
       
     } catch (error) {
       console.error(`❌ Error en intento ${attempt}:`, error);
+      
+      // Verificar si es un error de cuota (429)
+      const quotaInfo = extractQuotaErrorInfo(error);
+      
+      if (quotaInfo.isQuotaError) {
+        console.warn(`⚠️ Error de cuota detectado: ${quotaInfo.message}`);
+        
+        if (attempt < maxRetries) {
+          // Si tenemos un retryDelay, esperar ese tiempo
+          if (quotaInfo.retryDelay) {
+            console.log(`⏳ Esperando ${quotaInfo.retryDelay} segundos antes de reintentar...`);
+            await sleep(quotaInfo.retryDelay);
+          } else {
+            // Si no tenemos retryDelay específico, usar backoff exponencial
+            const backoffDelay = Math.min(2 ** attempt * 5, 60); // Máximo 60 segundos
+            console.log(`⏳ Esperando ${backoffDelay} segundos (backoff exponencial)...`);
+            await sleep(backoffDelay);
+          }
+          console.log(`🔄 Reintentando después de esperar (intento ${attempt + 1}/${maxRetries})...`);
+          continue; // Reintentar
+        } else {
+          // Último intento fallido por cuota
+          throw new Error(`Cuota de API excedida después de ${attempt} intentos. Por favor, espera unos minutos antes de volver a intentar.`);
+        }
+      }
+      
+      // Para otros errores, reintentar normalmente
       if (attempt < maxRetries) {
         console.log(`🔄 Reintentando debido a error...`);
         continue; // Reintentar
@@ -334,6 +421,13 @@ export async function POST(request: NextRequest) {
       } catch (error) {
         console.error('❌ Error con Nano Banana:', error);
         
+        // Verificar si es un error de cuota
+        const quotaInfo = extractQuotaErrorInfo(error);
+        
+        if (quotaInfo.isQuotaError) {
+          console.warn('⚠️ Cuota de API excedida. Usando fallback...');
+        }
+        
         // Fallback a modelo de texto para generar descripción
         if (textModel) {
           console.log('🔄 Fallback: Usando modelo de texto...');
@@ -344,7 +438,7 @@ export async function POST(request: NextRequest) {
               description
             );
             
-            const result = await textModel.generateContent([prompt]);
+            const result = await textModel.generateContent(prompt);
             const response = await result.response;
             const text = response.text();
             
@@ -353,7 +447,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({
               success: true,
               base64Image: placeholderBase64,
-              message: 'Nano Banana falló. Descripción generada con IA + placeholder.',
+              message: quotaInfo.isQuotaError 
+                ? 'Cuota de API excedida. Descripción generada con IA + placeholder.'
+                : 'Nano Banana falló. Descripción generada con IA + placeholder.',
               aiDescription: text.substring(0, 200) + '...',
               isRealImage: false
             });
@@ -369,7 +465,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
           success: true,
           base64Image: placeholderBase64,
-          message: 'Error en generación. Usando placeholder básico.',
+          message: quotaInfo.isQuotaError
+            ? 'Cuota de API excedida. Usando placeholder básico. Por favor, espera unos minutos antes de volver a intentar.'
+            : 'Error en generación. Usando placeholder básico.',
           isRealImage: false
         });
       }

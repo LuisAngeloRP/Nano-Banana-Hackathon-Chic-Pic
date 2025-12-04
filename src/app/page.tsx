@@ -171,7 +171,7 @@ export default function Home() {
                       <div className="text-4xl">🍌</div>
                       <div>
                         <h4 className="font-bold text-lg text-yellow-800 mb-2">
-                          Nano Banana - Gemini 2.5 Flash Image
+                          Nano Banana - Gemini 2.5 Flash Image Preview (Free Tier)
                         </h4>
                         <p className="text-yellow-700 mb-4">
                           Utilizamos la tecnología más avanzada de Google para generar imágenes 

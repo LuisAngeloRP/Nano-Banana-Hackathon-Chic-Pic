@@ -11,7 +11,7 @@ let imageModel: GenerativeModel | null = null;
 // Inicializar modelos si hay API key
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
-  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview)
+  // Modelo para imágenes (Nano Banana - Gemini 2.5 Flash Image Preview - Free Tier)
   try {
     imageModel = genAI.getGenerativeModel({ 
       model: 'gemini-2.5-flash-image-preview',
@@ -22,7 +22,7 @@ if (API_KEY) {
         topK: 40,
       }
     });
-    console.log('🍌 Nano Banana para edición inicializado correctamente');
+    console.log('🍌 Nano Banana (Gemini 2.5 Flash Image Preview - Free Tier) para edición inicializado correctamente');
   } catch (error) {
     console.warn('⚠️ Nano Banana no disponible para edición:', error);
     imageModel = null;
