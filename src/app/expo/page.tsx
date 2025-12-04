@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Play, Sparkles, Shirt, User, Palette, Video, Zap, Brain, Globe, DollarSign, Clock, Target, Code, Database, Rocket } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Sparkles, Shirt, User, Palette, Video, Zap, Globe, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -132,7 +132,6 @@ type Slide = {
 
 export default function ExpoPresentation() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const slides: Slide[] = [
     {
@@ -173,7 +172,7 @@ export default function ExpoPresentation() {
             El Desafío
           </h2>
           <p className="text-4xl text-center text-gray-700 mb-8 font-semibold">
-            "La brecha entre la imaginación y la realidad en el e-commerce infantil"
+            &quot;La brecha entre la imaginación y la realidad en el e-commerce infantil&quot;
           </p>
           <div className="grid grid-cols-2 gap-6">
             <Card className="bg-red-200 border-2 border-red-300">
@@ -183,7 +182,7 @@ export default function ExpoPresentation() {
                 <ul className="text-gray-700 text-xl space-y-2">
                   <li>• Comprar ropa online para bebés es difícil</li>
                   <li>• Las fotos estáticas no transmiten emoción</li>
-                  <li>• Imposible saber "cómo le quedaría" realmente</li>
+                  <li>• Imposible saber &quot;cómo le quedaría&quot; realmente</li>
                   <li>• Sin comprarlo primero, no hay certeza</li>
                 </ul>
               </CardContent>
@@ -397,7 +396,7 @@ export default function ExpoPresentation() {
                 <div className="space-y-2">
                   <p className="text-gray-700 text-lg"><strong>Perfil:</strong> Madres y padres tech-savvy que aman compartir fotos de sus bebés</p>
                   <p className="text-gray-700 text-lg"><strong>Uso:</strong> Suben la foto de su hijo, prueban todo el catálogo de Cicibet y compran lo que mejor le queda</p>
-                  <p className="text-gray-700 text-lg"><strong>Valor:</strong> "Ve a tu hijo vestido con Cicibet antes de que llegue el paquete"</p>
+                  <p className="text-gray-700 text-lg"><strong>Valor:</strong> &quot;Ve a tu hijo vestido con Cicibet antes de que llegue el paquete&quot;</p>
                 </div>
               </CardContent>
             </Card>
@@ -427,7 +426,7 @@ export default function ExpoPresentation() {
             Diferenciación y Ventaja Competitiva
           </h2>
           <p className="text-4xl text-center text-gray-700 mb-8 font-semibold">
-            "¿Por qué Cicibet Studio AI y no otros?"
+            &quot;¿Por qué Cicibet Studio AI y no otros?&quot;
           </p>
           <div className="grid grid-cols-2 gap-6">
             <Card className="bg-red-200 border-2 border-red-300">
@@ -453,7 +452,7 @@ export default function ExpoPresentation() {
                 <Sparkles className="h-14 w-14 text-yellow-600 mb-4" />
                 <h3 className="text-3xl font-bold text-gray-800 mb-2">Hiper-Personalización</h3>
                 <p className="text-gray-700 text-xl">
-                  No es "un bebé cualquiera", es TU bebé usando la marca. Eso dispara la tasa de conversión
+                  No es &quot;un bebé cualquiera&quot;, es TU bebé usando la marca. Eso dispara la tasa de conversión
                 </p>
               </CardContent>
             </Card>
@@ -488,7 +487,7 @@ export default function ExpoPresentation() {
                 <Play className="h-14 w-14 text-red-600 mb-4" />
                 <h3 className="text-3xl font-bold text-gray-800 mb-2">Gamificación</h3>
                 <p className="text-gray-700 text-xl">
-                  Convertimos la compra en un juego de "vestir al bebé"
+                  Convertimos la compra en un juego de &quot;vestir al bebé&quot;
                 </p>
               </CardContent>
             </Card>
@@ -497,7 +496,7 @@ export default function ExpoPresentation() {
                 <Globe className="h-14 w-14 text-blue-600 mb-4" />
                 <h3 className="text-3xl font-bold text-gray-800 mb-2">Shareability</h3>
                 <p className="text-gray-700 text-xl">
-                  El botón "Compartir video con la Abuela" crea viralidad orgánica para Cicibet
+                  El botón &quot;Compartir video con la Abuela&quot; crea viralidad orgánica para Cicibet
                 </p>
               </CardContent>
             </Card>
@@ -568,6 +567,14 @@ export default function ExpoPresentation() {
     setCurrentSlide(index);
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -581,17 +588,8 @@ export default function ExpoPresentation() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
 
   return (
     <div className="fixed inset-0 bg-white overflow-hidden" style={{ fontFamily: 'var(--font-poppins), sans-serif' }}>

@@ -136,14 +136,38 @@ export default function GarmentWardrobe({
             Mi Armario ({filteredGarments.length})
           </CardTitle>
           
-          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+          <Dialog 
+            open={isUploadDialogOpen} 
+            onOpenChange={(open) => {
+              // Solo cerrar si el usuario explícitamente quiere cerrar (no por eventos de input)
+              if (!open) {
+                setIsUploadDialogOpen(false);
+              }
+            }}
+          >
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 <Upload className="h-4 w-4 mr-2" />
                 Subir Prenda
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent 
+              className="max-w-4xl max-h-[90vh] overflow-y-auto"
+              onInteractOutside={(e) => {
+                // Prevenir que el dialog se cierre al interactuar con inputs de archivo
+                const target = e.target as HTMLElement;
+                if (target.tagName === 'INPUT' && target.getAttribute('type') === 'file') {
+                  e.preventDefault();
+                }
+              }}
+              onEscapeKeyDown={(e) => {
+                // Permitir cerrar con ESC solo si no hay un input activo
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT' && activeElement.getAttribute('type') === 'file') {
+                  e.preventDefault();
+                }
+              }}
+            >
               <DialogHeader>
                 <DialogTitle>Subir Nueva Prenda</DialogTitle>
               </DialogHeader>
