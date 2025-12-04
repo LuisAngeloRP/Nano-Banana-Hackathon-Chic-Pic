@@ -54,43 +54,94 @@ export function processNanoBananaResponse(
     const candidates = response?.candidates;
     
     if (!candidates || candidates.length === 0) {
+      // Verificar si hay bloqueos de seguridad u otros errores
+      const finishReason = (response as any)?.candidates?.[0]?.finishReason;
+      const safetyRatings = (response as any)?.candidates?.[0]?.safetyRatings;
+      
       return {
         hasImage: false,
         textResponse: 'No se recibieron candidatos de respuesta',
-        debugInfo: { ...debugInfo, error: 'No candidates' }
+        debugInfo: { 
+          ...debugInfo, 
+          error: 'No candidates',
+          finishReason,
+          safetyRatings,
+          responseKeys: Object.keys(response || {})
+        }
       };
     }
 
-    const candidate = candidates[0] as NanoBananaCandidate;
-    const parts = candidate.content?.parts || [];
+    const candidate = candidates[0] as any;
+    
+    // Logging adicional para debugging
+    debugInfo.candidateKeys = Object.keys(candidate || {});
+    debugInfo.hasContent = !!candidate?.content;
+    debugInfo.finishReason = candidate?.finishReason;
+    debugInfo.finishMessage = candidate?.finishMessage;
+    debugInfo.safetyRatings = candidate?.safetyRatings;
+    
+    // Intentar acceder a las partes de diferentes maneras
+    let parts: any[] = [];
+    
+    if (candidate?.content?.parts) {
+      parts = candidate.content.parts;
+    } else if (candidate?.parts) {
+      parts = candidate.parts;
+    } else if (Array.isArray(candidate)) {
+      parts = candidate;
+    }
 
     debugInfo.partsLength = parts.length;
     debugInfo.partsTypes = parts.map(part => {
-      if (part.inlineData) return 'image';
-      if (part.text) return 'text';
+      if (part?.inlineData) return 'image';
+      if (part?.text) return 'text';
       return 'unknown';
     });
 
+    // Si no hay partes pero hay finishReason, puede ser un bloqueo
+    if (parts.length === 0 && candidate?.finishReason) {
+      const finishReason = candidate.finishReason;
+      const safetyRatings = candidate.safetyRatings || [];
+      const finishMessage = candidate.finishMessage || '';
+      
+      return {
+        hasImage: false,
+        textResponse: `Respuesta bloqueada: ${finishReason}. ${finishMessage || 'Safety ratings: ' + JSON.stringify(safetyRatings)}`,
+        debugInfo: { 
+          ...debugInfo, 
+          finishReason,
+          finishMessage,
+          safetyRatings,
+          blocked: true
+        }
+      };
+    }
+
     // Buscar imagen en las partes
     for (const part of parts) {
-      if (part.inlineData && part.inlineData.data) {
+      if (part?.inlineData?.data) {
         return {
           hasImage: true,
           imageData: part.inlineData.data,
-          mimeType: part.inlineData.mimeType,
+          mimeType: part.inlineData.mimeType || 'image/jpeg',
           debugInfo: { ...debugInfo, imageFound: true, mimeType: part.inlineData.mimeType }
         };
       }
     }
 
     // Si no hay imagen, buscar texto
-    const textParts = parts.filter(part => part.text);
+    const textParts = parts.filter(part => part?.text);
     const textResponse = textParts.map(part => part.text).join(' ');
 
     return {
       hasImage: false,
-      textResponse,
-      debugInfo: { ...debugInfo, textLength: textResponse.length, textPreview: textResponse.substring(0, 100) }
+      textResponse: textResponse || 'Respuesta sin contenido',
+      debugInfo: { 
+        ...debugInfo, 
+        textLength: textResponse.length, 
+        textPreview: textResponse.substring(0, 100),
+        candidateStructure: JSON.stringify(candidate).substring(0, 500)
+      }
     };
 
   } catch (error) {

@@ -20,16 +20,19 @@ if (API_KEY) {
 
 // Prompts estándar para mantener consistencia de estilo
 export const GARMENT_PROMPT_BASE = `
-CREATE IMAGE: Professional garment photography showing front and back view in same frame for fashion catalog.
+CREATE IMAGE: Professional children's fashion garment photography showing front and back view in same frame for children's fashion catalog.
 - White background clean neutral
 - Professional uniform lighting both views
-- Commercial catalog photography style
-- Garment well presented visible front and back
+- Commercial catalog photography style for children's clothing
+- Children's garment well presented visible front and back
 - High resolution sharp entire composition
 - No models, garment only front and back view
+- Children's clothing size and proportions
 - Realistic professional style consistent both perspectives
 - Balanced composition showing front and back clearly
-GENERATE GARMENT IMAGE NOW - NO TEXT DESCRIPTION.
+- Child-appropriate design and vibrant, kid-friendly colors
+- Garment designed for children, babies, or toddlers
+GENERATE CHILDREN'S FASHION GARMENT IMAGE NOW - NO TEXT DESCRIPTION.
 `;
 
 export const MODEL_PROMPT_BASE = `
@@ -130,25 +133,29 @@ export async function generateGarmentImage(
 function buildCompleteGarmentDescription(data: GarmentData): string {
   const parts = [];
   
-  // Nombre y categoría siempre van primero
-  parts.push(`${data.category.toUpperCase()}: ${data.name}`);
+  // Nombre y categoría siempre van primero - especificar que es para niños
+  parts.push(`PRENDA INFANTIL - ${data.category.toUpperCase()}: ${data.name}`);
   
   // Color si está especificado
   if (data.color && data.color.trim()) {
     parts.push(`Color principal: ${data.color}`);
   }
   
-  // Tallas si están especificadas
+  // Tallas si están especificadas - especificar que son tallas infantiles
   if (data.size) {
     if (Array.isArray(data.size) && data.size.length > 0) {
-      parts.push(`Tallas disponibles: ${data.size.join(', ')}`);
+      parts.push(`Tallas disponibles para niños: ${data.size.join(', ')}`);
     } else if (typeof data.size === 'string' && data.size.trim()) {
-      parts.push(`Talla: ${data.size}`);
+      parts.push(`Talla infantil: ${data.size}`);
     }
   }
   
-  // Descripción detallada
-  parts.push(`Descripción: ${data.description}`);
+  // Descripción detallada - agregar contexto de moda infantil
+  const description = data.description || '';
+  const enhancedDescription = description.includes('niño') || description.includes('niña') || description.includes('infantil') || description.includes('bebé')
+    ? description
+    : `Ropa para niños, niñas o bebés. ${description}`;
+  parts.push(`Descripción: ${enhancedDescription}`);
   
   return parts.join(' | ');
 }
@@ -397,12 +404,14 @@ export async function editImageWithPrompt(
 function buildEditPrompt(editPrompt: string, type: 'garment' | 'model' | 'look'): string {
   const typeInstructions = {
     garment: `
-      GENERATE IMAGE: Edit the fashion garment in the provided image based on user instructions.
-      - Professional catalog photography style
+      GENERATE IMAGE: Edit the children's fashion garment in the provided image based on user instructions.
+      - Professional children's fashion catalog photography style
       - White seamless background
       - High quality studio lighting
       - Focus on the garment modifications requested
-      - Maintain garment structure and realism
+      - Maintain children's clothing structure and proportions
+      - Keep child-appropriate design and styling
+      - Maintain vibrant, kid-friendly colors
     `,
     model: `
       GENERATE IMAGE: Edit the fashion model in the provided image based on user instructions.

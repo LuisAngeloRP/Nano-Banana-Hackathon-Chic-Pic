@@ -33,34 +33,34 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
   });
 
   const genderOptions = [
-    { value: 'masculino', label: 'Male' },
-    { value: 'femenino', label: 'Female' },
+    { value: 'masculino', label: 'Niño' },
+    { value: 'femenino', label: 'Niña' },
     { value: 'unisex', label: 'Unisex' }
   ];
 
   const bodyTypeOptions = [
-    'Athletic', 'Slim', 'Average', 'Curvy', 'Robust'
+    'Delgado', 'Promedio', 'Robusto', 'Bebé', 'Toddler'
   ];
 
   const hairColorOptions = [
-    'Black', 'Brown', 'Blonde', 'Red', 'Gray', 'White'
+    'Negro', 'Castaño', 'Rubio', 'Pelirrojo', 'Gris', 'Blanco'
   ];
 
   const eyeColorOptions = [
-    'Brown', 'Blue', 'Green', 'Hazel', 'Gray', 'Black'
+    'Café', 'Azul', 'Verde', 'Avellana', 'Gris', 'Negro'
   ];
 
   const skinToneOptions = [
-    'Very light', 'Light', 'Medium', 'Tanned', 'Dark', 'Very dark'
+    'Muy claro', 'Claro', 'Medio', 'Moreno', 'Oscuro', 'Muy oscuro'
   ];
 
   const clothingSizes: ClothingSize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const shoeSizes: ShoeSize[] = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
+  const shoeSizes: ShoeSize[] = ['20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40'];
 
   const handleGenerate = async () => {
     if (!formData.name || !formData.characteristics || !formData.gender || 
         !formData.upperBodySize || !formData.lowerBodySize || !formData.shoeSize) {
-      alert('Please complete all required fields including sizes');
+      alert('Por favor completa todos los campos requeridos incluyendo las tallas');
       return;
     }
 
@@ -71,12 +71,12 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         name: formData.name,
         characteristics: formData.characteristics,
         gender: formData.gender,
-        age: formData.age || 'Young adult',
-        height: formData.height || 'Average',
-        bodyType: formData.bodyType || 'Athletic',
-        hairColor: formData.hairColor || 'Brown',
-        eyeColor: formData.eyeColor || 'Brown',
-        skinTone: formData.skinTone || 'Medium'
+        age: formData.age || 'Niño/Niña',
+        height: formData.height || 'Promedio',
+        bodyType: formData.bodyType || 'Promedio',
+        hairColor: formData.hairColor || 'Castaño',
+        eyeColor: formData.eyeColor || 'Café',
+        skinTone: formData.skinTone || 'Medio'
       };
 
       console.log('🎨 Generating model image with AI and uploading to Supabase Storage...');
@@ -86,12 +86,12 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         name: formData.name,
         characteristics: formData.characteristics,
         gender: formData.gender as Model['gender'],
-        age: formData.age || 'Young adult',
-        height: formData.height || 'Average',
-        bodyType: formData.bodyType || 'Athletic',
-        hairColor: formData.hairColor || 'Brown',
-        eyeColor: formData.eyeColor || 'Brown',
-        skinTone: formData.skinTone || 'Medium',
+        age: formData.age || 'Niño/Niña',
+        height: formData.height || 'Promedio',
+        bodyType: formData.bodyType || 'Promedio',
+        hairColor: formData.hairColor || 'Castaño',
+        eyeColor: formData.eyeColor || 'Café',
+        skinTone: formData.skinTone || 'Medio',
         upperBodySize: formData.upperBodySize,
         lowerBodySize: formData.lowerBodySize,
         shoeSize: formData.shoeSize,
@@ -118,13 +118,13 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         shoeSize: '' as ShoeSize | ''
       });
 
-      alert('Model generated successfully!');
+      alert('¡Modelo generado exitosamente!');
     } catch (error) {
       console.error('Error:', error);
       if (error instanceof Error && error.message.includes('API key')) {
-        alert('Error: API key not configured. Go to the "About" section to see configuration instructions.');
+        alert('Error: API key no configurada. Ve a la sección "Acerca de" para ver las instrucciones de configuración.');
       } else {
-        alert('Model generated correctly with placeholder. Configure the API key to use real generation.');
+        alert('Modelo generado correctamente con placeholder. Configura la API key para usar la generación real.');
       }
     } finally {
       setIsGenerating(false);
@@ -136,16 +136,16 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          AI Model Generator
+          Generador de Modelos con IA
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Model name *
+            Nombre del modelo *
           </label>
           <Input
-            placeholder="Ex: Alex Professional Model"
+            placeholder="Ej: Niño modelo alegre"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           />
@@ -153,14 +153,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Gender *
+            Género *
           </label>
           <Select 
             value={formData.gender} 
             onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select gender" />
+              <SelectValue placeholder="Selecciona el género" />
             </SelectTrigger>
             <SelectContent>
               {genderOptions.map(option => (
@@ -175,20 +175,20 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Age
+              Edad
             </label>
             <Input
-              placeholder="Ex: 25 years, Young adult"
+              placeholder="Ej: 5 años, Bebé, Toddler"
               value={formData.age}
               onChange={(e) => setFormData(prev => ({ ...prev, age: e.target.value }))}
             />
           </div>
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Height
+              Estatura
             </label>
             <Input
-              placeholder="Ex: 1.75m, Tall"
+              placeholder="Ej: 1.10m, Pequeño, Promedio"
               value={formData.height}
               onChange={(e) => setFormData(prev => ({ ...prev, height: e.target.value }))}
             />
@@ -197,14 +197,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Body type
+            Tipo de cuerpo
           </label>
           <Select 
             value={formData.bodyType} 
             onValueChange={(value) => setFormData(prev => ({ ...prev, bodyType: value }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select body type" />
+              <SelectValue placeholder="Selecciona el tipo de cuerpo" />
             </SelectTrigger>
             <SelectContent>
               {bodyTypeOptions.map(type => (
@@ -219,14 +219,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Hair color
+              Color de cabello
             </label>
             <Select 
               value={formData.hairColor} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, hairColor: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Hair color" />
+                <SelectValue placeholder="Color de cabello" />
               </SelectTrigger>
               <SelectContent>
                 {hairColorOptions.map(color => (
@@ -239,14 +239,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
           </div>
           <div>
             <label className="text-sm font-medium mb-2 block">
-              Eye color
+              Color de ojos
             </label>
             <Select 
               value={formData.eyeColor} 
               onValueChange={(value) => setFormData(prev => ({ ...prev, eyeColor: value }))}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Eye color" />
+                <SelectValue placeholder="Color de ojos" />
               </SelectTrigger>
               <SelectContent>
                 {eyeColorOptions.map(color => (
@@ -261,14 +261,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Skin tone
+            Tono de piel
           </label>
           <Select 
             value={formData.skinTone} 
             onValueChange={(value) => setFormData(prev => ({ ...prev, skinTone: value }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select skin tone" />
+              <SelectValue placeholder="Selecciona el tono de piel" />
             </SelectTrigger>
             <SelectContent>
               {skinToneOptions.map(tone => (
@@ -282,22 +282,22 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
         {/* Sección de Tallas */}
         <div className="space-y-4 border-t pt-4">
-          <h3 className="font-semibold text-lg">Model Sizes *</h3>
+          <h3 className="font-semibold text-lg">Tallas del Modelo *</h3>
           <p className="text-sm text-muted-foreground">
-            Specify the model&apos;s sizes for precise garment fitting.
+            Especifica las tallas del modelo para un ajuste preciso de las prendas.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Upper Size *
+                Talla Superior *
               </label>
               <Select 
                 value={formData.upperBodySize} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, upperBodySize: value as ClothingSize }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Size for shirts, t-shirts..." />
+                  <SelectValue placeholder="Talla para camisetas..." />
                 </SelectTrigger>
                 <SelectContent>
                   {clothingSizes.map(size => (
@@ -311,14 +311,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
             
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Lower Size *
+                Talla Inferior *
               </label>
               <Select 
                 value={formData.lowerBodySize} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, lowerBodySize: value as ClothingSize }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Size for pants, skirts..." />
+                  <SelectValue placeholder="Talla para pantalones..." />
                 </SelectTrigger>
                 <SelectContent>
                   {clothingSizes.map(size => (
@@ -332,14 +332,14 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
             
             <div>
               <label className="text-sm font-medium mb-2 block">
-                Shoe Size *
+                Talla de Zapatos *
               </label>
               <Select 
                 value={formData.shoeSize} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, shoeSize: value as ShoeSize }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Shoe number" />
+                  <SelectValue placeholder="Número de zapato" />
                 </SelectTrigger>
                 <SelectContent>
                   {shoeSizes.map(size => (
@@ -355,10 +355,10 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Additional characteristics *
+            Características adicionales *
           </label>
           <Textarea
-            placeholder="Describe specific model characteristics: expression, posture, style, etc."
+            placeholder="Describe características específicas del modelo: expresión, postura, estilo, etc. Recuerda que es para niños, niñas o bebés."
             value={formData.characteristics}
             onChange={(e) => setFormData(prev => ({ ...prev, characteristics: e.target.value }))}
             rows={3}
@@ -373,12 +373,12 @@ export default function ModelGenerator({ onModelGenerated }: ModelGeneratorProps
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating model...
+              Generando modelo...
             </>
           ) : (
             <>
               <Plus className="mr-2 h-4 w-4" />
-              Generate Model with AI
+              Generar Modelo con IA
             </>
           )}
         </Button>

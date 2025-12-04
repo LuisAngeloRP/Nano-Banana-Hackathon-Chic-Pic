@@ -27,14 +27,14 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
   });
 
   const categories: { value: ClothingCategory; label: string }[] = [
-    { value: 'camiseta', label: 'T-shirt' },
-    { value: 'camisa', label: 'Shirt' },
-    { value: 'chaqueta', label: 'Jacket' },
-    { value: 'pantalon', label: 'Pants' },
-    { value: 'falda', label: 'Skirt' },
-    { value: 'vestido', label: 'Dress' },
-    { value: 'zapatos', label: 'Shoes' },
-    { value: 'accesorios', label: 'Accessories' }
+    { value: 'camiseta', label: 'Camiseta' },
+    { value: 'camisa', label: 'Camisa' },
+    { value: 'chaqueta', label: 'Chaqueta' },
+    { value: 'pantalon', label: 'Pantalón' },
+    { value: 'falda', label: 'Falda' },
+    { value: 'vestido', label: 'Vestido' },
+    { value: 'zapatos', label: 'Zapatos' },
+    { value: 'accesorios', label: 'Accesorios' }
   ];
 
   // Las tallas se asignarán automáticamente según la categoría
@@ -50,7 +50,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
   const handleGenerate = async () => {
     if (!formData.name || !formData.description || !formData.category) {
-      alert('Please complete all required fields');
+      alert('Por favor completa todos los campos requeridos');
       return;
     }
 
@@ -93,13 +93,13 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         color: ''
       });
 
-      alert('Garment generated successfully!');
+      alert('¡Prenda generada exitosamente!');
     } catch (error) {
       console.error('Error:', error);
       if (error instanceof Error && error.message.includes('API key')) {
-        alert('Error: API key not configured. Go to the "About" section to see configuration instructions.');
+        alert('Error: API key no configurada. Ve a la sección "Acerca de" para ver las instrucciones de configuración.');
       } else {
-        alert('Error generating garment: ' + (error instanceof Error ? error.message : 'Unknown error'));
+        alert('Error al generar la prenda: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       }
     } finally {
       setIsGenerating(false);
@@ -111,16 +111,16 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shirt className="h-5 w-5" />
-          AI Garment Generator
+          Generador de Prendas con IA
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Garment name *
+            Nombre de la prenda *
           </label>
           <Input
-            placeholder="Ex: Elegant summer t-shirt"
+            placeholder="Ej: Camiseta veraniega para niños"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           />
@@ -128,14 +128,14 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Category *
+            Categoría *
           </label>
           <Select 
             value={formData.category} 
             onValueChange={(value) => handleCategoryChange(value as ClothingCategory)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
+              <SelectValue placeholder="Selecciona una categoría" />
             </SelectTrigger>
             <SelectContent>
               {categories.map(cat => (
@@ -152,7 +152,7 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
             Color
           </label>
           <Input
-              placeholder="Ex: Navy blue, Scarlet red, etc."
+              placeholder="Ej: Azul marino, Rojo escarlata, etc."
             value={formData.color}
             onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
           />
@@ -162,26 +162,26 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
         {formData.category && (
           <div className="bg-blue-50 p-3 rounded-md">
             <p className="text-sm text-blue-700 font-medium mb-1">
-              📝 Available sizes
+              📝 Tallas disponibles
             </p>
             <p className="text-xs text-blue-600">
-              This garment will be available in standard sizes for {formData.category}:
+              Esta prenda estará disponible en tallas estándar para {formData.category}:
               <span className="font-medium ml-1">
                 {getAvailableSizesForCategory(formData.category).join(', ')}
               </span>
             </p>
             <p className="text-xs text-blue-500 mt-1">
-              ℹ️ In the stylist you can select the specific size for each look.
+              ℹ️ En el estilista puedes seleccionar la talla específica para cada look.
             </p>
           </div>
         )}
 
         <div>
           <label className="text-sm font-medium mb-2 block">
-            Detailed description *
+            Descripción detallada *
           </label>
           <Textarea
-            placeholder="Describe the garment in detail: style, material, special features, etc."
+            placeholder="Describe la prenda en detalle: estilo, material, características especiales, etc. Recuerda que es para niños, niñas o bebés."
             value={formData.description}
             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
             rows={4}
@@ -196,12 +196,12 @@ export default function GarmentGenerator({ onGarmentGenerated }: GarmentGenerato
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating garment...
+              Generando prenda...
             </>
           ) : (
             <>
               <Plus className="mr-2 h-4 w-4" />
-              Generate Garment with AI
+              Generar Prenda con IA
             </>
           )}
         </Button>

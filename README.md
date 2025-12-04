@@ -1,8 +1,8 @@
-# 🎨✨ Chic Pic: Revolución de Moda con IA
+# 👶🎨 cicibet: Moda Para Chicos y Chiquititos
 
-## **La Primera Plataforma de Catálogos de Moda Completamente Generada por IA**
+## **La Primera Plataforma de Moda Infantil Generada por IA**
 
-> **Transforma ideas en catálogos profesionales en segundos. Crea prendas, modelos y looks completos con solo describir tu visión.**
+> **Transforma ideas en catálogos profesionales de moda para niños, niñas y bebés en segundos. Crea prendas, modelos y looks completos con solo describir tu visión.**
 
 ---
 
@@ -33,35 +33,36 @@
 - 🔄 **Inflexibilidad total**: Cambiar una prenda = nueva sesión completa
 - 🌍 **Limitaciones geográficas**: Dependes de estudios y profesionales locales
 
-### **Ahora: La Revolución Chic Pic**
+### **Ahora: La Revolución cicibet**
 - 💸 **Costo casi cero**: Solo tu creatividad y una API key
-- ⚡ **Velocidad extrema**: De idea a catálogo en 30 segundos
+- ⚡ **Velocidad extrema**: De idea a catálogo infantil en 30 segundos
 - 🔄 **Flexibilidad infinita**: Cambia, ajusta y experimenta sin límites
 - 🌐 **Acceso global**: Trabaja desde cualquier lugar del mundo
+- 👶 **Enfoque infantil**: Diseñado específicamente para niños, niñas y bebés
 
 ---
 
 ## 🎯 **Impacto y Casos de Uso**
 
-### **🏪 Para Emprendedores de Moda**
-- Valida ideas de productos sin inversión inicial
-- Crea catálogos profesionales para e-commerce
-- Experimenta con diferentes estilos y modelos
+### **🏪 Para Emprendedores de Moda Infantil**
+- Valida ideas de productos para niños sin inversión inicial
+- Crea catálogos profesionales de ropa infantil para e-commerce
+- Experimenta con diferentes estilos y modelos de niños, niñas y bebés
 
-### **🎨 Para Diseñadores**
-- Visualiza conceptos antes de la producción
+### **🎨 Para Diseñadores de Moda Infantil**
+- Visualiza conceptos de ropa para niños antes de la producción
 - Presenta portfolios impresionantes a clientes
-- Explora combinaciones de colores y estilos
+- Explora combinaciones de colores vibrantes y estilos infantiles
 
-### **📱 Para Marcas Digitales**
-- Genera contenido para redes sociales
+### **📱 Para Marcas de Moda Infantil**
+- Genera contenido para redes sociales con modelos infantiles
 - Crea catálogos estacionales rápidamente
-- Personaliza modelos para diferentes mercados
+- Personaliza modelos para diferentes edades (bebés, toddlers, niños)
 
 ### **🎓 Para Educación**
-- Enseña diseño de moda de forma práctica
+- Enseña diseño de moda infantil de forma práctica
 - Permite experimentación sin costos
-- Democratiza el acceso a herramientas profesionales
+- Democratiza el acceso a herramientas profesionales de moda infantil
 
 ---
 
@@ -99,27 +100,67 @@ npm run dev
 4. Copia y pega en `.env.local`
 5. ¡Listo para crear magia!
 
+### **💰 Aumentar Límites de Cuota (Para Producción)**
+
+**Google Gemini API funciona diferente a OpenAI:**
+
+- **Tier Gratuito**: Tiene límites muy estrictos (cuota diaria y por minuto limitada)
+- **Facturación por Uso**: No hay créditos prepagados, se factura según uso (pay-as-you-go)
+- **Google Cloud Platform**: Necesitas habilitar facturación en Google Cloud Console
+
+**Pasos para aumentar límites:**
+
+1. **Crear proyecto en Google Cloud Console**
+   - Ve a [Google Cloud Console](https://console.cloud.google.com/)
+   - Crea un nuevo proyecto o selecciona uno existente
+
+2. **Habilitar la API de Gemini**
+   - Ve a "APIs & Services" > "Library"
+   - Busca "Generative Language API" o "Gemini API"
+   - Haz clic en "Enable"
+
+3. **Habilitar facturación**
+   - Ve a "Billing" en Google Cloud Console
+   - Asocia una cuenta de facturación a tu proyecto
+   - Google ofrece $300 USD de créditos gratuitos para nuevos usuarios
+
+4. **Configurar cuotas**
+   - Ve a "APIs & Services" > "Quotas"
+   - Busca "Generative Language API"
+   - Puedes solicitar aumentos de cuota según tus necesidades
+
+5. **Usar API Key del proyecto de Cloud**
+   - Ve a "APIs & Services" > "Credentials"
+   - Crea una nueva API Key o usa la existente
+   - Esta API Key tendrá los límites de tu proyecto facturado
+
+**Nota importante:**
+- El tier gratuito tiene límites muy bajos para evitar abuso
+- Con facturación habilitada, los límites aumentan significativamente
+- Los primeros $300 USD son gratuitos para nuevos usuarios de Google Cloud
+- Después de eso, pagas solo por lo que usas (muy económico comparado con sesiones fotográficas)
+
 ---
 
 ## 🎨 **Funcionalidades Revolucionarias**
 
-### **1. 👗 Generador de Prendas IA**
-- **Descripción natural**: "Chaqueta de cuero negra estilo rockero"
+### **1. 👗 Generador de Prendas IA Infantil**
+- **Descripción natural**: "Camiseta colorida para niños con estampado de animales"
 - **Generación profesional**: Imágenes de catálogo con vista frontal y trasera
-- **Categorización automática**: Sistema inteligente de clasificación
-- **Gestión de tallas**: Define tallas disponibles para cada prenda
+- **Categorización automática**: Sistema inteligente de clasificación para ropa infantil
+- **Gestión de tallas**: Define tallas disponibles para cada prenda (bebés, toddlers, niños)
 
-### **2. 👥 Catálogo de Modelos Diversos**
-- **Personalización completa**: Género, edad, tipo de cuerpo, color de ojos
-- **Medidas precisas**: Tallas específicas para torso, pantalón y zapatos
+### **2. 👶 Catálogo de Modelos Infantiles**
+- **Personalización completa**: Género (niño/niña), edad, tipo de cuerpo, color de ojos
+- **Medidas precisas**: Tallas específicas para torso, pantalón y zapatos infantiles
 - **Diversidad real**: Modelos de todas las etnias y tipos de cuerpo
-- **Poses profesionales**: Listos para catálogo de moda
+- **Poses profesionales**: Listos para catálogo de moda infantil
 
 ### **3. 🎭 Estilista IA Inteligente**
-- **Combinación mágica**: Selecciona modelo + prendas
+- **Combinación mágica**: Selecciona modelo infantil + prendas
 - **Análisis de ajuste**: Calcula si la ropa queda perfecta, ajustada o suelta
-- **Generación contextual**: Entiende poses, estilos y presentación
-- **Resultados profesionales**: Imágenes listas para catálogo
+- **Generación contextual**: Entiende poses, estilos y presentación para niños
+- **Resultados profesionales**: Imágenes listas para catálogo de moda infantil
 
 ### **4. 💾 Sistema de Almacenamiento Profesional**
 - **Supabase Storage**: Almacenamiento en la nube confiable
@@ -158,23 +199,23 @@ src/
 
 ## 🎬 **Demo en Vivo: 3 Pasos Mágicos**
 
-### **Paso 1: Crea una Prenda (10 segundos)**
+### **Paso 1: Crea una Prenda Infantil (10 segundos)**
 1. Ve a la pestaña "Armario"
-2. Escribe: "Vestido rojo elegante para cóctel"
+2. Escribe: "Camiseta colorida para niños con estampado de animales"
 3. Haz clic en "Generar con IA"
-4. ¡Magia! Tienes una imagen profesional de catálogo
+4. ¡Magia! Tienes una imagen profesional de catálogo infantil
 
-### **Paso 2: Genera un Modelo (15 segundos)**
+### **Paso 2: Genera un Modelo Infantil (15 segundos)**
 1. Ve a la pestaña "Modelos"  
-2. Define: Mujer, 25 años, atlética, talla M/L/39
-3. Describe: "Modelo profesional con sonrisa elegante"
-4. ¡Boom! Modelo diverso listo para styling
+2. Define: Niño, 5 años, promedio, talla S/M/28
+3. Describe: "Niño alegre con sonrisa"
+4. ¡Boom! Modelo infantil diverso listo para styling
 
 ### **Paso 3: Crea el Look Final (5 segundos)**
 1. Ve a la pestaña "Estilista"
-2. Selecciona tu modelo y vestido
+2. Selecciona tu modelo infantil y prendas
 3. Haz clic en "Generar Look"
-4. ¡WOW! Look completo con análisis de ajuste
+4. ¡WOW! Look completo infantil con análisis de ajuste
 
 **Resultado**: Catálogo profesional en 30 segundos total.
 
@@ -205,7 +246,7 @@ const fitAnalysis = {
 
 ---
 
-## 🌟 **Lo Que Hace Especial a Chic Pic**
+## 🌟 **Lo Que Hace Especial a cicibet**
 
 ### **🎯 Precisión IA**
 - Entiende contexto de moda y estilo
@@ -247,7 +288,7 @@ const fitAnalysis = {
 
 ---
 
-## 🏆 **Por Qué Chic Pic Ganará el Hackathon**
+## 🏆 **Por Qué cicibet Ganará el Hackathon**
 
 ### **🎯 Wow Factor (40%)**
 - ✅ **Impacto visual inmediato**: Catálogo completo en 30 segundos
@@ -301,7 +342,9 @@ MIT License - Libertad total para innovar y crear.
 
 <div align="center">
 
-## **🎨✨ Chic Pic: Donde la Imaginación se Convierte en Moda ✨🎨**
+## **👶🎨 cicibet: Moda Para Chicos y Chiquititos 🎨👶**
+
+### **Moda Para Chicos y Chiquititos....!**
 
 ### **[🚀 Demo en Vivo](http://localhost:3000) | [📖 Documentación](https://github.com/tu-usuario/Nano-Banana-Hackathon-Chic-Pic) | [💬 Soporte](mailto:tu-email@example.com)**
 
@@ -309,6 +352,6 @@ MIT License - Libertad total para innovar y crear.
 
 **Desarrollado con ❤️ para el Nano Banana Hackathon**
 
-*Transformando la industria de la moda, una imagen a la vez.*
+*Transformando la industria de la moda infantil, una imagen a la vez.*
 
 </div>

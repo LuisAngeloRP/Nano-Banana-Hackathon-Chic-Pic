@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +12,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const dancingScript = Dancing_Script({
+  variable: "--font-handwriting",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "Chic Pic - AI Fashion System",
-  description: "Generate garments, models and create unique looks with artificial intelligence powered by Nano Banana",
+  title: "cicibet - Moda Para Chicos y Chiquititos",
+  description: "Crea prendas, modelos y looks únicos para niños, niñas y bebés con inteligencia artificial",
 };
 
 export default function RootLayout({
@@ -23,9 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} antialiased`}
       >
         {children}
       </body>

@@ -66,13 +66,13 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   }, [filterModels]);
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this model?')) {
+    if (confirm('¿Estás seguro de que quieres eliminar este modelo?')) {
       try {
         await SupabaseStorageAdapter.deleteModel(id);
         loadModels();
       } catch (error) {
         console.error('Error deleting model:', error);
-        alert('Error deleting the model');
+        alert('Error al eliminar el modelo');
       }
     }
   };
@@ -110,31 +110,31 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
   };
 
   const genderOptions = [
-    { value: 'all', label: 'All genders' },
-    { value: 'masculino', label: 'Male' },
-    { value: 'femenino', label: 'Female' },
+    { value: 'all', label: 'Todos los géneros' },
+    { value: 'masculino', label: 'Niño' },
+    { value: 'femenino', label: 'Niña' },
     { value: 'unisex', label: 'Unisex' }
   ];
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Model Catalog ({filteredModels.length})
+            Catálogo de Modelos ({filteredModels.length})
           </CardTitle>
           
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Model
+                Subir Modelo
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Upload New Model</DialogTitle>
+                <DialogTitle>Subir Nuevo Modelo</DialogTitle>
               </DialogHeader>
               <CustomModelUpload 
                 onModelUploaded={handleModelUploaded}
@@ -144,17 +144,17 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
           </Dialog>
         </div>
         
-        <div className="flex gap-2 mt-4">
+        <div className="flex flex-col sm:flex-row gap-2 mt-4">
           <div className="flex-1">
             <Input
-              placeholder="Search models..."
+              placeholder="Buscar modelos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
             />
           </div>
           <Select value={genderFilter} onValueChange={setGenderFilter}>
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -173,12 +173,12 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
           {filteredModels.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {models.length === 0 
-                ? "No models in the catalog. Generate your first model!"
-                : "No models found with the applied filters."
+                ? "No hay modelos en el catálogo. ¡Genera tu primer modelo!"
+                : "No se encontraron modelos con los filtros aplicados."
               }
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredModels.map((model) => (
                 <Card 
                   key={model.id} 
@@ -202,7 +202,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                     </h3>
                     
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant="secondary" className="text-xs">
                           {model.gender}
                         </Badge>
@@ -212,25 +212,25 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                       </div>
                       
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p><span className="font-medium">Height:</span> {model.height}</p>
-                        <p><span className="font-medium">Type:</span> {model.bodyType}</p>
-                        <p><span className="font-medium">Hair:</span> {model.hairColor}</p>
-                        <p><span className="font-medium">Eyes:</span> {model.eyeColor}</p>
-                        <p><span className="font-medium">Skin:</span> {model.skinTone}</p>
+                        <p><span className="font-medium">Estatura:</span> {model.height}</p>
+                        <p><span className="font-medium">Tipo:</span> {model.bodyType}</p>
+                        <p><span className="font-medium">Cabello:</span> {model.hairColor}</p>
+                        <p><span className="font-medium">Ojos:</span> {model.eyeColor}</p>
+                        <p><span className="font-medium">Piel:</span> {model.skinTone}</p>
                       </div>
                       
                       {/* Información de Tallas */}
                       <div className="border-t pt-2 mt-2">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Sizes:</p>
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Tallas:</p>
                         <div className="flex flex-wrap gap-1">
                           <Badge variant="outline" className="text-xs">
-                            Upper: {model.upperBodySize || 'Not specified'}
+                            Superior: {model.upperBodySize || 'No especificada'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
-                            Lower: {model.lowerBodySize || 'Not specified'}
+                            Inferior: {model.lowerBodySize || 'No especificada'}
                           </Badge>
                           <Badge variant="outline" className="text-xs">
-                            Shoes: {model.shoeSize || 'Not specified'}
+                            Zapatos: {model.shoeSize || 'No especificada'}
                           </Badge>
                         </div>
                       </div>
@@ -242,7 +242,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                     
                     <div className="flex justify-between items-center mt-3">
                       <span className="text-xs text-muted-foreground">
-                        {new Date(model.createdAt).toLocaleDateString()}
+                        {new Date(model.createdAt).toLocaleDateString('es-ES')}
                       </span>
                       <div className="flex gap-1">
                         <Button
@@ -253,7 +253,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                             handleEditModel(model);
                           }}
                           className="h-6 w-6 p-0 hover:bg-blue-100 hover:text-blue-600"
-                          title="Edit model"
+                          title="Editar modelo"
                         >
                           <Edit3 className="h-3 w-3" />
                         </Button>
@@ -265,7 +265,7 @@ export default function ModelCatalog({ onModelSelect, selectedModelId }: ModelCa
                             handleDelete(model.id);
                           }}
                           className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
-                          title="Delete model"
+                          title="Eliminar modelo"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>

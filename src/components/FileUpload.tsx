@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabaseStorage } from '@/lib/supabaseStorage';
 
@@ -31,18 +31,20 @@ export default function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    // Validate file type
+    // Validar tipo de archivo
     if (!file.type.startsWith('image/')) {
-      return 'Please select a valid image file';
+      return 'Por favor selecciona un archivo de imagen válido';
     }
 
-    // Validate size
+    // Validar tamaño
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
-      return `File is too large. Maximum ${maxSizeMB}MB allowed`;
+      return `El archivo es demasiado grande. Máximo ${maxSizeMB}MB permitido`;
     }
 
     return null;
@@ -65,12 +67,12 @@ export default function FileUpload({
       
       if (result.success && result.url) {
         onFileUpload(file, result.url, result.thumbnailUrl, result.path);
-        console.log('✅ Image uploaded to Supabase Storage:', result.url);
+        console.log('✅ Imagen subida a Supabase Storage:', result.url);
       } else {
-        setError(result.error || 'Error uploading the image');
+        setError(result.error || 'Error al subir la imagen');
       }
     } catch (err) {
-      setError('Error uploading the file');
+      setError('Error al subir el archivo');
       console.error('Error uploading to Supabase Storage:', err);
     } finally {
       setIsProcessing(false);
@@ -114,6 +116,23 @@ export default function FileUpload({
     }
   };
 
+  const handleCameraClick = () => {
+    if (!disabled && cameraInputRef.current) {
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleCameraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+    // Limpiar el input para permitir tomar otra foto
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+    }
+  };
+
   const handleRemove = () => {
     if (onRemove) {
       onRemove();
@@ -128,23 +147,22 @@ export default function FileUpload({
       {/* Upload area */}
       <Card
         className={cn(
-          "border-2 border-dashed transition-all cursor-pointer",
+          "border-2 border-dashed transition-all",
           isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300",
-          disabled ? "opacity-50 cursor-not-allowed" : "hover:border-gray-400",
+          disabled ? "opacity-50 cursor-not-allowed" : "",
           error ? "border-red-300 bg-red-50" : ""
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        onClick={handleButtonClick}
       >
-        <CardContent className="p-6">
+        <CardContent className="p-4 md:p-6">
           <div className="flex flex-col items-center justify-center space-y-4">
             {isProcessing ? (
               <>
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 <p className="text-sm text-muted-foreground">
-                  Processing image...
+                  Procesando imagen...
                 </p>
               </>
             ) : (
@@ -154,11 +172,34 @@ export default function FileUpload({
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-medium">
-                    Drag an image here or click to select
+                    Arrastra una imagen aquí o haz clic para seleccionar
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Supported formats: JPG, PNG, WEBP, GIF (max. {maxSizeMB}MB)
+                    Formatos soportados: JPG, PNG, WEBP, GIF (máx. {maxSizeMB}MB)
                   </p>
+                </div>
+                {/* Botones de acción */}
+                <div className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleButtonClick}
+                    disabled={disabled}
+                    className="flex-1"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Seleccionar archivo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCameraClick}
+                    disabled={disabled}
+                    className="flex-1"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Tomar foto
+                  </Button>
                 </div>
               </>
             )}
@@ -166,12 +207,21 @@ export default function FileUpload({
         </CardContent>
       </Card>
 
-      {/* Hidden input */}
+      {/* Hidden inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept={accept}
         onChange={handleInputChange}
+        className="hidden"
+        disabled={disabled}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleCameraChange}
         className="hidden"
         disabled={disabled}
       />
@@ -192,15 +242,15 @@ export default function FileUpload({
                 <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                   <img
                     src={currentImage}
-                    alt="Current image"
+                    alt="Imagen actual"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium">Current image</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">Imagen actual</p>
                 <p className="text-xs text-muted-foreground">
-                  Upload a new image to replace it
+                  Sube una nueva imagen para reemplazarla
                 </p>
               </div>
               {onRemove && (
@@ -208,7 +258,7 @@ export default function FileUpload({
                   variant="ghost"
                   size="sm"
                   onClick={handleRemove}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
