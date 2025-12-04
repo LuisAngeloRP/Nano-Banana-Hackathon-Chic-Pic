@@ -79,7 +79,6 @@ export default function FileUpload({
     }
   };
 
-
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     if (!disabled) {
@@ -105,37 +104,25 @@ export default function FileUpload({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFileSelect(files[0]);
     }
-    // Limpiar el input para permitir seleccionar el mismo archivo de nuevo
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleButtonClick = () => {
     if (!disabled && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  const handleCameraClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleCameraClick = () => {
     if (!disabled && cameraInputRef.current) {
       cameraInputRef.current.click();
     }
   };
 
   const handleCameraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFileSelect(files[0]);
@@ -156,7 +143,7 @@ export default function FileUpload({
   };
 
   return (
-    <div className={cn("space-y-4", className)} onContextMenu={(e) => e.preventDefault()}>
+    <div className={cn("space-y-4", className)}>
       {/* Upload area */}
       <Card
         className={cn(
@@ -199,7 +186,6 @@ export default function FileUpload({
                     onClick={handleButtonClick}
                     disabled={disabled}
                     className="flex-1"
-                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     Seleccionar archivo
@@ -210,7 +196,6 @@ export default function FileUpload({
                     onClick={handleCameraClick}
                     disabled={disabled}
                     className="flex-1"
-                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     Tomar foto
@@ -230,10 +215,6 @@ export default function FileUpload({
         onChange={handleInputChange}
         className="hidden"
         disabled={disabled}
-        onClick={(e) => {
-          // Prevenir que el click se propague
-          e.stopPropagation();
-        }}
       />
       <input
         ref={cameraInputRef}
@@ -243,10 +224,6 @@ export default function FileUpload({
         onChange={handleCameraChange}
         className="hidden"
         disabled={disabled}
-        onClick={(e) => {
-          // Prevenir que el click se propague
-          e.stopPropagation();
-        }}
       />
 
       {/* Show error */}
