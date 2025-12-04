@@ -170,7 +170,7 @@ GENERATE CHILDREN'S FASHION GARMENT IMAGE NOW - NO TEXT DESCRIPTION.`;
       
       // VERIFICACIÓN TEMPRANA: Detectar bloqueos de seguridad ANTES de procesar
       if (response.candidates && response.candidates.length > 0) {
-        const candidate = response.candidates[0] as any;
+        const candidate = response.candidates[0] as { finishReason?: string; finishMessage?: string; safetyRatings?: unknown[] };
         const finishReason = candidate?.finishReason;
         
         // Si hay un bloqueo de seguridad, lanzar error descriptivo
@@ -204,16 +204,16 @@ GENERATE CHILDREN'S FASHION GARMENT IMAGE NOW - NO TEXT DESCRIPTION.`;
       }
 
       // Si no hay imagen, verificar si hay texto o información de error
-      const textParts = parts.filter((p: any) => p?.text);
+      const textParts = parts.filter((p: { text?: string }) => p?.text);
       if (textParts.length > 0) {
-        const textResponse = textParts.map((p: any) => p.text).join(' ');
+        const textResponse = textParts.map((p: { text?: string }) => p.text).join(' ');
         console.warn('⚠️ Nano Banana retornó texto en lugar de imagen:', textResponse.substring(0, 200));
         throw new Error(`Nano Banana no generó una imagen. Respuesta: ${textResponse.substring(0, 200)}`);
       }
 
       // Si no hay partes, puede ser un bloqueo silencioso
       if (parts.length === 0) {
-        const candidate = response.candidates?.[0] as any;
+        const candidate = response.candidates?.[0] as { finishReason?: string } | undefined;
         const finishReason = candidate?.finishReason;
         if (finishReason) {
           throw new Error(`Nano Banana bloqueó la generación. Razón: ${finishReason}`);

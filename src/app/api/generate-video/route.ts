@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { writeFile, readFile, unlink } from 'fs/promises';
+import { readFile, unlink } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -19,7 +19,7 @@ if (API_KEY) {
 
 // Inicializar el cliente de Gemini para análisis de imágenes
 let genAI: GoogleGenerativeAI | null = null;
-let textModel: any = null;
+let textModel: ReturnType<typeof GoogleGenerativeAI.prototype.getGenerativeModel> | null = null;
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
   textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -155,7 +155,7 @@ async function generateVideoWithVeo(
   try {
     // Preparar la configuración según la documentación oficial
     // durationSeconds debe ser un número, no un string
-    const config: any = {
+    const baseConfig = {
       aspectRatio: '16:9',
       resolution: '720p',
       durationSeconds: 8, // Número, no string
@@ -163,22 +163,23 @@ async function generateVideoWithVeo(
 
     // Agregar imágenes de referencia si están disponibles
     // El SDK espera imageBytes como string (base64), no como Buffer
-    if (validImages.length > 0) {
-      config.referenceImages = validImages.map(img => ({
+    const config = validImages.length > 0 ? {
+      ...baseConfig,
+      referenceImages: validImages.map(img => ({
         image: {
           imageBytes: img.data, // Ya es base64 string desde loadImageFromUrl
           mimeType: img.mimeType,
         },
-        referenceType: 'asset', // 'asset' para productos/prendas
-      }));
-    }
+        referenceType: 'asset' as const, // 'asset' para productos/prendas
+      })),
+    } : baseConfig;
 
     // Iniciar la generación de video usando el SDK
     console.log('📤 Iniciando generación con Veo 3.1...');
     let operation = await ai.models.generateVideos({
       model: 'veo-3.1-generate-preview',
       prompt: videoPrompt,
-      config: config,
+      config: config as Parameters<typeof ai.models.generateVideos>[0]['config'],
     });
 
     console.log('✅ Operación iniciada:', operation.name);
@@ -358,14 +359,15 @@ async function generateVideoWithVeo(
     }
 
     return videoBuffer;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error generando video con Veo 3.1:', error);
     
-    if (error.message?.includes('429') || error.message?.includes('quota')) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('429') || errorMessage.includes('quota')) {
       throw new Error('Límite de cuota excedido. Por favor espera unos minutos.');
     }
     
-    if (error.message?.includes('SAFETY') || error.message?.includes('IMAGE_SAFETY')) {
+    if (errorMessage.includes('SAFETY') || errorMessage.includes('IMAGE_SAFETY')) {
       throw new Error('El contenido fue bloqueado por políticas de seguridad. Intenta con diferentes imágenes o descripción.');
     }
     
@@ -393,7 +395,7 @@ async function uploadVideoToSupabase(videoBuffer: Buffer, filename: string): Pro
   
   const storagePath = `videos/${Date.now()}-${filename}`;
   
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('cicibet-storage')
     .upload(storagePath, videoBuffer, {
       contentType: 'video/mp4',
@@ -426,7 +428,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { lookIds, lookImages, description } = body;
+    const { lookImages, description } = body;
 
     if (!lookImages || !Array.isArray(lookImages) || lookImages.length === 0) {
       return NextResponse.json(
@@ -462,13 +464,14 @@ export async function POST(request: NextRequest) {
       storagePath: path,
       message: 'Video generado exitosamente',
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error en generate-video:', error);
     
+    const errorMessage = error instanceof Error ? error.message : String(error);
     // Manejar error 404 específico de modelo no encontrado
-    if (error.message?.includes('404') || error.message?.includes('not found') || error.message?.includes('is not found')) {
+    if (errorMessage.includes('404') || errorMessage.includes('not found') || errorMessage.includes('is not found')) {
       console.error('❌ Error 404: Modelo veo-3.1-generate-preview no encontrado');
-      console.error('Detalles del error:', error.message);
+      console.error('Detalles del error:', errorMessage);
       
       return NextResponse.json(
         { 
@@ -490,7 +493,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Manejar errores específicos
-    if (error.message?.includes('quota') || error.message?.includes('429')) {
+    if (errorMessage.includes('quota') || errorMessage.includes('429')) {
       return NextResponse.json(
         { 
           error: 'Límite de cuota excedido. Por favor espera unos minutos antes de intentar de nuevo.',
@@ -500,7 +503,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (error.message?.includes('SAFETY') || error.message?.includes('IMAGE_SAFETY')) {
+    if (errorMessage.includes('SAFETY') || errorMessage.includes('IMAGE_SAFETY')) {
       return NextResponse.json(
         { 
           error: 'El contenido fue bloqueado por políticas de seguridad. Intenta con diferentes imágenes o descripción.',
@@ -511,7 +514,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: error.message || 'Error al generar el video' },
+      { error: errorMessage || 'Error al generar el video' },
       { status: 500 }
     );
   }

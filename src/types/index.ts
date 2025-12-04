@@ -1,6 +1,6 @@
 // Tipos de tallas para diferentes categorías de prendas
 export type ClothingSize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL';
-export type ShoeSize = '35' | '36' | '37' | '38' | '39' | '40' | '41' | '42' | '43' | '44' | '45' | '46';
+export type ShoeSize = '20' | '21' | '22' | '23' | '24' | '25' | '26' | '27' | '28' | '29' | '30' | '31' | '32' | '33' | '34' | '35' | '36' | '37' | '38' | '39' | '40' | '41' | '42' | '43' | '44' | '45' | '46';
 
 // Categorías de prendas con sus tipos específicos
 export type ClothingCategory = 

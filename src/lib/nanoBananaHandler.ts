@@ -55,8 +55,9 @@ export function processNanoBananaResponse(
     
     if (!candidates || candidates.length === 0) {
       // Verificar si hay bloqueos de seguridad u otros errores
-      const finishReason = (response as any)?.candidates?.[0]?.finishReason;
-      const safetyRatings = (response as any)?.candidates?.[0]?.safetyRatings;
+      const firstCandidate = response?.candidates?.[0] as { finishReason?: string; safetyRatings?: unknown[] } | undefined;
+      const finishReason = firstCandidate?.finishReason;
+      const safetyRatings = firstCandidate?.safetyRatings;
       
       return {
         hasImage: false,
@@ -71,7 +72,13 @@ export function processNanoBananaResponse(
       };
     }
 
-    const candidate = candidates[0] as any;
+    const candidate = candidates[0] as {
+      finishReason?: string;
+      finishMessage?: string;
+      safetyRatings?: unknown[];
+      content?: { parts?: NanoBananaImagePart[] };
+      parts?: NanoBananaImagePart[];
+    };
     
     // Logging adicional para debugging
     debugInfo.candidateKeys = Object.keys(candidate || {});
@@ -81,7 +88,7 @@ export function processNanoBananaResponse(
     debugInfo.safetyRatings = candidate?.safetyRatings;
     
     // Intentar acceder a las partes de diferentes maneras
-    let parts: any[] = [];
+    let parts: NanoBananaImagePart[] = [];
     
     if (candidate?.content?.parts) {
       parts = candidate.content.parts;

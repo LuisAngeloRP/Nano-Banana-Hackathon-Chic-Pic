@@ -172,7 +172,7 @@ function extractQuotaErrorInfo(error: unknown): { isQuotaError: boolean; retryDe
   // Verificar si es un error 429
   if (errorObj.status === 429 || (errorObj.message && String(errorObj.message).includes('429'))) {
     let retryDelay: number | undefined;
-    let message = 'Cuota de API excedida. Por favor, espera antes de reintentar.';
+    const message = 'Cuota de API excedida. Por favor, espera antes de reintentar.';
 
     // Intentar extraer retryDelay del errorDetails
     if (errorObj.errorDetails && Array.isArray(errorObj.errorDetails)) {
@@ -341,7 +341,7 @@ async function generateWithNanoBanana(
       
       // VERIFICACIÓN TEMPRANA: Detectar bloqueos de seguridad ANTES de procesar
       if (response.candidates && response.candidates.length > 0) {
-        const candidate = response.candidates[0] as any;
+        const candidate = response.candidates[0] as { finishReason?: string; finishMessage?: string; safetyRatings?: unknown[] };
         const finishReason = candidate?.finishReason;
         
         // Si hay un bloqueo de seguridad, intentar alternativa sin imágenes
@@ -355,8 +355,8 @@ async function generateWithNanoBanana(
             console.log('💡 Intentando alternativa: generar look completo desde cero con descripción textual...');
             
             // Construir descripción completa del look sin usar imágenes
-            const stylingData = additionalData.stylingData as any;
-            const garments = additionalData.garments as any[];
+            const stylingData = additionalData.stylingData as { modelSizes?: { upperBodySize?: string; lowerBodySize?: string; shoeSize?: string }; lookDescription?: string };
+            const garments = additionalData.garments as Array<{ category?: string; name?: string; color?: string; size?: string }>;
             
             // Analizar imagen del modelo para extraer características visuales
             let modelDescription = '';
@@ -386,7 +386,7 @@ async function generateWithNanoBanana(
             // Agregar descripción de cada prenda
             if (garments && Array.isArray(garments)) {
               textDescription += `OUTFIT DETAILS:\n`;
-              garments.forEach((garment: any) => {
+              garments.forEach((garment: { category?: string; name?: string; color?: string; size?: string }) => {
                 textDescription += `- ${garment.category}: ${garment.name}`;
                 if (garment.color) textDescription += ` in ${garment.color}`;
                 if (garment.size) textDescription += ` (size ${garment.size})`;
@@ -473,7 +473,7 @@ GENERATE COMPLETE FASHION IMAGE NOW - NO TEXT DESCRIPTION.`;
         console.log('- Tiene candidates:', !!response.candidates);
         console.log('- Número de candidates:', response.candidates?.length || 0);
         if (response.candidates && response.candidates.length > 0) {
-          const candidate = response.candidates[0] as any;
+          const candidate = response.candidates[0] as { finishReason?: string; finishMessage?: string; safetyRatings?: unknown[]; content?: { parts?: unknown[] } };
           console.log('- Candidate keys:', Object.keys(candidate || {}));
           console.log('- Finish reason:', candidate?.finishReason);
           console.log('- Finish message:', candidate?.finishMessage);
@@ -535,7 +535,7 @@ GENERATE COMPLETE FASHION IMAGE NOW - NO TEXT DESCRIPTION.`;
           
           // Si está bloqueado por seguridad de imagen, NO reintentar - es un bloqueo permanente
           if (finishReason === 'IMAGE_SAFETY' || finishReason === 'SAFETY' || finishReason === 'RECITATION') {
-            const finishMessage = (debugInfo as any).finishMessage || '';
+            const finishMessage = (typeof debugInfo.finishMessage === 'string' ? debugInfo.finishMessage : '') || '';
             const safetyMessage = finishReason === 'IMAGE_SAFETY' 
               ? 'Nano Banana detectó contenido inapropiado en las imágenes de entrada. Esto puede suceder con imágenes de modelos o cuando se combinan múltiples imágenes. Intenta con diferentes imágenes o genera el look directamente sin combinar imágenes.'
               : `Nano Banana bloqueó la generación por razones de seguridad (${finishReason}). Intenta con descripciones más simples o diferentes imágenes.`;

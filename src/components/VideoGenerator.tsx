@@ -122,9 +122,10 @@ export default function VideoGenerator() {
       } else {
         throw new Error('No se recibió URL del video');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error generando video:', error);
-      setError(error.message || 'Error al generar el video. Por favor intenta de nuevo.');
+      const errorMessage = error instanceof Error ? error.message : 'Error al generar el video. Por favor intenta de nuevo.';
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -187,7 +188,7 @@ export default function VideoGenerator() {
             {looks.length === 0 ? (
               <Alert>
                 <AlertDescription>
-                  No hay looks disponibles. Genera algunos looks primero en la sección "Estilista".
+                  No hay looks disponibles. Genera algunos looks primero en la sección &quot;Estilista&quot;.
                 </AlertDescription>
               </Alert>
             ) : (
