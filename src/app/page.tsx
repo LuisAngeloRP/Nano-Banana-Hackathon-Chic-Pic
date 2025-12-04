@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shirt, User, Palette, Sparkles, Video } from 'lucide-react';
+import Image from 'next/image';
 import GarmentGenerator from '@/components/GarmentGenerator';
 import GarmentWardrobe from '@/components/GarmentWardrobe';
 import ModelGenerator from '@/components/ModelGenerator';
@@ -14,15 +15,16 @@ export default function Home() {
       <div className="container mx-auto py-8 px-4">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-wide">
-            <span className="text-red-500">c</span>
-            <span className="text-blue-500">i</span>
-            <span className="text-yellow-500">c</span>
-            <span className="text-orange-500">i</span>
-            <span className="text-green-500">b</span>
-            <span className="text-blue-500">e</span>
-            <span className="text-red-500">t</span>
-          </h1>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/logo_cicibet.png"
+              alt="cicibet - Moda Para Chicos y Chiquititos"
+              width={300}
+              height={150}
+              className="h-auto w-auto max-w-xs md:max-w-sm"
+              priority
+            />
+          </div>
           <p className="text-xl text-blue-600 font-handwriting italic">
             Moda Para Chicos y Chiquititos....!
           </p>
@@ -124,23 +126,18 @@ export default function Home() {
                     <CardHeader className="text-center pb-4">
                       <div className="flex justify-center mb-4">
                         <div className="relative">
-                          <div className="text-6xl font-bold">
-                            <span className="text-red-500">c</span>
-                            <span className="text-blue-500">i</span>
-                            <span className="text-yellow-500">c</span>
-                            <span className="text-orange-500">i</span>
-                            <span className="text-green-500">b</span>
-                            <span className="text-blue-500">e</span>
-                            <span className="text-red-500">t</span>
-                          </div>
+                          <Image
+                            src="/logo_cicibet.png"
+                            alt="cicibet - Moda Para Chicos y Chiquititos"
+                            width={250}
+                            height={125}
+                            className="h-auto w-auto max-w-xs"
+                          />
                           <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-500 rounded-full animate-pulse flex items-center justify-center">
                             <span className="text-white text-xs">✨</span>
                           </div>
                         </div>
                       </div>
-                      <CardTitle className="text-3xl bg-gradient-to-r from-red-600 via-yellow-600 to-blue-600 bg-clip-text text-transparent">
-                        cicibet
-                      </CardTitle>
                       <p className="text-lg text-blue-600 font-handwriting italic mt-2">
                         Moda Para Chicos y Chiquititos....!
                       </p>
